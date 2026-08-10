@@ -78,25 +78,108 @@ function parseAndConvertOklch(oklchStr: string): string {
   }
 }
 
+export function convertUnsupportedColors(cssText: string): string {
+  if (!cssText) return cssText;
+
+  let result = cssText;
+
+  if (result.includes('oklch')) {
+    const oklchRegex = /oklch\((?:[^()]+|\([^()]*\))*\)/gi;
+    result = result.replace(oklchRegex, (match) => parseAndConvertOklch(match));
+  }
+
+  if (result.includes('oklab')) {
+    const oklabRegex = /oklab\((?:[^()]+|\([^()]*\))*\)/gi;
+    result = result.replace(oklabRegex, (match) => parseAndConvertOklab(match));
+  }
+
+  return result;
+}
+
 export function convertOklchToRgb(cssText: string): string {
-  if (!cssText || !cssText.includes('oklch')) return cssText;
+  return convertUnsupportedColors(cssText);
+}
 
-  const oklchRegex = /oklch\((?:[^()]+|\([^()]*\))*\)/gi;
+function parseAndConvertOklab(oklabStr: string): string {
+  try {
+    const inner = oklabStr.replace(/^oklab\(\s*/i, '').replace(/\s*\)$/i, '').trim();
+    if (!inner) return 'rgb(0, 0, 0)';
 
-  return cssText.replace(oklchRegex, (match) => {
-    return parseAndConvertOklch(match);
-  });
+    const parts = inner.split('/');
+    const colorPart = parts[0].trim();
+    const alphaPart = parts[1] ? parts[1].trim() : null;
+
+    const components = colorPart.split(/[\s,]+/).filter(Boolean);
+    if (components.length < 3) return 'rgb(0, 0, 0)';
+
+    let lStr = components[0];
+    let l = parseFloat(lStr);
+    if (lStr.endsWith('%')) l = l / 100;
+    if (isNaN(l)) l = 0;
+    l = Math.max(0, Math.min(1, l));
+
+    let aStr = components[1];
+    let aLab = parseFloat(aStr);
+    if (aStr.endsWith('%')) aLab = (aLab / 100) * 0.4;
+    if (isNaN(aLab)) aLab = 0;
+
+    let bStr = components[2];
+    let bLab = parseFloat(bStr);
+    if (bStr.endsWith('%')) bLab = (bLab / 100) * 0.4;
+    if (isNaN(bLab)) bLab = 0;
+
+    let alpha = 1;
+    if (alphaPart) {
+      alpha = parseFloat(alphaPart);
+      if (alphaPart.endsWith('%')) alpha = alpha / 100;
+      if (isNaN(alpha)) alpha = 1;
+      alpha = Math.max(0, Math.min(1, alpha));
+    }
+
+    // Convert OKLAB to linear RGB
+    const l_ = l + 0.3963377774 * aLab + 0.2158037573 * bLab;
+    const m_ = l - 0.1055613458 * aLab - 0.0638541728 * bLab;
+    const s_ = l - 0.0894841775 * aLab - 1.2914855480 * bLab;
+
+    const l3 = l_ * l_ * l_;
+    const m3 = m_ * m_ * m_;
+    const s3 = s_ * s_ * s_;
+
+    const rLin = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+    const gLin = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+    const bLin = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3;
+
+    const toSrgb = (x: number) => {
+      const clamped = Math.max(0, Math.min(1, x));
+      return clamped <= 0.0031308
+        ? Math.round(clamped * 12.92 * 255)
+        : Math.round((1.055 * Math.pow(clamped, 1 / 2.4) - 0.055) * 255);
+    };
+
+    const r = toSrgb(rLin);
+    const g = toSrgb(gLin);
+    const b = toSrgb(bLin);
+
+    if (alpha < 1) {
+      return `rgba(${r}, ${g}, ${b}, ${Number(alpha.toFixed(3))})`;
+    }
+    return `rgb(${r}, ${g}, ${b})`;
+  } catch {
+    return 'rgb(0, 0, 0)';
+  }
 }
 
 export function sanitizeDocumentOklch(doc: Document): () => void {
   const restores: Array<() => void> = [];
 
+  const hasUnsupportedColor = (str: string) => str.includes('oklch') || str.includes('oklab');
+
   // 1. Sanitize all <style> elements
   const styleElements = Array.from(doc.querySelectorAll('style'));
   styleElements.forEach((styleEl) => {
-    if (styleEl.textContent && styleEl.textContent.includes('oklch')) {
+    if (styleEl.textContent && hasUnsupportedColor(styleEl.textContent)) {
       const originalText = styleEl.textContent;
-      styleEl.textContent = convertOklchToRgb(originalText);
+      styleEl.textContent = convertUnsupportedColors(originalText);
       restores.push(() => {
         styleEl.textContent = originalText;
       });
@@ -112,10 +195,10 @@ export function sanitizeDocumentOklch(doc: Document): () => void {
         const cssText = Array.from(sheet.cssRules)
           .map((r) => r.cssText)
           .join('\n');
-        if (cssText.includes('oklch')) {
+        if (hasUnsupportedColor(cssText)) {
           const parent = linkEl.parentNode;
           const newStyle = doc.createElement('style');
-          newStyle.textContent = convertOklchToRgb(cssText);
+          newStyle.textContent = convertUnsupportedColors(cssText);
 
           if (parent) {
             parent.insertBefore(newStyle, linkEl);
@@ -141,14 +224,14 @@ export function sanitizeDocumentOklch(doc: Document): () => void {
       try {
         const rules = Array.from(sheet.cssRules || []);
         rules.forEach((rule) => {
-          if (rule.cssText && rule.cssText.includes('oklch')) {
+          if (rule.cssText && hasUnsupportedColor(rule.cssText)) {
             if ('style' in rule && (rule as CSSStyleRule).style) {
               const styleObj = (rule as CSSStyleRule).style;
               for (let i = 0; i < styleObj.length; i++) {
                 const prop = styleObj[i];
                 const val = styleObj.getPropertyValue(prop);
-                if (val && val.includes('oklch')) {
-                  const converted = convertOklchToRgb(val);
+                if (val && hasUnsupportedColor(val)) {
+                  const converted = convertUnsupportedColors(val);
                   styleObj.setProperty(prop, converted);
                 }
               }
@@ -187,8 +270,8 @@ export function sanitizeDocumentOklch(doc: Document): () => void {
     const origStyleAttr = el.getAttribute ? el.getAttribute('style') : null;
     let modified = false;
 
-    if (origStyleAttr && origStyleAttr.includes('oklch')) {
-      el.setAttribute('style', convertOklchToRgb(origStyleAttr));
+    if (origStyleAttr && hasUnsupportedColor(origStyleAttr)) {
+      el.setAttribute('style', convertUnsupportedColors(origStyleAttr));
       modified = true;
     }
 
@@ -197,8 +280,8 @@ export function sanitizeDocumentOklch(doc: Document): () => void {
         const computed = defaultView.getComputedStyle(el);
         for (const prop of colorProps) {
           const val = computed.getPropertyValue(prop);
-          if (val && val.includes('oklch')) {
-            const converted = convertOklchToRgb(val);
+          if (val && hasUnsupportedColor(val)) {
+            const converted = convertUnsupportedColors(val);
             el.style.setProperty(prop, converted, 'important');
             modified = true;
           }
@@ -238,10 +321,7 @@ function applySmartPageBreaks(container: HTMLElement, pageHeightPx: number = 112
     'header',
     'main > div',
     'aside > div',
-    '.space-y-3.5 > div',
-    '.space-y-3 > div',
-    '.space-y-4 > div',
-    '.space-y-2 > div',
+    '[class*="space-y-"] > div',
     'h2',
     'h3',
     '.break-inside-avoid'

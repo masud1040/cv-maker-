@@ -1,4 +1,4 @@
-export type TemplateId = 'ats-student' | 'ats-professional' | 'hr-professional';
+export type TemplateId = 'ats-student' | 'ats-professional' | 'hr-professional' | 'modern-two-column';
 
 export interface PersonalInfo {
   fullName: string;

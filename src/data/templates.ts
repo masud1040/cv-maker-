@@ -54,6 +54,24 @@ export const TEMPLATES: TemplateConfig[] = [
     supportsPhoto: true,
     recommendedFor: 'Creative & Tech Professionals, Direct HR Submissions, Senior Roles',
     previewThumbnail: 'https://images.unsplash.com/photo-1517842645767-c639042777db?w=600&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'modern-two-column',
+    name: 'Modern Executive Two-Column',
+    badge: 'Format 4 - Top Header & Sidebar Card',
+    category: 'HR',
+    tagline: 'Featured modern format with light top box, left contact/skills panel, and structured experience column.',
+    description: 'Matches the popular software engineer & tech executive layout: top summary header with optional profile photo, light tinted contact/skills sidebar, and clean main column.',
+    features: [
+      'Light Tinted Top Header Card',
+      'Left Sidebar for Contacts, Skills & Tools',
+      'Right Column for Work, Education & Projects',
+      'Graceful alignment if fields are omitted',
+      'Supports Circular Profile Photo'
+    ],
+    supportsPhoto: true,
+    recommendedFor: 'Software Engineers, Full Stack Developers, Tech Leads, Management',
+    previewThumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80'
   }
 ];
 
@@ -205,4 +223,174 @@ export const SAMPLE_HR_CV: CVData = {
   sectionOrder: ['summary', 'experience', 'projects', 'education', 'skills', 'certifications', 'languages', 'references'],
   fontSize: 'standard',
   accentColor: '#2563eb'
+};
+
+export const SAMPLE_MODERN_CV: CVData = {
+  ...SAMPLE_STUDENT_CV,
+  id: 'sample-modern-1',
+  title: 'Software Engineer CV (Modern Two-Column)',
+  templateId: 'modern-two-column',
+  personalInfo: {
+    fullName: 'Afsara Moriom',
+    professionalTitle: 'SOFTWARE ENGINEER | FULL STACK WEB DEVELOPER',
+    email: 'afsaram@gmail.com',
+    phone: '+880 1712-345678',
+    location: 'Dhaka, Bangladesh',
+    linkedin: 'Afsara Moriom',
+    github: 'github.com/afsaramoriom',
+    website: 'afsaramoriom.dev',
+    photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80'
+  },
+  summary: 'A highly motivated Software Engineer with over 4 years of experience in designing, developing, and maintaining scalable web applications. Skilled in modern JavaScript frameworks, REST APIs, cloud technologies, and database management. Passionate about building user-centric digital products and collaborating with cross-functional teams to deliver high-quality software solutions.',
+  education: [
+    {
+      id: 'edu-1',
+      institution: 'BRAC University',
+      degree: 'B.Sc. in Computer Science & Engineering',
+      fieldOfStudy: 'Major: Management',
+      gpa: '3.85',
+      location: 'Dhaka, Bangladesh',
+      startDate: '2019',
+      endDate: '2022',
+      isCurrent: false
+    },
+    {
+      id: 'edu-2',
+      institution: 'Viquarunnisa Noon School and College',
+      degree: 'Higher Secondary Certificate (HSC)',
+      fieldOfStudy: 'Group: Science (English Version)',
+      gpa: '5.00',
+      location: 'Dhaka, Bangladesh',
+      startDate: '2016',
+      endDate: '2018',
+      isCurrent: false
+    },
+    {
+      id: 'edu-3',
+      institution: 'Viquarunnisa Noon School and College',
+      degree: 'Secondary School Certificate (SSC)',
+      fieldOfStudy: 'Group: Science (English Version)',
+      gpa: '5.00',
+      location: 'Dhaka, Bangladesh',
+      startDate: '2014',
+      endDate: '2016',
+      isCurrent: false
+    }
+  ],
+  experience: [
+    {
+      id: 'exp-1',
+      jobTitle: 'Senior Full Stack Software Engineer',
+      company: 'Brain Station 23 PLC',
+      location: 'Dhaka, Bangladesh',
+      startDate: 'Jan 2024',
+      endDate: 'Present',
+      isCurrent: true,
+      description: '',
+      bullets: [
+        'Designed scalable enterprise applications using React.js, Laravel, and Node.js.',
+        'Improved application performance by 38% through database optimization.',
+        'Led a team of 5 developers for ERP development projects.',
+        'Integrated payment gateways including SSLCommerz and bKash.'
+      ]
+    },
+    {
+      id: 'exp-2',
+      jobTitle: 'Full Stack Web Developer',
+      company: 'REVE Systems',
+      location: 'Dhaka, Bangladesh',
+      startDate: 'Jan 2022',
+      endDate: 'Dec 2023',
+      isCurrent: false,
+      description: '',
+      bullets: [
+        'Developed customer portals using Laravel and Vue.js.',
+        'Built API integrations with third-party communication services.',
+        'Increased system efficiency by optimizing SQL queries.',
+        'Worked closely with QA teams to maintain software quality.'
+      ]
+    }
+  ],
+  projects: [
+    {
+      id: 'proj-1',
+      name: 'Smart Inventory Management System',
+      date: 'January 2026',
+      technologies: 'React.js, Laravel, MySQL',
+      description: '',
+      bullets: [
+        'Developed a complete inventory management solution featuring role-based authentication, product tracking, purchase orders, sales reports, barcode support, and real-time analytics for SMEs.'
+      ]
+    }
+  ],
+  skills: {
+    technical: [
+      'Full Stack Development',
+      'REST API Development',
+      'React.js & Next.js',
+      'Node.js & Express.js',
+      'Laravel & PHP'
+    ],
+    soft: [],
+    tools: [
+      'Visual Studio Code',
+      'IntelliJ IDEA',
+      'Docker'
+    ]
+  },
+  certifications: [
+    {
+      id: 'cert-1',
+      name: 'Professional Web Development',
+      organization: 'BASIS Institute of Technology & Management (BITM)',
+      year: '2024'
+    },
+    {
+      id: 'cert-2',
+      name: 'AWS Cloud Practitioner Essentials',
+      organization: 'Amazon Web Services',
+      year: '2024'
+    },
+    {
+      id: 'cert-3',
+      name: 'Advanced React Development',
+      organization: 'Programming Hero / Ostad Bangladesh',
+      year: '2023'
+    }
+  ],
+  awards: [
+    {
+      id: 'award-1',
+      title: 'Champion',
+      issuer: 'National Hackathon Bangladesh',
+      date: '2021'
+    },
+    {
+      id: 'award-2',
+      title: '2nd Runners Up',
+      issuer: 'IUT CSE Fest',
+      date: '2019'
+    },
+    {
+      id: 'award-3',
+      title: 'Finalist',
+      issuer: 'National ICT Innovation Challenge',
+      date: '2023'
+    }
+  ],
+  references: {
+    availableOnRequest: false,
+    items: [
+      {
+        id: 'ref-1',
+        name: 'Engr. Mahmud Hasan',
+        title: 'Senior Software Engineer',
+        company: 'Brain Station 23 PLC',
+        email: 'mahmud.hasan@bs23.com',
+        phone: ''
+      }
+    ]
+  },
+  sectionOrder: ['education', 'experience', 'projects', 'awards'],
+  fontSize: 'standard'
 };

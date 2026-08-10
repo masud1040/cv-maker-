@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { TEMPLATES, SAMPLE_STUDENT_CV, SAMPLE_HR_CV } from '../data/templates';
+import { TEMPLATES, SAMPLE_STUDENT_CV, SAMPLE_HR_CV, SAMPLE_MODERN_CV } from '../data/templates';
 import { TemplateConfig, TemplateId } from '../types/cv';
 import { LiveCVPreview } from './preview/LiveCVPreview';
-import { Check, Eye, Sparkles, ShieldCheck, ArrowRight, X } from 'lucide-react';
+import { Check, Eye, Sparkles, ArrowRight, X } from 'lucide-react';
 
 interface TemplateGalleryProps {
   onSelectTemplate: (templateId: TemplateId) => void;
   onBackToLanding?: () => void;
 }
 
-export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTemplate, onBackToLanding }) => {
+export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTemplate }) => {
   const [selectedFilter, setSelectedFilter] = useState<'ALL' | 'ATS' | 'HR'>('ALL');
   const [previewTemplate, setPreviewTemplate] = useState<TemplateConfig | null>(null);
 
@@ -21,6 +21,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
 
   const getSampleForTemplate = (templateId: TemplateId) => {
     if (templateId === 'hr-professional') return SAMPLE_HR_CV;
+    if (templateId === 'modern-two-column') return SAMPLE_MODERN_CV;
     if (templateId === 'ats-professional') {
       return { ...SAMPLE_STUDENT_CV, templateId: 'ats-professional' as const };
     }
@@ -40,7 +41,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
             Select Your CV Format
           </h1>
           <p className="text-zinc-600 text-sm sm:text-base max-w-2xl mx-auto">
-            Choose between strict single-column ATS templates for online job portals or visual two-column HR templates for direct submissions.
+            Choose between strict single-column ATS templates for online portals or visual two-column executive templates for direct submissions.
           </p>
 
           {/* Filter Tabs */}
@@ -53,7 +54,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
                   : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-300'
               }`}
             >
-              All Formats (3)
+              All Formats ({TEMPLATES.length})
             </button>
             <button
               onClick={() => setSelectedFilter('ATS')}
@@ -85,25 +86,26 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
               key={template.id}
               className="bg-white rounded-xl border border-zinc-200 shadow-2xs hover:border-black transition-all duration-200 flex flex-col overflow-hidden group"
             >
-              {/* Preview Image Container */}
-              <div className="relative h-64 bg-zinc-100 border-b border-zinc-200 overflow-hidden flex items-center justify-center p-4">
-                <img
-                  src={template.previewThumbnail}
-                  alt={template.name}
-                  className="w-full h-full object-cover object-top rounded group-hover:scale-105 transition-transform duration-300 shadow-xs"
-                />
+              {/* Scaled Mini Cover Preview */}
+              <div className="relative h-72 bg-zinc-200/60 border-b border-zinc-200 overflow-hidden flex items-start justify-center pt-3 px-2 group-hover:bg-zinc-200 transition-colors">
+                {/* Mini Scaled Live CV Document */}
+                <div className="transform origin-top scale-[0.31] pointer-events-none select-none shadow-md rounded">
+                  <LiveCVPreview data={getSampleForTemplate(template.id)} scale={1} />
+                </div>
 
-                <div className="absolute top-3 left-3">
-                  <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-black text-white rounded">
+                {/* Badge Top Left */}
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-black/90 text-white rounded shadow-xs backdrop-blur-xs">
                     {template.badge}
                   </span>
                 </div>
 
+                {/* Quick Preview Button */}
                 <button
                   onClick={() => setPreviewTemplate(template)}
-                  className="absolute bottom-3 right-3 px-3 py-1.5 bg-white/90 hover:bg-white text-zinc-800 text-xs font-semibold rounded shadow-xs backdrop-blur-xs flex items-center gap-1.5 transition border border-zinc-200"
+                  className="absolute bottom-3 right-3 z-10 px-3.5 py-1.5 bg-white text-zinc-900 text-xs font-bold rounded-lg shadow-md hover:bg-black hover:text-white flex items-center gap-1.5 transition-all border border-zinc-300"
                 >
-                  <Eye className="w-3.5 h-3.5 text-black" /> Quick Preview
+                  <Eye className="w-3.5 h-3.5" /> Full Preview
                 </button>
               </div>
 
@@ -147,30 +149,31 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
         </div>
       </div>
 
-      {/* Quick Preview Modal */}
+      {/* Quick Preview Modal (Fitted cleanly without horizontal drag) */}
       {previewTemplate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/80 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-zinc-300">
-            <header className="px-6 py-4 border-b border-zinc-200 flex justify-between items-center bg-zinc-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-zinc-950/80 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl border border-zinc-300">
+            <header className="px-5 py-3 border-b border-zinc-200 flex justify-between items-center bg-zinc-50">
               <div>
-                <h3 className="font-bold text-zinc-900 text-base">{previewTemplate.name} Sample Preview</h3>
+                <h3 className="font-bold text-zinc-900 text-sm sm:text-base">{previewTemplate.name} Sample Preview</h3>
                 <p className="text-xs text-zinc-500">{previewTemplate.tagline}</p>
               </div>
               <button
                 onClick={() => setPreviewTemplate(null)}
-                className="p-1.5 text-zinc-400 hover:text-black rounded-md"
+                className="p-1.5 text-zinc-400 hover:text-black rounded-md transition"
               >
                 <X className="w-5 h-5" />
               </button>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-6 bg-[#E4E4E7] flex justify-center">
-              <div className="max-w-[794px]">
-                <LiveCVPreview data={getSampleForTemplate(previewTemplate.id)} scale={0.75} />
+            {/* Container fitted cleanly without horizontal scrolling */}
+            <div className="flex-1 overflow-y-auto p-2 sm:p-4 bg-zinc-100 flex justify-center items-start overflow-x-hidden">
+              <div className="w-full max-w-[794px] flex justify-center">
+                <LiveCVPreview data={getSampleForTemplate(previewTemplate.id)} scale={0.65} />
               </div>
             </div>
 
-            <footer className="px-6 py-4 border-t border-zinc-200 bg-white flex justify-between items-center">
+            <footer className="px-5 py-3 border-t border-zinc-200 bg-white flex justify-between items-center">
               <span className="text-xs text-zinc-500">Includes guidebook sample data</span>
               <button
                 onClick={() => {
@@ -178,9 +181,10 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
                   setPreviewTemplate(null);
                   onSelectTemplate(tid);
                 }}
-                className="px-5 py-2 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded transition shadow-xs"
+                className="px-5 py-2 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded transition shadow-xs flex items-center gap-2"
               >
                 Use {previewTemplate.name}
+                <ArrowRight className="w-4 h-4" />
               </button>
             </footer>
           </div>

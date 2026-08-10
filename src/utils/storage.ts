@@ -12,13 +12,13 @@ export interface StorageState {
 export function loadSavedCVs(): CVData[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
+    if (raw === null) {
       // Seed initial sample CV on first visit
       saveAllCVs([SAMPLE_STUDENT_CV]);
       return [SAMPLE_STUDENT_CV];
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed;
     }
     return [SAMPLE_STUDENT_CV];
@@ -79,8 +79,12 @@ export function deleteCV(id: string): CVData[] {
   saveAllCVs(filtered);
   
   const activeId = getActiveCVId();
-  if (activeId === id && filtered.length > 0) {
-    setActiveCVId(filtered[0].id);
+  if (activeId === id) {
+    if (filtered.length > 0) {
+      setActiveCVId(filtered[0].id);
+    } else {
+      localStorage.removeItem(ACTIVE_CV_KEY);
+    }
   }
   return filtered;
 }

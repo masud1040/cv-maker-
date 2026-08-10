@@ -11,7 +11,7 @@ interface PreviewModalProps {
 }
 
 export const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose, data }) => {
-  const [scale, setScale] = useState<number>(0.85);
+  const [scale, setScale] = useState<number>(0.75);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -98,7 +98,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, onClose, dat
       </header>
 
       {/* Main Preview Container */}
-      <div className="flex-1 overflow-auto p-2 sm:p-6 flex justify-center bg-zinc-950/80" ref={previewRef}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-2 sm:p-6 flex justify-center items-start bg-zinc-950/80" ref={previewRef}>
         <div className="w-full max-w-[794px] flex justify-center">
           <LiveCVPreview data={data} scale={scale} />
         </div>

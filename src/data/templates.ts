@@ -180,6 +180,12 @@ export const SAMPLE_STUDENT_CV: CVData = {
   },
   customSections: [],
   sectionOrder: ['summary', 'education', 'skills', 'projects', 'experience', 'certifications', 'extracurricular', 'languages', 'awards', 'references'],
+  signature: {
+    enabled: true,
+    signerName: 'Saiful Alam Masud',
+    signerTitle: 'Applicant Signature',
+    date: '10 Aug 2026'
+  },
   fontSize: 'standard',
   accentColor: '#1e3a8a'
 };

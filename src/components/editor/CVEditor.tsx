@@ -12,6 +12,7 @@ import { ExtracurricularForm } from './ExtracurricularForm';
 import { LanguagesForm } from './LanguagesForm';
 import { AwardsForm } from './AwardsForm';
 import { ReferencesForm } from './ReferencesForm';
+import { SignatureForm } from './SignatureForm';
 import { CustomSectionsForm } from './CustomSectionsForm';
 import { SectionOrderManager } from './SectionOrderManager';
 import { LiveCVPreview } from '../preview/LiveCVPreview';
@@ -37,7 +38,8 @@ import {
   UserCheck,
   FolderPlus,
   Layers,
-  Palette
+  Palette,
+  PenTool
 } from 'lucide-react';
 
 interface CVEditorProps {
@@ -59,6 +61,7 @@ type EditorTab =
   | 'languages'
   | 'awards'
   | 'references'
+  | 'signature'
   | 'custom'
   | 'order';
 
@@ -130,6 +133,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
     { id: 'languages', label: 'Languages', icon: Languages },
     { id: 'awards', label: 'Awards', icon: Trophy },
     { id: 'references', label: 'References', icon: UserCheck },
+    { id: 'signature', label: 'Signature', icon: PenTool },
     { id: 'custom', label: 'Custom', icon: FolderPlus },
     { id: 'order', label: 'Reorder', icon: Layers }
   ];
@@ -366,6 +370,15 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
               <ReferencesForm
                 data={data.references || { availableOnRequest: true, items: [] }}
                 onChange={(references) => setData(prev => ({ ...prev, references }))}
+              />
+            )}
+
+            {activeTab === 'signature' && (
+              <SignatureForm
+                signature={data.signature}
+                defaultName={data.personalInfo.fullName}
+                defaultTitle={data.personalInfo.professionalTitle}
+                onChange={(signature) => setData(prev => ({ ...prev, signature }))}
               />
             )}
 

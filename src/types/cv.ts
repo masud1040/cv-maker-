@@ -126,6 +126,14 @@ export type SectionType =
   | 'references'
   | string; // for custom sections
 
+export interface SignatureData {
+  enabled: boolean;
+  signerName?: string;
+  signerTitle?: string;
+  date?: string;
+  signatureImage?: string;
+}
+
 export interface CVData {
   id: string;
   title: string;
@@ -145,6 +153,7 @@ export interface CVData {
   references: ReferencesData;
   customSections: CustomSection[];
   sectionOrder: SectionType[];
+  signature?: SignatureData;
   fontSize?: 'compact' | 'standard' | 'spacious';
   accentColor?: string;
 }

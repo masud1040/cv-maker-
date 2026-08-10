@@ -277,9 +277,10 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
   }
 
   try {
+    // 4K Ultra-High Definition rendering scale
     const canvas = await html2canvas(targetToRender, {
-      scale: 2, // High resolution rendering
-      useCORS: true, // Allow cross-origin images like user photo
+      scale: 4, // 4K Resolution (~3176px width for crisp vector text & images)
+      useCORS: true,
       logging: false,
       backgroundColor: '#ffffff',
       windowWidth: 794,
@@ -300,11 +301,17 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
       }
     });
 
-    // Multi-page slicing calculation
-    // Standard A4 aspect ratio height / width = 297 / 210 = 1.4142857...
-    const a4Ratio = 297 / 210;
-    const pageCanvasHeight = Math.floor(canvas.width * a4Ratio);
-    const totalPages = Math.max(1, Math.ceil(canvas.height / pageCanvasHeight));
+    // Page dimensions with strict margins on EVERY page
+    // A4 dimensions: 210mm x 297mm
+    const marginX = 10; // 10mm Left & Right margins
+    const marginY = 10; // 10mm Top & Bottom margins
+    const printableWidth = 210 - marginX * 2; // 190mm
+    const printableHeight = 297 - marginY * 2; // 277mm
+
+    // Calculate canvas scale factor (pixels per mm in printable area)
+    const pxPerMm = canvas.width / printableWidth;
+    const sliceHeightPx = Math.floor(printableHeight * pxPerMm);
+    const totalPages = Math.max(1, Math.ceil(canvas.height / sliceHeightPx));
 
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -318,17 +325,23 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
         pdf.addPage('a4', 'portrait');
       }
 
+      // Draw background on PDF page
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, 210, 297, 'F');
+
       const pageCanvas = document.createElement('canvas');
       pageCanvas.width = canvas.width;
-      pageCanvas.height = pageCanvasHeight;
+      pageCanvas.height = sliceHeightPx;
 
       const pCtx = pageCanvas.getContext('2d');
       if (pCtx) {
+        pCtx.imageSmoothingEnabled = true;
+        pCtx.imageSmoothingQuality = 'high';
         pCtx.fillStyle = '#ffffff';
         pCtx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
 
-        const srcY = page * pageCanvasHeight;
-        const srcH = Math.min(pageCanvasHeight, canvas.height - srcY);
+        const srcY = page * sliceHeightPx;
+        const srcH = Math.min(sliceHeightPx, canvas.height - srcY);
 
         if (srcH > 0) {
           pCtx.drawImage(
@@ -345,8 +358,21 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
         }
       }
 
-      const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.98);
-      pdf.addImage(pageImgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+      // Export lossless 4K PNG for ultra sharp text rendering
+      const pageImgData = pageCanvas.toDataURL('image/png');
+      const srcH = Math.min(sliceHeightPx, canvas.height - page * sliceHeightPx);
+      const renderHeightMM = Math.min(printableHeight, srcH / pxPerMm);
+
+      pdf.addImage(
+        pageImgData,
+        'PNG',
+        marginX,
+        marginY,
+        printableWidth,
+        renderHeightMM,
+        undefined,
+        'NONE'
+      );
     }
 
     pdf.save(filename);

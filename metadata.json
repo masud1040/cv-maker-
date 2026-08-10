@@ -1,0 +1,6 @@
+{
+  "name": "CV Maker - Professional Resume Builder",
+  "description": "Create ATS-friendly and HR-tailored professional CVs with live preview, dynamic section management, and high-quality A4 PDF download.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

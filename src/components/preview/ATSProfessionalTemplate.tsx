@@ -338,11 +338,6 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                 {data.signature.signerTitle}
               </p>
             )}
-            {data.signature.date && (
-              <p className="text-[8pt] text-slate-500 mt-0.5">
-                Date: {data.signature.date}
-              </p>
-            )}
           </div>
         </div>
       )}

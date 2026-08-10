@@ -230,87 +230,160 @@ export function sanitizeDocumentOklch(doc: Document): () => void {
   };
 }
 
+function applySmartPageBreaks(container: HTMLElement, pageHeightPx: number = 1123) {
+  // Query structural blocks that shouldn't be split mid-way
+  const selectors = [
+    'section',
+    'article',
+    'header',
+    'main > div',
+    'aside > div',
+    '.space-y-3.5 > div',
+    '.space-y-3 > div',
+    '.space-y-4 > div',
+    '.space-y-2 > div',
+    'h2',
+    'h3',
+    '.break-inside-avoid'
+  ];
+
+  const blocks = Array.from(container.querySelectorAll<HTMLElement>(selectors.join(', ')));
+
+  // Filter out duplicate child blocks where a parent container (like <section>) is already in the list
+  const filteredBlocks = blocks.filter((b, index) => {
+    return !blocks.some((other, otherIdx) => otherIdx !== index && other.contains(b) && (other.tagName.toLowerCase() === 'section' || other.tagName.toLowerCase() === 'article'));
+  });
+
+  const containerRect = container.getBoundingClientRect();
+
+  for (const block of filteredBlocks) {
+    const blockRect = block.getBoundingClientRect();
+    const relativeTop = blockRect.top - containerRect.top;
+    const blockHeight = blockRect.height;
+
+    // Skip blocks that are taller than 80% of a page
+    if (blockHeight <= 0 || blockHeight > pageHeightPx * 0.8) {
+      continue;
+    }
+
+    const startPage = Math.floor(relativeTop / pageHeightPx);
+    const endPage = Math.floor((relativeTop + blockHeight - 1) / pageHeightPx);
+
+    if (startPage !== endPage) {
+      // The element crosses a page boundary! Insert a spacer div to push it to the next page
+      const targetPageTop = (startPage + 1) * pageHeightPx;
+      const neededSpacer = targetPageTop - relativeTop;
+
+      if (neededSpacer > 0 && neededSpacer < pageHeightPx - 40) {
+        const spacer = document.createElement('div');
+        spacer.style.height = `${Math.ceil(neededSpacer)}px`;
+        spacer.style.width = '100%';
+        spacer.style.display = 'block';
+        spacer.style.clear = 'both';
+        spacer.setAttribute('data-pdf-spacer', 'true');
+
+        block.parentNode?.insertBefore(spacer, block);
+      }
+    }
+  }
+}
+
 export async function generatePDFFromElement(element: HTMLElement, fullName: string = 'My'): Promise<void> {
   if (!element) {
     throw new Error('Element for PDF generation not found');
+  }
+
+  // 1. Wait for document fonts to be ready
+  if (document.fonts && document.fonts.ready) {
+    try {
+      await document.fonts.ready;
+    } catch {
+      // Ignore font readiness errors
+    }
   }
 
   // Sanitize filename
   const cleanName = fullName.trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
   const filename = `${cleanName || 'CV'}_CV.pdf`;
 
-  // 1. Sanitize the main document before html2canvas inspects document.styleSheets or DOM
+  // 2. Sanitize OKLCH colors in document
   const restoreMainDoc = sanitizeDocumentOklch(document);
 
-  // 2. Prepare target element (if hidden on mobile, create temporary offscreen visible clone)
-  let targetToRender = element;
-  let tempOffscreenContainer: HTMLElement | null = null;
+  // 3. Create an offscreen render container at EXACT 794px width unscaled (A4 1:1 ratio at 96DPI)
+  const tempOffscreenContainer = document.createElement('div');
+  tempOffscreenContainer.style.position = 'fixed';
+  tempOffscreenContainer.style.left = '-9999px';
+  tempOffscreenContainer.style.top = '0';
+  tempOffscreenContainer.style.width = '794px';
+  tempOffscreenContainer.style.zIndex = '-9999';
+  tempOffscreenContainer.style.opacity = '0';
+  tempOffscreenContainer.style.pointerEvents = 'none';
 
-  const isHidden =
-    element.offsetWidth === 0 ||
-    element.offsetHeight === 0 ||
-    window.getComputedStyle(element).display === 'none';
+  // Deep clone the target element
+  const clonedForRender = element.cloneNode(true) as HTMLElement;
 
-  if (isHidden) {
-    tempOffscreenContainer = document.createElement('div');
-    tempOffscreenContainer.style.position = 'fixed';
-    tempOffscreenContainer.style.left = '-9999px';
-    tempOffscreenContainer.style.top = '-9999px';
-    tempOffscreenContainer.style.width = '794px';
-    tempOffscreenContainer.style.zIndex = '-9999';
-    tempOffscreenContainer.style.opacity = '0';
-    tempOffscreenContainer.style.pointerEvents = 'none';
+  // Reset all scaling, positioning, margins, and transforms on clone
+  clonedForRender.style.transform = 'none';
+  clonedForRender.style.transformOrigin = 'top left';
+  clonedForRender.style.boxShadow = 'none';
+  clonedForRender.style.margin = '0';
+  clonedForRender.style.padding = '0';
+  clonedForRender.style.width = '794px';
+  clonedForRender.style.minHeight = '1123px';
+  clonedForRender.style.height = 'auto';
+  clonedForRender.style.display = 'block';
+  clonedForRender.style.visibility = 'visible';
+  clonedForRender.style.position = 'relative';
 
-    const clonedForRender = element.cloneNode(true) as HTMLElement;
-    clonedForRender.style.transform = 'none';
-    clonedForRender.style.boxShadow = 'none';
-    clonedForRender.style.margin = '0';
-    clonedForRender.style.width = '794px';
-    clonedForRender.style.minHeight = '1123px';
-    clonedForRender.style.height = 'auto';
-    clonedForRender.style.display = 'block';
-    clonedForRender.style.visibility = 'visible';
+  // Remove any inline scaling on cloned children
+  const allCloned = clonedForRender.querySelectorAll<HTMLElement>('*');
+  allCloned.forEach((node) => {
+    if (node.style.transform && node.style.transform.includes('scale')) {
+      node.style.transform = 'none';
+    }
+  });
 
-    tempOffscreenContainer.appendChild(clonedForRender);
-    document.body.appendChild(tempOffscreenContainer);
-    targetToRender = clonedForRender;
-  }
+  tempOffscreenContainer.appendChild(clonedForRender);
+  document.body.appendChild(tempOffscreenContainer);
 
   try {
-    // 4K Ultra-High Definition rendering scale
-    const canvas = await html2canvas(targetToRender, {
-      scale: 4, // 4K Resolution (~3176px width for crisp vector text & images)
+    // Wait for images inside clone to be loaded
+    const images = Array.from(clonedForRender.querySelectorAll('img'));
+    await Promise.all(
+      images.map((img) => {
+        if (img.complete) return Promise.resolve();
+        return new Promise((resolve) => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      })
+    );
+
+    // Apply smart page-break spacers to prevent chopping text/headings
+    applySmartPageBreaks(clonedForRender, 1123);
+
+    // Sanitize colors inside the cloned offscreen tree
+    sanitizeDocumentOklch(document);
+
+    // 4. Render html2canvas on the unscaled offscreen clone
+    // scale: 3 gives ~2382px width for 4K ultra crisp vector text & images
+    const canvas = await html2canvas(clonedForRender, {
+      scale: 3,
       useCORS: true,
+      allowTaint: true,
       logging: false,
       backgroundColor: '#ffffff',
+      width: 794,
       windowWidth: 794,
+      imageTimeout: 0,
       onclone: (clonedDoc) => {
-        // Sanitize the cloned document inside html2canvas
         sanitizeDocumentOklch(clonedDoc);
-
-        // Ensure proper target element sizing in clone
-        const clonedElement = clonedDoc.querySelector('[data-pdf-content="true"]') as HTMLElement;
-        if (clonedElement) {
-          clonedElement.style.transform = 'none';
-          clonedElement.style.boxShadow = 'none';
-          clonedElement.style.margin = '0';
-          clonedElement.style.width = '794px';
-          clonedElement.style.minHeight = '1123px';
-          clonedElement.style.height = 'auto';
-        }
       }
     });
 
-    // Page dimensions with strict margins on EVERY page
-    // A4 dimensions: 210mm x 297mm
-    const marginX = 10; // 10mm Left & Right margins
-    const marginY = 10; // 10mm Top & Bottom margins
-    const printableWidth = 210 - marginX * 2; // 190mm
-    const printableHeight = 297 - marginY * 2; // 277mm
-
-    // Calculate canvas scale factor (pixels per mm in printable area)
-    const pxPerMm = canvas.width / printableWidth;
-    const sliceHeightPx = Math.floor(printableHeight * pxPerMm);
+    // 5. Slice canvas into exact A4 pages (1123px height per page at 1:1 => 3369px per page at 3x)
+    const pageHeightPx = 1123;
+    const sliceHeightPx = Math.floor(pageHeightPx * 3);
     const totalPages = Math.max(1, Math.ceil(canvas.height / sliceHeightPx));
 
     const pdf = new jsPDF({
@@ -325,7 +398,7 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
         pdf.addPage('a4', 'portrait');
       }
 
-      // Draw background on PDF page
+      // Draw background
       pdf.setFillColor(255, 255, 255);
       pdf.rect(0, 0, 210, 297, 'F');
 
@@ -358,20 +431,18 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
         }
       }
 
-      // Export lossless 4K PNG for ultra sharp text rendering
-      const pageImgData = pageCanvas.toDataURL('image/png');
-      const srcH = Math.min(sliceHeightPx, canvas.height - page * sliceHeightPx);
-      const renderHeightMM = Math.min(printableHeight, srcH / pxPerMm);
+      // Export 4K PNG
+      const pageImgData = pageCanvas.toDataURL('image/png', 1.0);
 
       pdf.addImage(
         pageImgData,
         'PNG',
-        marginX,
-        marginY,
-        printableWidth,
-        renderHeightMM,
+        0,
+        0,
+        210,
+        297,
         undefined,
-        'NONE'
+        'FAST'
       );
     }
 

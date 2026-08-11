@@ -28,6 +28,26 @@ export default function App() {
   const [currentView, setCurrentView] = useState<ViewMode>('landing');
   const [cvs, setCvs] = useState<CVData[]>([]);
   const [activeCv, setActiveCv] = useState<CVData | null>(null);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('cv_genius_theme');
+    if (saved !== null) {
+      return saved === 'dark';
+    }
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  // Sync dark class on document element
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('cv_genius_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('cv_genius_theme', 'light');
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => setDarkMode(prev => !prev);
 
   // Initial load
   useEffect(() => {
@@ -94,12 +114,14 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 flex flex-col font-sans transition-colors">
       <Navbar
         currentView={currentView}
         onNavigate={(view) => setCurrentView(view)}
         onCreateNew={handleStartCreate}
         savedCount={cvs.length}
+        darkMode={darkMode}
+        onToggleDarkMode={toggleDarkMode}
       />
 
       <main className="flex-1">
@@ -124,6 +146,8 @@ export default function App() {
             onSave={handleSaveCv}
             onBackToTemplates={() => setCurrentView('templates')}
             onBackToMyCVs={() => setCurrentView('my-cvs')}
+            darkMode={darkMode}
+            onToggleDarkMode={toggleDarkMode}
           />
         )}
 

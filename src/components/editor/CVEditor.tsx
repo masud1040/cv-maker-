@@ -39,7 +39,9 @@ import {
   FolderPlus,
   Layers,
   Palette,
-  PenTool
+  PenTool,
+  Sun,
+  Moon
 } from 'lucide-react';
 
 interface CVEditorProps {
@@ -47,6 +49,8 @@ interface CVEditorProps {
   onSave: (data: CVData) => void;
   onBackToTemplates: () => void;
   onBackToMyCVs: () => void;
+  darkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 type EditorTab =
@@ -65,7 +69,14 @@ type EditorTab =
   | 'custom'
   | 'order';
 
-export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemplates, onBackToMyCVs }) => {
+export const CVEditor: React.FC<CVEditorProps> = ({
+  cvData,
+  onSave,
+  onBackToTemplates,
+  onBackToMyCVs,
+  darkMode = false,
+  onToggleDarkMode
+}) => {
   const [data, setData] = useState<CVData>(cvData);
   const [activeTab, setActiveTab] = useState<EditorTab>('personal');
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
@@ -139,13 +150,13 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
   ];
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F4F4F5] dark:bg-zinc-950 flex flex-col font-sans transition-colors">
       {/* Sticky Top Toolbar */}
-      <header className="sticky top-0 z-30 bg-white border-b border-zinc-200 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+      <header className="sticky top-0 z-30 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs transition-colors">
         <div className="flex items-center gap-3">
           <button
             onClick={onBackToMyCVs}
-            className="p-1.5 text-zinc-600 hover:text-black hover:bg-zinc-100 rounded-md transition"
+            className="p-1.5 text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition"
             title="My CVs Dashboard"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -157,10 +168,10 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
               value={data.title}
               onChange={(e) => setData(prev => ({ ...prev, title: e.target.value }))}
               placeholder="CV Title"
-              className="font-bold text-sm text-zinc-900 bg-transparent hover:bg-zinc-50 focus:bg-white px-2 py-0.5 rounded border border-transparent focus:border-zinc-300 focus:outline-none transition"
+              className="font-bold text-sm text-zinc-900 dark:text-white bg-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800 focus:bg-white dark:focus:bg-zinc-900 px-2 py-0.5 rounded border border-transparent focus:border-zinc-300 dark:focus:border-zinc-700 focus:outline-none transition"
             />
-            <div className="flex items-center gap-2 px-2 text-[11px] text-zinc-500">
-              <span className="flex items-center gap-1.5 text-emerald-600 font-medium">
+            <div className="flex items-center gap-2 px-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+              <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                 {saveStatus === 'saving' ? 'Saving...' : 'Auto-saved locally'}
               </span>
@@ -171,46 +182,58 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
         {/* Toolbar Controls */}
         <div className="flex items-center gap-2 flex-wrap">
           {/* Template Switcher Dropdown */}
-          <div className="flex items-center gap-1.5 bg-zinc-50 border border-zinc-200 rounded-md px-2.5 py-1.5 text-xs text-zinc-700">
-            <Palette className="w-3.5 h-3.5 text-black" />
-            <span className="font-bold uppercase text-[10px] tracking-wider text-zinc-400 hidden sm:inline">Template:</span>
+          <div className="flex items-center gap-1.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md px-2.5 py-1.5 text-xs text-zinc-700 dark:text-zinc-300">
+            <Palette className="w-3.5 h-3.5 text-black dark:text-white" />
+            <span className="font-bold uppercase text-[10px] tracking-wider text-zinc-400 dark:text-zinc-500 hidden sm:inline">Template:</span>
             <select
               value={data.templateId}
               onChange={(e) => handleTemplateChange(e.target.value as TemplateId)}
-              className="bg-transparent font-bold text-zinc-900 focus:outline-none cursor-pointer text-xs"
+              className="bg-transparent font-bold text-zinc-900 dark:text-white focus:outline-none cursor-pointer text-xs"
             >
               {TEMPLATES.map(t => (
-                <option key={t.id} value={t.id}>{t.name} ({t.category})</option>
+                <option key={t.id} value={t.id} className="dark:bg-zinc-900 dark:text-white">{t.name} ({t.category})</option>
               ))}
             </select>
           </div>
 
           {/* Font Size Selector */}
-          <div className="hidden lg:flex items-center gap-1 bg-zinc-50 border border-zinc-200 rounded-md p-1 text-xs">
+          <div className="hidden lg:flex items-center gap-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md p-1 text-xs">
             <button
               onClick={() => setData(p => ({ ...p, fontSize: 'compact' }))}
-              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'compact' ? 'bg-black text-white font-bold' : 'text-zinc-600 hover:text-black'}`}
+              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'compact' ? 'bg-black dark:bg-white text-white dark:text-zinc-900 font-bold' : 'text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white'}`}
             >
               Compact
             </button>
             <button
               onClick={() => setData(p => ({ ...p, fontSize: 'standard' }))}
-              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'standard' || !data.fontSize ? 'bg-black text-white font-bold' : 'text-zinc-600 hover:text-black'}`}
+              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'standard' || !data.fontSize ? 'bg-black dark:bg-white text-white dark:text-zinc-900 font-bold' : 'text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white'}`}
             >
               Normal
             </button>
             <button
               onClick={() => setData(p => ({ ...p, fontSize: 'spacious' }))}
-              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'spacious' ? 'bg-black text-white font-bold' : 'text-zinc-600 hover:text-black'}`}
+              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'spacious' ? 'bg-black dark:bg-white text-white dark:text-zinc-900 font-bold' : 'text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white'}`}
             >
               Spacious
             </button>
           </div>
 
+          {/* Theme Toggle Button */}
+          {onToggleDarkMode && (
+            <button
+              onClick={onToggleDarkMode}
+              className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition"
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label="Toggle theme"
+            >
+              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-zinc-700" />}
+            </button>
+          )}
+
           {/* Reset button */}
           <button
             onClick={handleReset}
-            className="p-1.5 text-zinc-500 hover:text-black hover:bg-zinc-100 rounded-md transition"
+            className="p-1.5 text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition"
             title="Reset to sample data"
           >
             <RotateCcw className="w-4 h-4" />
@@ -219,9 +242,9 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
           {/* Preview PDF */}
           <button
             onClick={() => setIsPreviewModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold bg-white hover:bg-zinc-50 text-zinc-900 rounded-md transition border border-zinc-200"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white rounded-md transition border border-zinc-200 dark:border-zinc-700"
           >
-            <Eye className="w-4 h-4 text-zinc-600" />
+            <Eye className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
             <span className="hidden sm:inline">Preview PDF</span>
           </button>
 
@@ -229,7 +252,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
           <button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold bg-black hover:bg-zinc-800 text-white rounded-md shadow-xs transition disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-md shadow-xs transition disabled:opacity-50"
           >
             <Download className="w-4 h-4" />
             {isDownloading ? 'Downloading...' : `Download ${data.personalInfo.fullName ? data.personalInfo.fullName.split(' ')[0] + '_CV.pdf' : 'CV.pdf'}`}
@@ -238,13 +261,13 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
       </header>
 
       {/* Mobile Workspace Mode Switcher (visible only on < lg) */}
-      <div className="lg:hidden flex bg-zinc-200 p-1 border-b border-zinc-300">
+      <div className="lg:hidden flex bg-zinc-200 dark:bg-zinc-900 p-1 border-b border-zinc-300 dark:border-zinc-800">
         <button
           onClick={() => setMobileView('edit')}
           className={`flex-1 py-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1.5 ${
             mobileView === 'edit'
-              ? 'bg-black text-white shadow-xs'
-              : 'text-zinc-700 hover:bg-zinc-100'
+              ? 'bg-black dark:bg-white text-white dark:text-zinc-900 shadow-xs'
+              : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
@@ -254,8 +277,8 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
           onClick={() => setMobileView('preview')}
           className={`flex-1 py-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1.5 ${
             mobileView === 'preview'
-              ? 'bg-black text-white shadow-xs'
-              : 'text-zinc-700 hover:bg-zinc-100'
+              ? 'bg-black dark:bg-white text-white dark:text-zinc-900 shadow-xs'
+              : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
           }`}
         >
           <Eye className="w-3.5 h-3.5" />
@@ -267,12 +290,12 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* LEFT COLUMN: FORM EDITOR */}
         <div
-          className={`w-full lg:w-[45%] bg-white border-r border-zinc-200 flex flex-col h-[calc(100vh-105px)] lg:h-[calc(100vh-57px)] overflow-hidden ${
+          className={`w-full lg:w-[45%] bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col h-[calc(100vh-105px)] lg:h-[calc(100vh-57px)] overflow-hidden ${
             mobileView === 'edit' ? 'flex' : 'hidden lg:flex'
           }`}
         >
           {/* Scrollable Navigation Tabs */}
-          <div className="flex items-center overflow-x-auto border-b border-zinc-200 bg-zinc-50/90 px-2 py-2 no-scrollbar shrink-0 gap-1">
+          <div className="flex items-center overflow-x-auto border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/90 px-2 py-2 no-scrollbar shrink-0 gap-1">
             {navTabs.map(tab => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -282,11 +305,11 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
                   onClick={() => setActiveTab(tab.id as EditorTab)}
                   className={`flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-xs font-bold rounded whitespace-nowrap transition shrink-0 uppercase tracking-wider text-[11px] min-h-[38px] ${
                     isActive
-                      ? 'bg-black text-white shadow-xs'
-                      : 'text-zinc-500 hover:text-black hover:bg-zinc-100'
+                      ? 'bg-black dark:bg-white text-white dark:text-zinc-900 shadow-xs'
+                      : 'text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-zinc-400'}`} />
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-zinc-900' : 'text-zinc-400 dark:text-zinc-500'}`} />
                   {tab.label}
                 </button>
               );
@@ -294,7 +317,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
           </div>
 
           {/* Form Content Area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-white">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
             {activeTab === 'personal' && (
               <PersonalInfoForm
                 data={data.personalInfo}
@@ -400,7 +423,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
 
         {/* RIGHT COLUMN: LIVE A4 CV PREVIEW */}
         <div
-          className={`w-full lg:w-[55%] bg-[#E4E4E7] h-[calc(100vh-105px)] lg:h-[calc(100vh-57px)] overflow-y-auto p-2 sm:p-8 flex justify-center border-l border-zinc-200 ${
+          className={`w-full lg:w-[55%] bg-[#E4E4E7] dark:bg-zinc-950 h-[calc(100vh-105px)] lg:h-[calc(100vh-57px)] overflow-y-auto p-2 sm:p-8 flex justify-center border-l border-zinc-200 dark:border-zinc-800 transition-colors ${
             mobileView === 'preview' ? 'flex' : 'hidden lg:flex'
           }`}
           ref={previewRef}
@@ -420,3 +443,4 @@ export const CVEditor: React.FC<CVEditorProps> = ({ cvData, onSave, onBackToTemp
     </div>
   );
 };
+

@@ -293,7 +293,7 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
   if (personalInfo.website) contactParts.push(personalInfo.website);
 
   return (
-    <div className="w-full h-full bg-white text-slate-900 p-8 sm:p-10 font-sans leading-normal">
+    <div className="w-full min-h-[1123px] bg-white text-slate-900 px-12 py-11 font-sans leading-normal box-border">
       {/* Centered ATS Header */}
       <header className="text-center pb-4 mb-4 border-b-2 border-slate-900">
         <h1 className="text-2xl font-bold uppercase tracking-tight text-slate-950">

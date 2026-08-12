@@ -43,7 +43,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
   const rightSectionsToRender = sectionOrder.length > 0 ? sectionOrder : defaultOrder;
 
   return (
-    <div className="w-[794px] min-h-[1123px] bg-white text-slate-800 p-8 font-sans leading-relaxed box-border flex flex-col justify-between">
+    <div className="w-[794px] min-h-[1123px] bg-white text-slate-800 px-12 py-10 font-sans leading-relaxed box-border flex flex-col justify-between">
       <div>
         {/* Top Header Box (Soft Light-Blue Card) */}
         <header className="bg-[#eef4ff] rounded-2xl p-6 mb-6 border border-blue-100 flex items-start justify-between gap-6">

@@ -10,9 +10,9 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
   const { personalInfo, summary, education, experience, projects, skills, certifications, extracurricular, languages, awards, references, customSections, accentColor = '#1e3a8a' } = data;
 
   return (
-    <div className="w-full h-full bg-white text-slate-900 font-sans flex flex-row min-h-[1123px]">
+    <div className="w-full min-h-[1123px] bg-white text-slate-900 font-sans flex flex-row box-border">
       {/* Left Sidebar (approx 33% width) */}
-      <aside className="w-[33%] bg-slate-50 border-r border-slate-200 p-6 flex flex-col shrink-0 space-y-5">
+      <aside className="w-[33%] bg-slate-50 border-r border-slate-200 px-6 py-10 flex flex-col shrink-0 space-y-5">
         {/* Profile Photo */}
         {personalInfo.photoUrl ? (
           <div className="flex justify-center mb-1">
@@ -188,7 +188,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
       </aside>
 
       {/* Right Main Content Area (approx 67% width) */}
-      <main className="w-[67%] p-8 flex flex-col space-y-5">
+      <main className="w-[67%] px-9 py-10 flex flex-col space-y-5">
         {/* Main Header */}
         <header className="border-b-2 border-slate-100 pb-3">
           <h1 className="text-2xl font-black uppercase tracking-tight" style={{ color: accentColor }}>

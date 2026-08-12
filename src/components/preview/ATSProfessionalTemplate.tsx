@@ -288,7 +288,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
   if (personalInfo.website) contactParts.push(personalInfo.website);
 
   return (
-    <div className="w-full h-full bg-white text-slate-900 p-8 sm:p-10 font-sans leading-normal">
+    <div className="w-full min-h-[1123px] bg-white text-slate-900 px-12 py-11 font-sans leading-normal box-border">
       {/* Left-Aligned ATS Header */}
       <header className="pb-3 mb-4 border-b border-slate-300">
         <h1 className="text-2xl font-extrabold uppercase tracking-tight text-slate-950">

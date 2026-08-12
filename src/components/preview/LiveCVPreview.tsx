@@ -117,6 +117,20 @@ export const LiveCVPreview: React.FC<LiveCVPreviewProps> = ({ data, scale = 1 })
           }}
         >
           {renderTemplate()}
+
+          {/* Visual Page 1 / Page 2 boundary indicator for live editor */}
+          {contentHeight > 1130 && (
+            <div
+              className="absolute left-0 right-0 pointer-events-none z-10 flex items-center justify-between select-none no-print"
+              style={{ top: '1123px' }}
+            >
+              <div className="border-b-2 border-dashed border-red-400 dark:border-red-500 w-full relative">
+                <span className="absolute right-3 -top-3 bg-red-600 text-white text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded shadow-xs">
+                  Page 1 / Page 2 Break
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

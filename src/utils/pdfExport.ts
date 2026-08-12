@@ -316,79 +316,71 @@ export function sanitizeDocumentOklch(doc: Document): () => void {
 function applySmartPageBreaks(
   container: HTMLElement,
   pageHeightPx: number = 1123,
-  topMarginPx: number = 52,
-  bottomMarginPx: number = 52
+  topMarginPx: number = 28,
+  bottomMarginPx: number = 28
 ) {
   // 1. Remove any previously added PDF spacer elements
   const existingSpacers = container.querySelectorAll('[data-pdf-spacer="true"]');
   existingSpacers.forEach((s) => s.remove());
 
-  // 2. Select breakable content elements across templates
+  // 2. Select breakable leaf content elements only (never parent containers)
   const selectors = [
-    'section > div > div',
-    '[class*="space-y-"] > div',
-    'main > section',
-    'main > div',
-    'aside > div',
-    'section',
-    'article',
-    'header',
     'h2',
     'h3',
+    'article',
+    'section > div > div',
+    '[class*="space-y-"] > div',
     '.break-inside-avoid'
   ];
 
-  let iterations = 0;
-  const maxIterations = 25;
+  const allFound = Array.from(container.querySelectorAll<HTMLElement>(selectors.join(', ')));
 
-  while (iterations < maxIterations) {
-    iterations++;
-    let inserted = false;
+  // Filter out containers that enclose other selected elements to prevent duplicate spacing
+  const leafBlocks = allFound.filter((el) => {
+    return !allFound.some((other) => other !== el && el.contains(other));
+  });
 
-    const blocks = Array.from(container.querySelectorAll<HTMLElement>(selectors.join(', ')));
-    const containerRect = container.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
 
-    for (const block of blocks) {
-      if (block.offsetHeight <= 0) continue;
+  // Sort blocks strictly by top coordinate
+  leafBlocks.sort((a, b) => {
+    return (a.getBoundingClientRect().top - containerRect.top) - (b.getBoundingClientRect().top - containerRect.top);
+  });
 
-      const blockRect = block.getBoundingClientRect();
-      const relativeTop = blockRect.top - containerRect.top;
-      const blockHeight = blockRect.height;
+  // Single pass calculation from top to bottom
+  for (const block of leafBlocks) {
+    if (block.offsetHeight <= 0) continue;
 
-      // Skip blocks taller than usable page height
-      const usablePageHeight = pageHeightPx - topMarginPx - bottomMarginPx;
-      if (blockHeight > usablePageHeight * 0.95) {
-        continue;
-      }
+    const curContainerRect = container.getBoundingClientRect();
+    const blockRect = block.getBoundingClientRect();
+    const relativeTop = blockRect.top - curContainerRect.top;
+    const blockHeight = blockRect.height;
 
-      const currentPageIndex = Math.floor(relativeTop / pageHeightPx);
-      const pageBottomLimit = (currentPageIndex + 1) * pageHeightPx - bottomMarginPx;
-
-      // Require extra buffer for section headings so headings don't get orphaned at the bottom of a page
-      const isHeading = block.tagName === 'H2' || block.tagName === 'H3';
-      const effectiveBottom = relativeTop + blockHeight + (isHeading ? 50 : 0);
-
-      if (effectiveBottom > pageBottomLimit) {
-        const nextPageTop = (currentPageIndex + 1) * pageHeightPx + topMarginPx;
-        const neededSpacer = nextPageTop - relativeTop;
-
-        if (neededSpacer > 0 && neededSpacer < pageHeightPx) {
-          const spacer = document.createElement('div');
-          spacer.style.height = `${Math.ceil(neededSpacer)}px`;
-          spacer.style.width = '100%';
-          spacer.style.display = 'block';
-          spacer.style.clear = 'both';
-          spacer.setAttribute('data-pdf-spacer', 'true');
-
-          block.parentNode?.insertBefore(spacer, block);
-          inserted = true;
-          break; // break inner loop to re-evaluate remaining element coordinates
-        }
-      }
+    const usablePageHeight = pageHeightPx - topMarginPx - bottomMarginPx;
+    if (blockHeight >= usablePageHeight) {
+      continue;
     }
 
-    if (!inserted) {
-      break;
+    const currentPageIndex = Math.floor(relativeTop / pageHeightPx);
+    const pageBottomLimit = (currentPageIndex + 1) * pageHeightPx - bottomMarginPx;
+
+    const isHeading = block.tagName === 'H2' || block.tagName === 'H3';
+    const effectiveBottom = relativeTop + blockHeight + (isHeading ? 36 : 0);
+
+    if (effectiveBottom > pageBottomLimit) {
+      const nextPageTop = (currentPageIndex + 1) * pageHeightPx + topMarginPx;
+      const neededSpacer = nextPageTop - relativeTop;
+
+      if (neededSpacer > 0 && neededSpacer < pageHeightPx) {
+        const spacer = document.createElement('div');
+        spacer.style.height = `${Math.ceil(neededSpacer)}px`;
+        spacer.style.width = '100%';
+        spacer.style.display = 'block';
+        spacer.style.clear = 'both';
+        spacer.setAttribute('data-pdf-spacer', 'true');
+
+        block.parentNode?.insertBefore(spacer, block);
+      }
     }
   }
 }
@@ -466,16 +458,17 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
       })
     );
 
-    // Apply smart page-break spacers with 52px top and bottom margins per page
-    applySmartPageBreaks(clonedForRender, 1123, 52, 52);
+    // Apply smart page-break spacers in a single clean pass
+    applySmartPageBreaks(clonedForRender, 1123, 28, 28);
 
     // Sanitize colors inside the cloned offscreen tree
     sanitizeDocumentOklch(document);
 
     // 4. Render html2canvas on the unscaled offscreen clone
-    // scale: 3 gives ~2382px width for crisp 4K text and graphics
+    // scale: 4 produces ~3176px width for ultra crisp 385+ DPI vector-like text & imagery
+    const scale = 4;
     const canvas = await html2canvas(clonedForRender, {
-      scale: 3,
+      scale: scale,
       useCORS: true,
       allowTaint: true,
       logging: false,
@@ -488,10 +481,27 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
       }
     });
 
-    // 5. Slice canvas into exact A4 pages (1123px height per page at 1:1 => 3369px per page at 3x)
+    // 5. Calculate real content height to avoid generating empty trailing pages
+    const containerRect = clonedForRender.getBoundingClientRect();
+    let maxContentBottom = 0;
+
+    const allContentNodes = Array.from(clonedForRender.querySelectorAll<HTMLElement>('*'));
+    allContentNodes.forEach((node) => {
+      if (node.getAttribute('data-pdf-spacer') === 'true') return;
+      if (node.offsetHeight > 0 && node.offsetWidth > 0) {
+        const bottom = node.getBoundingClientRect().bottom - containerRect.top;
+        if (bottom > maxContentBottom) {
+          maxContentBottom = bottom;
+        }
+      }
+    });
+
+    const contentHeight = maxContentBottom > 0 ? maxContentBottom : clonedForRender.scrollHeight;
     const pageHeightPx = 1123;
-    const sliceHeightPx = Math.floor(pageHeightPx * 3);
-    const totalPages = Math.max(1, Math.ceil(canvas.height / sliceHeightPx));
+    const sliceHeightPx = Math.floor(pageHeightPx * scale);
+
+    // Determine exact page count from content height
+    const totalPages = Math.max(1, Math.ceil((contentHeight - 15) / pageHeightPx));
 
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -504,10 +514,6 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
       if (page > 0) {
         pdf.addPage('a4', 'portrait');
       }
-
-      // Draw crisp white background
-      pdf.setFillColor(255, 255, 255);
-      pdf.rect(0, 0, 210, 297, 'F');
 
       const pageCanvas = document.createElement('canvas');
       pageCanvas.width = canvas.width;
@@ -538,7 +544,7 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
         }
       }
 
-      // Export high resolution PNG to PDF
+      // Export ultra high resolution PNG to PDF
       const pageImgData = pageCanvas.toDataURL('image/png', 1.0);
 
       pdf.addImage(
@@ -549,7 +555,7 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
         210,
         297,
         undefined,
-        'FAST'
+        'SLOW'
       );
     }
 

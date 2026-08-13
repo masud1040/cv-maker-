@@ -4,6 +4,7 @@ import { ATSStudentTemplate } from './ATSStudentTemplate';
 import { ATSProfessionalTemplate } from './ATSProfessionalTemplate';
 import { HRProfessionalTemplate } from './HRProfessionalTemplate';
 import { ModernTwoColumnTemplate } from './ModernTwoColumnTemplate';
+import { DeveloperCleanTemplate } from './DeveloperCleanTemplate';
 
 interface LiveCVPreviewProps {
   data: CVData;
@@ -65,6 +66,8 @@ export const LiveCVPreview: React.FC<LiveCVPreviewProps> = ({ data, scale = 1 })
         return <HRProfessionalTemplate data={data} />;
       case 'modern-two-column':
         return <ModernTwoColumnTemplate data={data} />;
+      case 'developer-clean':
+        return <DeveloperCleanTemplate data={data} />;
       default:
         return <ATSStudentTemplate data={data} />;
     }

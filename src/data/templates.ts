@@ -72,6 +72,24 @@ export const TEMPLATES: TemplateConfig[] = [
     supportsPhoto: true,
     recommendedFor: 'Software Engineers, Full Stack Developers, Tech Leads, Management',
     previewThumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'developer-clean',
+    name: 'Developer / Programming Hero Clean',
+    badge: 'Format 5 - Developer Clean Layout',
+    category: 'ATS',
+    tagline: 'High-impact single-column developer format with categorized tech skills and project tech stacks.',
+    description: 'Specially crafted for Full Stack & Web Engineers: prominent project tech stacks, categorized skills (Languages, Frontend, Backend, DB, Tools), and fully optional sections.',
+    features: [
+      'Categorized Skills & Project Tech Stack',
+      'All sections 100% Optional & Flexible',
+      'Underlined header & section dividers',
+      '100% ATS & Recruiter Friendly',
+      'Optimized single-page layout'
+    ],
+    supportsPhoto: false,
+    recommendedFor: 'Full Stack Developers, Web Engineers, Programming Hero Graduates, Junior/Senior Devs',
+    previewThumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80'
   }
 ];
 
@@ -394,3 +412,132 @@ export const SAMPLE_MODERN_CV: CVData = {
   sectionOrder: ['education', 'experience', 'projects', 'awards'],
   fontSize: 'standard'
 };
+
+export const SAMPLE_DEVELOPER_CV: CVData = {
+  ...SAMPLE_STUDENT_CV,
+  id: 'sample-developer-1',
+  title: 'Full Stack Web Developer CV (Developer Format)',
+  templateId: 'developer-clean',
+  personalInfo: {
+    fullName: 'SAIFUL ALAM MASUD',
+    professionalTitle: 'Aspiring Full Stack Web Developer',
+    email: 'saiful.masud@email.com',
+    phone: '+880 1712-345678',
+    location: 'Dhaka, Bangladesh',
+    linkedin: 'linkedin.com/in/saifulmasud',
+    github: 'github.com/saifulmasud',
+    website: 'saifulmasud.dev'
+  },
+  summary: 'Motivated developer transitioning into web development after completing Programming Hero\'s Complete Web Development Course / AI-Driven Full Stack Web Engineering Bootcamp. Built 3+ real-world projects using React, Node.js, Express, MongoDB. Known for fast learning, discipline, and problem solving. Seeking a Junior / Trainee Developer role to apply hands-on project experience and continue growing as an engineer.',
+  skills: {
+    technical: [
+      'Languages: JavaScript (ES6+), TypeScript, HTML5, CSS3',
+      'Frontend: React.js, Next.js, Tailwind CSS, Redux, Bootstrap',
+      'Backend: Node.js, Express.js, REST API design, Authentication (JWT)',
+      'Database: MongoDB, Mongoose, PostgreSQL, MySQL',
+      'Currently Learning: AWS basics, Next.js App Router'
+    ],
+    tools: ['Git & GitHub', 'Postman', 'Vercel', 'Firebase', 'VS Code'],
+    soft: ['Problem Solving', 'Teamwork', 'Ownership', 'Communication']
+  },
+  projects: [
+    {
+      id: 'dev-proj-1',
+      name: 'E-commerce Platform — Social Shopping Web App',
+      date: 'Jan 2026',
+      technologies: 'React.js, Node.js, Express, MongoDB, JWT, Tailwind CSS',
+      link: 'Live Link | GitHub',
+      description: '',
+      bullets: [
+        'Built a full-stack e-commerce web application allowing users to browse, filter, and purchase products.',
+        'Implemented JWT-based authentication, role-based access control, and bKash / Stripe payment gateway integration.',
+        'Result / impact: reduced page load time by 30% and served 100+ active test users.'
+      ]
+    },
+    {
+      id: 'dev-proj-2',
+      name: 'Dashboard Utility App — Smart Task & Analytics',
+      date: 'Nov 2025',
+      technologies: 'Next.js, Tailwind CSS, MongoDB, Recharts',
+      link: 'Live Link | GitHub',
+      description: '',
+      bullets: [
+        'Developed dynamic analytics dashboard with offline state synchronization and drag-and-drop task prioritization.',
+        'Solved state synchronization challenge across multi-device user sessions.'
+      ]
+    }
+  ],
+  experience: [
+    {
+      id: 'dev-exp-1',
+      jobTitle: 'Technical Support Specialist',
+      company: 'TechCorp Solutions',
+      location: 'Dhaka, Bangladesh',
+      startDate: 'Jan 2024',
+      endDate: 'Present',
+      isCurrent: true,
+      description: '',
+      bullets: [
+        'Demonstrated transferable soft skills: teamwork, ownership, deadlines, and technical communication.'
+      ]
+    }
+  ],
+  education: [
+    {
+      id: 'dev-edu-1',
+      institution: 'BRAC University',
+      degree: 'B.Sc. in Computer Science & Engineering',
+      fieldOfStudy: '',
+      gpa: '3.82',
+      location: 'Dhaka, Bangladesh',
+      startDate: '2021',
+      endDate: '2025',
+      isCurrent: false,
+      description: 'Relevant coursework: Data Structures, Algorithms, Web Engineering, Database Systems.'
+    }
+  ],
+  certifications: [
+    {
+      id: 'dev-cert-1',
+      name: 'Complete Web Development Course',
+      organization: 'Programming Hero (Batch 9)',
+      year: '2024',
+      link: 'programming-hero.com'
+    },
+    {
+      id: 'dev-cert-2',
+      name: 'AWS Certified Cloud Practitioner',
+      organization: 'Amazon Web Services',
+      year: '2024'
+    }
+  ],
+  extracurricular: [
+    {
+      id: 'dev-extra-1',
+      role: 'Hackathon Participant & Vice President of Technology',
+      organization: 'BRAC University Computer Club',
+      date: '2024 - Present',
+      description: 'Organized 4 university-wide hackathons with over 350 participants. Conducted technical workshops on Git and React.'
+    }
+  ],
+  languages: [
+    { id: 'lang-1', name: 'English', proficiency: 'Fluent' },
+    { id: 'lang-2', name: 'Bengali', proficiency: 'Native' }
+  ],
+  awards: [
+    {
+      id: 'dev-award-1',
+      title: '1st Runner Up - National Inter-University Hackathon',
+      issuer: 'ICT Division Bangladesh',
+      date: 'Oct 2024',
+      description: 'Awarded prize out of 80 competing teams for developing an accessible healthcare appointment platform.'
+    }
+  ],
+  references: {
+    availableOnRequest: true,
+    items: []
+  },
+  sectionOrder: ['summary', 'skills', 'projects', 'experience', 'education', 'certifications', 'extracurricular', 'languages', 'awards', 'references'],
+  fontSize: 'standard'
+};
+

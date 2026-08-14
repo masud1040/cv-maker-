@@ -10,21 +10,21 @@ interface SignatureFormProps {
 }
 
 export const SignatureForm: React.FC<SignatureFormProps> = ({
-  signature = { enabled: true } as SignatureData,
+  signature,
   defaultName,
   defaultTitle,
   onChange
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const enabled = signature.enabled ?? true;
-  const signerName = signature.signerName ?? defaultName;
-  const signerTitle = signature.signerTitle ?? (defaultTitle || 'Applicant Signature');
-  const signatureImage = signature.signatureImage || '';
+  const enabled = Boolean(signature?.enabled);
+  const signerName = signature?.signerName ?? defaultName;
+  const signerTitle = signature?.signerTitle ?? (defaultTitle || 'Applicant Signature');
+  const signatureImage = signature?.signatureImage || '';
 
   const handleToggle = (checked: boolean) => {
     onChange({
-      ...signature,
+      ...(signature || {}),
       enabled: checked,
       signerName: signerName || defaultName,
       signerTitle: signerTitle || 'Applicant Signature',
@@ -34,7 +34,7 @@ export const SignatureForm: React.FC<SignatureFormProps> = ({
 
   const handleFieldChange = (field: keyof SignatureData, value: any) => {
     onChange({
-      ...signature,
+      ...(signature || {}),
       enabled,
       signerName,
       signerTitle,

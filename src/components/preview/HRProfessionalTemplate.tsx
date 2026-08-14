@@ -393,10 +393,10 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
       </main>
 
       {/* Signature Block at Bottom */}
-      {data.signature?.enabled && (
+      {Boolean(data.signature?.enabled) && (
         <div className="mt-8 pt-4 flex justify-end break-inside-avoid">
           <div className="text-center min-w-[180px] max-w-[240px]">
-            {data.signature.signatureImage && (
+            {data.signature?.signatureImage && (
               <div className="h-10 mb-1 flex items-center justify-center">
                 <img
                   src={data.signature.signatureImage}
@@ -408,9 +408,9 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
             {/* Small line above signature */}
             <div className="w-36 border-t border-slate-900 mx-auto mb-1"></div>
             <p className="text-[9.5pt] font-bold text-slate-900 leading-snug">
-              {data.signature.signerName || personalInfo.fullName || 'Authorized Signature'}
+              {data.signature?.signerName || personalInfo.fullName || 'Authorized Signature'}
             </p>
-            {data.signature.signerTitle && (
+            {data.signature?.signerTitle && (
               <p className="text-[8.5pt] font-medium text-slate-700 leading-tight">
                 {data.signature.signerTitle}
               </p>

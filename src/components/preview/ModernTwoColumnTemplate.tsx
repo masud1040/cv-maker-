@@ -361,10 +361,10 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
       </div>
 
       {/* Signature Block at Bottom (No Date) */}
-      {data.signature?.enabled && (
+      {Boolean(data.signature?.enabled) && (
         <div className="mt-3 pt-2 flex justify-end break-inside-avoid">
           <div className="text-center min-w-[160px] max-w-[220px]">
-            {data.signature.signatureImage && (
+            {data.signature?.signatureImage && (
               <div className="h-8 mb-1 flex items-center justify-center">
                 <img
                   src={data.signature.signatureImage}
@@ -375,9 +375,9 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
             )}
             <div className="w-32 border-t border-slate-900 mx-auto mb-1"></div>
             <p className="text-[9pt] font-bold text-slate-900 leading-snug">
-              {data.signature.signerName || personalInfo.fullName || 'Authorized Signature'}
+              {data.signature?.signerName || personalInfo.fullName || 'Authorized Signature'}
             </p>
-            {data.signature.signerTitle && (
+            {data.signature?.signerTitle && (
               <p className="text-[8pt] font-medium text-slate-700 leading-tight">
                 {data.signature.signerTitle}
               </p>

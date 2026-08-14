@@ -220,11 +220,13 @@ export const JobBioDataTemplate: React.FC<TemplateProps> = ({ data }) => {
   // Filter out any rows that do not meet condition
   const visibleRows = bioRows.filter(row => row.condition);
 
-  // Check if declaration or place/date exists
+  // Check if declaration, signature, or place/date exists
+  const isSignatureEnabled = Boolean(signature?.enabled);
   const hasPlace = hasText(bioData?.place);
-  const hasDate = hasText(bioData?.submissionDate) || hasText(signature?.date);
-  const dateValue = bioData?.submissionDate || signature?.date || '';
+  const hasDate = hasText(bioData?.submissionDate) || (isSignatureEnabled && hasText(signature?.date));
+  const dateValue = bioData?.submissionDate || (isSignatureEnabled ? signature?.date : '') || '';
   const hasDeclaration = hasText(bioData?.declaration);
+  const showFooter = hasPlace || hasDate || isSignatureEnabled;
 
   return (
     <div className="w-[794px] min-h-[1123px] bg-white text-black px-12 py-10 font-sans leading-normal box-border flex flex-col justify-between selection:bg-zinc-200">
@@ -284,51 +286,49 @@ export const JobBioDataTemplate: React.FC<TemplateProps> = ({ data }) => {
       </div>
 
       {/* Footer Section: Place, Date on Left & Signature on Right */}
-      <div className="mt-12 pt-6 flex justify-between items-end break-inside-avoid">
-        {/* Left Side: Place & Date */}
-        <div className="space-y-1.5 text-[9.5pt] font-medium text-black">
-          {hasPlace && (
-            <div className="flex items-center gap-2">
-              <span className="font-bold w-16">Place :</span>
-              <span>{bioData?.place}</span>
-            </div>
-          )}
-          {hasDate && (
-            <div className="flex items-center gap-2">
-              <span className="font-bold w-16">Date :</span>
-              <span>{dateValue}</span>
-            </div>
-          )}
-          {!hasPlace && !hasDate && (
-            <div className="space-y-1 text-zinc-800">
-              <div>Place : ____________________</div>
-              <div>Date &nbsp;: ____________________</div>
-            </div>
-          )}
-        </div>
+      {showFooter && (
+        <div className="mt-12 pt-6 flex justify-between items-end break-inside-avoid">
+          {/* Left Side: Place & Date */}
+          <div className="space-y-1.5 text-[9.5pt] font-medium text-black">
+            {hasPlace && (
+              <div className="flex items-center gap-2">
+                <span className="font-bold w-16">Place :</span>
+                <span>{bioData?.place}</span>
+              </div>
+            )}
+            {hasDate && (
+              <div className="flex items-center gap-2">
+                <span className="font-bold w-16">Date :</span>
+                <span>{dateValue}</span>
+              </div>
+            )}
+          </div>
 
-        {/* Right Side: Signature Block */}
-        <div className="text-center min-w-[180px]">
-          {signature?.signatureImage && (
-            <div className="h-10 mb-1 flex items-center justify-center">
-              <img
-                src={signature.signatureImage}
-                alt="Signature"
-                className="max-h-10 max-w-full object-contain"
-              />
+          {/* Right Side: Signature Block */}
+          {isSignatureEnabled && (
+            <div className="text-center min-w-[180px]">
+              {signature?.signatureImage && (
+                <div className="h-10 mb-1 flex items-center justify-center">
+                  <img
+                    src={signature.signatureImage}
+                    alt="Signature"
+                    className="max-h-10 max-w-full object-contain"
+                  />
+                </div>
+              )}
+              <div className="w-44 border-t-2 border-black mx-auto mb-1"></div>
+              <p className="text-[10pt] font-bold text-black">
+                {signature?.signerName || personalInfo.fullName || 'Signature'}
+              </p>
+              {signature?.signerTitle && (
+                <p className="text-[8.5pt] text-zinc-700">
+                  {signature.signerTitle}
+                </p>
+              )}
             </div>
           )}
-          <div className="w-44 border-t-2 border-black mx-auto mb-1"></div>
-          <p className="text-[10pt] font-bold text-black">
-            {signature?.signerName || personalInfo.fullName || 'Signature'}
-          </p>
-          {signature?.signerTitle && (
-            <p className="text-[8.5pt] text-zinc-700">
-              {signature.signerTitle}
-            </p>
-          )}
         </div>
-      </div>
+      )}
     </div>
   );
 };

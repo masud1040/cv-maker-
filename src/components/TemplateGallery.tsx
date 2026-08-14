@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TEMPLATES, SAMPLE_STUDENT_CV, SAMPLE_HR_CV, SAMPLE_MODERN_CV, SAMPLE_DEVELOPER_CV } from '../data/templates';
+import { TEMPLATES, SAMPLE_STUDENT_CV, SAMPLE_HR_CV, SAMPLE_MODERN_CV, SAMPLE_DEVELOPER_CV, SAMPLE_BIODATA_CV } from '../data/templates';
 import { TemplateConfig, TemplateId } from '../types/cv';
 import { LiveCVPreview } from './preview/LiveCVPreview';
 import { Check, Eye, Sparkles, ArrowRight, X } from 'lucide-react';
@@ -20,6 +20,7 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
   });
 
   const getSampleForTemplate = (templateId: TemplateId) => {
+    if (templateId === 'job-biodata') return SAMPLE_BIODATA_CV;
     if (templateId === 'developer-clean') return SAMPLE_DEVELOPER_CV;
     if (templateId === 'hr-professional') return SAMPLE_HR_CV;
     if (templateId === 'modern-two-column') return SAMPLE_MODERN_CV;

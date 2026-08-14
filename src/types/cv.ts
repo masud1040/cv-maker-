@@ -1,4 +1,24 @@
-export type TemplateId = 'ats-student' | 'ats-professional' | 'hr-professional' | 'modern-two-column' | 'developer-clean';
+export type TemplateId = 'ats-student' | 'ats-professional' | 'hr-professional' | 'modern-two-column' | 'developer-clean' | 'job-biodata';
+
+export interface BioDataDetails {
+  fatherName?: string;
+  motherName?: string;
+  spouseName?: string;
+  dateOfBirth?: string;
+  gender?: string;
+  maritalStatus?: string;
+  religion?: string;
+  nationality?: string;
+  bloodGroup?: string;
+  nationalId?: string;
+  presentAddress?: string;
+  permanentAddress?: string;
+  place?: string;
+  submissionDate?: string;
+  height?: string;
+  weight?: string;
+  declaration?: string;
+}
 
 export interface PersonalInfo {
   fullName: string;
@@ -153,6 +173,7 @@ export interface CVData {
   references: ReferencesData;
   customSections: CustomSection[];
   sectionOrder: SectionType[];
+  bioData?: BioDataDetails;
   signature?: SignatureData;
   fontSize?: 'compact' | 'standard' | 'spacious';
   accentColor?: string;

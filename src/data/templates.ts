@@ -90,6 +90,24 @@ export const TEMPLATES: TemplateConfig[] = [
     supportsPhoto: false,
     recommendedFor: 'Full Stack Developers, Web Engineers, Programming Hero Graduates, Junior/Senior Devs',
     previewThumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'job-biodata',
+    name: 'Job Bio Data (Word & PDF Format)',
+    badge: 'Format 6 - Standard Job Bio Data',
+    category: 'HR',
+    tagline: 'Standard Bio Data format with passport photo frame, key-value alignment, auto-hiding empty fields, and signature.',
+    description: 'Official Job Bio Data layout with centered title, top-right photo box, aligned key-colon-value rows (Father\'s Name, DOB, Religion, Qualification, Experience, Address, Place, Date). Any field left blank is automatically excluded.',
+    features: [
+      'Top Right Passport Photo Frame',
+      'Perfect Key-Colon-Value Alignment',
+      'Auto-Hiding of all unfilled fields',
+      'Formal Place, Date & Signature Block',
+      '100% Single Page / Multi Page Safe'
+    ],
+    supportsPhoto: true,
+    recommendedFor: 'Job Applicants, Government / Private Sector candidates, Traditional & Corporate Bio Data',
+    previewThumbnail: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=600&auto=format&fit=crop&q=80'
   }
 ];
 
@@ -540,4 +558,107 @@ export const SAMPLE_DEVELOPER_CV: CVData = {
   sectionOrder: ['summary', 'skills', 'projects', 'experience', 'education', 'certifications', 'extracurricular', 'languages', 'awards', 'references'],
   fontSize: 'standard'
 };
+
+export const SAMPLE_BIODATA_CV: CVData = {
+  id: 'sample-biodata-1',
+  title: 'Job Bio Data Form',
+  templateId: 'job-biodata',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  personalInfo: {
+    fullName: 'MD. SAIFUL ALAM MASUD',
+    professionalTitle: 'Executive / Technical Officer',
+    email: 'saiful.masud@email.com',
+    phone: '+880 1712-345678',
+    location: 'Dhaka, Bangladesh',
+    linkedin: '',
+    github: '',
+    website: '',
+    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80'
+  },
+  bioData: {
+    fatherName: 'Md. Rafiqul Islam',
+    motherName: 'Salma Begum',
+    dateOfBirth: '15 October 1999',
+    gender: 'Male',
+    maritalStatus: 'Unmarried',
+    religion: 'Islam',
+    nationality: 'Bangladeshi (By Birth)',
+    bloodGroup: 'B+ (ve)',
+    nationalId: '1999261234567890',
+    presentAddress: 'House #12, Road #4, Dhanmondi, Dhaka-1209',
+    permanentAddress: 'Village: Joypur, P.O: Chandpur, District: Cumilla',
+    place: 'Dhaka',
+    submissionDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+    declaration: 'I hereby declare that all the information provided above is true and correct to the best of my knowledge.'
+  },
+  summary: '',
+  education: [
+    {
+      id: 'bio-edu-1',
+      institution: 'BRAC University',
+      degree: 'B.Sc. in Computer Science & Engineering',
+      fieldOfStudy: '',
+      gpa: '3.82 / 4.00',
+      startDate: '2021',
+      endDate: '2025',
+      isCurrent: false
+    },
+    {
+      id: 'bio-edu-2',
+      institution: 'Dhaka City College',
+      degree: 'Higher Secondary Certificate (HSC)',
+      fieldOfStudy: 'Science',
+      gpa: 'GPA 5.00 / 5.00',
+      startDate: '2018',
+      endDate: '2020',
+      isCurrent: false
+    }
+  ],
+  experience: [
+    {
+      id: 'bio-exp-1',
+      jobTitle: 'Junior Officer (Operations & Tech)',
+      company: 'Innovate Solutions Ltd.',
+      startDate: '2024',
+      endDate: 'Present',
+      isCurrent: true,
+      description: 'Managed database operations, client correspondence, and technical records management.',
+      bullets: []
+    }
+  ],
+  projects: [],
+  skills: {
+    technical: ['MS Office (Word, Excel, PowerPoint)', 'Data Entry', 'Computer Hardware Troubleshooting'],
+    tools: ['Google Workspace', 'ERP Systems', 'Email Management'],
+    soft: ['Teamwork', 'Time Management', 'Discipline']
+  },
+  certifications: [
+    {
+      id: 'bio-cert-1',
+      name: 'Computer Office Applications',
+      organization: 'Bangladesh Technical Education Board',
+      year: '2021'
+    }
+  ],
+  extracurricular: [],
+  languages: [
+    { id: 'lang-1', name: 'Bengali', proficiency: 'Native' },
+    { id: 'lang-2', name: 'English', proficiency: 'Fluent' }
+  ],
+  awards: [],
+  references: {
+    availableOnRequest: true,
+    items: []
+  },
+  customSections: [],
+  signature: {
+    enabled: true,
+    signerName: 'Md. Saiful Alam Masud',
+    signerTitle: 'Applicant Signature'
+  },
+  sectionOrder: ['biodata', 'education', 'experience', 'skills', 'languages'],
+  fontSize: 'standard'
+};
+
 

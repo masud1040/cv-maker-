@@ -15,6 +15,7 @@ import { ReferencesForm } from './ReferencesForm';
 import { SignatureForm } from './SignatureForm';
 import { CustomSectionsForm } from './CustomSectionsForm';
 import { SectionOrderManager } from './SectionOrderManager';
+import { BioDataForm } from './BioDataForm';
 import { LiveCVPreview } from '../preview/LiveCVPreview';
 import { PreviewModal } from '../PreviewModal';
 import { generatePDFFromElement } from '../../utils/pdfExport';
@@ -40,6 +41,7 @@ import {
   Layers,
   Palette,
   PenTool,
+  Contact,
   Sun,
   Moon
 } from 'lucide-react';
@@ -55,6 +57,7 @@ interface CVEditorProps {
 
 type EditorTab =
   | 'personal'
+  | 'biodata'
   | 'summary'
   | 'education'
   | 'experience'
@@ -134,6 +137,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
   const navTabs = [
     { id: 'personal', label: 'Personal', icon: User },
+    { id: 'biodata', label: 'Bio Data', icon: Contact },
     { id: 'summary', label: 'Summary', icon: FileText },
     { id: 'education', label: 'Education', icon: GraduationCap },
     { id: 'experience', label: 'Experience', icon: Briefcase },
@@ -323,6 +327,15 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                 data={data.personalInfo}
                 templateId={data.templateId}
                 onChange={(personalInfo) => setData(prev => ({ ...prev, personalInfo }))}
+              />
+            )}
+
+            {activeTab === 'biodata' && (
+              <BioDataForm
+                data={data.bioData || {}}
+                personalInfo={data.personalInfo}
+                onChange={(bioData) => setData(prev => ({ ...prev, bioData }))}
+                onUpdatePersonalInfo={(personalInfo) => setData(prev => ({ ...prev, personalInfo }))}
               />
             )}
 

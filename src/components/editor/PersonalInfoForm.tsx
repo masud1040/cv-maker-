@@ -34,7 +34,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, templa
     onChange({ ...data, photoUrl: '' });
   };
 
-  const isHRTemplate = templateId === 'hr-professional';
+  const supportsPhoto = templateId === 'hr-professional' || templateId === 'modern-two-column' || templateId === 'job-biodata';
 
   return (
     <div className="space-y-4">
@@ -49,13 +49,13 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ data, templa
 
       {/* Profile Photo Block */}
       <div className="p-3 bg-slate-50 rounded-lg border border-slate-200">
-        <label className="block text-xs font-semibold text-slate-700 mb-1">Profile Photo</label>
+        <label className="block text-xs font-semibold text-slate-700 mb-1">Profile / Passport Photo</label>
         
-        {!isHRTemplate ? (
+        {!supportsPhoto ? (
           <div className="flex items-start gap-2.5 text-amber-800 bg-amber-50 p-2.5 rounded-md border border-amber-200 text-xs">
             <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div>
-              <span className="font-semibold">ATS Notice:</span> Standard ATS templates omit profile photos because applicant tracking systems process raw text. Switch to the <strong>HR Professional</strong> template if you want a visual photo layout.
+              <span className="font-semibold">ATS Notice:</span> Standard single-column ATS templates omit photos for maximum machine-readability. Switch to <strong>Job Bio Data</strong>, <strong>HR Professional</strong>, or <strong>Modern Two-Column</strong> if you need a photo.
             </div>
           </div>
         ) : (

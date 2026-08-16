@@ -60,19 +60,19 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
   };
 
   return (
-    <div className="space-y-4">
-      <div className="border-b border-slate-200 pb-2 flex items-center justify-between">
+    <div className="space-y-5">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-blue-600" />
+          <h3 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+            <Briefcase className="w-4 h-4 text-slate-700 dark:text-slate-300" />
             Work & Internship Experience
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">Professional roles, internships, and work accomplishments.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Professional roles, internships, and work accomplishments.</p>
         </div>
         <button
           type="button"
           onClick={handleAdd}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg shadow-2xs transition-colors"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Role
@@ -80,38 +80,42 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
       </div>
 
       {entries.length === 0 ? (
-        <div className="text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-          <p className="text-xs text-slate-500">No work or internship experience added.</p>
+        <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+          <p className="text-xs text-slate-500 dark:text-slate-400">No work or internship experience added.</p>
           <button
             type="button"
             onClick={handleAdd}
-            className="mt-2 text-xs font-semibold text-blue-600 hover:underline"
+            className="mt-2 text-xs font-semibold text-slate-900 dark:text-white hover:underline inline-flex items-center gap-1"
           >
-            + Add work or internship role
+            <Plus className="w-3.5 h-3.5" />
+            Add work or internship role
           </button>
         </div>
       ) : (
         <div className="space-y-4">
           {entries.map((exp, index) => (
-            <div key={exp.id} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200 space-y-3">
-              <div className="flex justify-between items-center border-b border-slate-200 pb-2">
-                <span className="text-xs font-bold text-slate-800">
+            <div
+              key={exp.id}
+              className="p-4 bg-slate-50/70 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-3.5"
+            >
+              <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2.5">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
                   Role #{index + 1} {exp.jobTitle ? `— ${exp.jobTitle}` : ''}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleDelete(exp.id)}
-                  className="p-1 text-slate-400 hover:text-red-600 rounded transition"
+                  className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-md transition-colors"
                   title="Delete Role"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {/* Job Title */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Job Title / Role <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -119,13 +123,13 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                     value={exp.jobTitle}
                     onChange={(e) => handleUpdate(exp.id, 'jobTitle', e.target.value)}
                     placeholder="e.g. Software Engineering Intern"
-                    className="w-full px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                   />
                 </div>
 
                 {/* Company */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Company / Organization <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
@@ -133,8 +137,8 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                       type="text"
                       value={exp.company}
                       onChange={(e) => handleUpdate(exp.id, 'company', e.target.value)}
-                      placeholder="e.g. TechCraft Innovations"
-                      className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g. Acme Corp"
+                      className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                     />
                     <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                   </div>
@@ -142,7 +146,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
 
                 {/* Location */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Location
                   </label>
                   <div className="relative">
@@ -150,67 +154,67 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                       type="text"
                       value={exp.location || ''}
                       onChange={(e) => handleUpdate(exp.id, 'location', e.target.value)}
-                      placeholder="e.g. Dhaka, Bangladesh (or Remote)"
-                      className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="e.g. New York, NY (or Remote)"
+                      className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                     />
                     <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                   </div>
                 </div>
 
                 {/* Dates & Current */}
-                <div className="grid grid-cols-2 gap-2 items-center">
+                <div className="grid grid-cols-2 gap-2.5 items-center">
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">Start Date</label>
+                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Start Date</label>
                     <div className="relative">
                       <input
                         type="text"
                         value={exp.startDate}
                         onChange={(e) => handleUpdate(exp.id, 'startDate', e.target.value)}
-                        placeholder="Jun 2024"
-                        className="w-full pl-7 pr-2 py-1.5 text-xs border border-slate-300 rounded-lg"
+                        placeholder="Jun 2023"
+                        className="w-full pl-8 pr-2 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                       />
-                      <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-2.5" />
+                      <Calendar className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">End Date</label>
+                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">End Date</label>
                     <input
                       type="text"
                       disabled={exp.isCurrent}
                       value={exp.isCurrent ? 'Present' : exp.endDate}
                       onChange={(e) => handleUpdate(exp.id, 'endDate', e.target.value)}
-                      placeholder="Sep 2024"
-                      className="w-full px-2 py-1.5 text-xs border border-slate-300 rounded-lg disabled:bg-slate-100 disabled:text-slate-400"
+                      placeholder="Aug 2023"
+                      className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg disabled:bg-slate-100 dark:disabled:bg-slate-900 disabled:text-slate-400 focus:outline-none transition"
                     />
                   </div>
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="inline-flex items-center gap-1.5 text-xs text-slate-700 cursor-pointer">
+                  <label className="inline-flex items-center gap-1.5 text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={exp.isCurrent}
                       onChange={(e) => handleUpdate(exp.id, 'isCurrent', e.target.checked)}
-                      className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:ring-slate-900"
                     />
-                    I currently work here
+                    <span>I currently work here</span>
                   </label>
                 </div>
 
                 {/* Bullet Points */}
                 <div className="sm:col-span-2 space-y-2 pt-1">
                   <div className="flex justify-between items-center">
-                    <label className="block text-xs font-semibold text-slate-800">
+                    <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200">
                       Key Accomplishments & Bullet Points
                     </label>
                     <button
                       type="button"
                       onClick={() => handleAddBullet(exp.id)}
-                      className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                      className="text-xs font-medium text-slate-900 dark:text-white hover:underline flex items-center gap-1"
                     >
                       <ListPlus className="w-3.5 h-3.5" />
-                      Add Bullet Point
+                      Add Bullet
                     </button>
                   </div>
 
@@ -222,14 +226,14 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                           type="text"
                           value={bullet}
                           onChange={(e) => handleBulletChange(exp.id, bIdx, e.target.value)}
-                          placeholder="e.g. Developed 12 REST API endpoints using Express, reducing query latency by 24%."
-                          className="flex-1 px-3 py-1.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          placeholder="e.g. Developed 12 REST API endpoints using Node.js, reducing latency by 24%."
+                          className="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                         />
                         {exp.bullets.length > 1 && (
                           <button
                             type="button"
                             onClick={() => handleDeleteBullet(exp.id, bIdx)}
-                            className="p-1 text-slate-400 hover:text-red-600 rounded"
+                            className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-md transition-colors"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -246,3 +250,4 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
     </div>
   );
 };
+

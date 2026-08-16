@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TEMPLATES, SAMPLE_STUDENT_CV, SAMPLE_HR_CV, SAMPLE_MODERN_CV, SAMPLE_DEVELOPER_CV, SAMPLE_BIODATA_CV } from '../data/templates';
 import { TemplateConfig, TemplateId } from '../types/cv';
 import { LiveCVPreview } from './preview/LiveCVPreview';
-import { Check, Eye, Sparkles, ArrowRight, X } from 'lucide-react';
+import { Check, Eye, ArrowRight, X, LayoutGrid, CheckCircle } from 'lucide-react';
 
 interface TemplateGalleryProps {
   onSelectTemplate: (templateId: TemplateId) => void;
@@ -31,73 +31,69 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto space-y-10">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 px-4 sm:px-6 lg:px-8 font-sans">
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-zinc-300 text-zinc-900 text-xs font-bold rounded-full">
-            <Sparkles className="w-3.5 h-3.5 text-black" />
-            <span className="uppercase tracking-widest text-[10px]">Guidebook Approved Formats</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 tracking-tight">
-            Select Your CV Format
+        <div className="text-center space-y-2.5 max-w-2xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Choose Your Resume Template
           </h1>
-          <p className="text-zinc-600 text-sm sm:text-base max-w-2xl mx-auto">
-            Choose between strict single-column ATS templates for online portals or visual two-column executive templates for direct submissions.
+          <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">
+            Select between single-column ATS templates for online job portals or modern two-column formats for direct applications.
           </p>
 
-          {/* Filter Tabs */}
-          <div className="flex justify-center items-center gap-2 pt-2">
+          {/* Filter Pills */}
+          <div className="flex justify-center items-center gap-1.5 pt-3">
             <button
               onClick={() => setSelectedFilter('ALL')}
-              className={`px-4 py-1.5 text-xs font-bold rounded-md transition ${
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 selectedFilter === 'ALL'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-300'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800'
               }`}
             >
               All Formats ({TEMPLATES.length})
             </button>
             <button
               onClick={() => setSelectedFilter('ATS')}
-              className={`px-4 py-1.5 text-xs font-bold rounded-md transition ${
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 selectedFilter === 'ATS'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-300'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800'
               }`}
             >
               ATS Optimized
             </button>
             <button
               onClick={() => setSelectedFilter('HR')}
-              className={`px-4 py-1.5 text-xs font-bold rounded-md transition ${
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 selectedFilter === 'HR'
-                  ? 'bg-black text-white shadow-xs'
-                  : 'bg-white text-zinc-600 hover:bg-zinc-100 border border-zinc-300'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-xs'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800'
               }`}
             >
-              HR Visual
+              HR & Modern
             </button>
           </div>
         </div>
 
         {/* Template Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTemplates.map((template) => (
             <div
               key={template.id}
-              className="bg-white rounded-xl border border-zinc-200 shadow-2xs hover:border-black transition-all duration-200 flex flex-col overflow-hidden group"
+              className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600 transition-all duration-200 flex flex-col overflow-hidden shadow-2xs group"
             >
               {/* Scaled Mini Cover Preview */}
-              <div className="relative h-72 bg-zinc-200/60 border-b border-zinc-200 overflow-hidden flex items-start justify-center pt-3 px-2 group-hover:bg-zinc-200 transition-colors">
+              <div className="relative h-64 bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 overflow-hidden flex items-start justify-center pt-3 px-2 group-hover:bg-slate-200/50 dark:group-hover:bg-slate-900/60 transition-colors">
                 {/* Mini Scaled Live CV Document */}
-                <div className="transform origin-top scale-[0.31] pointer-events-none select-none shadow-md rounded">
+                <div className="transform origin-top scale-[0.30] pointer-events-none select-none shadow-md rounded bg-white">
                   <LiveCVPreview data={getSampleForTemplate(template.id)} scale={1} />
                 </div>
 
                 {/* Badge Top Left */}
                 <div className="absolute top-3 left-3 z-10">
-                  <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-black/90 text-white rounded shadow-xs backdrop-blur-xs">
+                  <span className="px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-slate-900/90 dark:bg-white/90 text-white dark:text-slate-900 rounded shadow-xs backdrop-blur-xs">
                     {template.badge}
                   </span>
                 </div>
@@ -105,45 +101,39 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
                 {/* Quick Preview Button */}
                 <button
                   onClick={() => setPreviewTemplate(template)}
-                  className="absolute bottom-3 right-3 z-10 px-3.5 py-1.5 bg-white text-zinc-900 text-xs font-bold rounded-lg shadow-md hover:bg-black hover:text-white flex items-center gap-1.5 transition-all border border-zinc-300"
+                  className="absolute bottom-3 right-3 z-10 px-3 py-1 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-lg shadow-sm hover:bg-slate-900 hover:text-white dark:hover:bg-white dark:hover:text-slate-900 flex items-center gap-1.5 transition-all border border-slate-200 dark:border-slate-700"
                 >
-                  <Eye className="w-3.5 h-3.5" /> Full Preview
+                  <Eye className="w-3.5 h-3.5" /> Preview
                 </button>
               </div>
 
               {/* Template Body */}
-              <div className="p-6 flex-1 flex flex-col space-y-4">
-                <div>
-                  <h3 className="text-lg font-bold text-zinc-900 group-hover:text-black transition">
-                    {template.name}
-                  </h3>
-                  <p className="text-xs font-semibold text-zinc-500 mt-0.5">{template.tagline}</p>
-                  <p className="text-xs text-zinc-600 mt-2 leading-relaxed">{template.description}</p>
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-baseline justify-between">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                      {template.name}
+                    </h3>
+                    <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wider">{template.category}</span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{template.description}</p>
                 </div>
 
                 {/* Recommended For */}
-                <div className="p-2.5 bg-[#F4F4F5] rounded text-xs border border-zinc-200">
-                  <span className="font-bold text-zinc-800 uppercase text-[10px] tracking-wider">Best for: </span>
-                  <span className="text-zinc-600">{template.recommendedFor}</span>
+                <div className="p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-lg text-xs border border-slate-200 dark:border-slate-700/60">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300 uppercase text-[10px] tracking-wider block mb-0.5">
+                    Recommended for:
+                  </span>
+                  <span className="text-slate-600 dark:text-slate-400 text-[11px]">{template.recommendedFor}</span>
                 </div>
-
-                {/* Features list */}
-                <ul className="space-y-1.5 text-xs text-zinc-700 flex-1">
-                  {template.features.map((feat, i) => (
-                    <li key={i} className="flex items-center gap-2">
-                      <Check className="w-3.5 h-3.5 text-black shrink-0" />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
 
                 {/* Action button */}
                 <button
                   onClick={() => onSelectTemplate(template.id)}
-                  className="w-full py-2.5 px-4 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded shadow-xs transition flex items-center justify-center gap-2"
+                  className="w-full py-2 px-4 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center justify-center gap-1.5"
                 >
-                  Use This Template
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Select Template</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
@@ -151,42 +141,44 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
         </div>
       </div>
 
-      {/* Quick Preview Modal (Fitted cleanly without horizontal drag) */}
+      {/* Quick Preview Modal */}
       {previewTemplate && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-zinc-950/80 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl border border-zinc-300">
-            <header className="px-5 py-3 border-b border-zinc-200 flex justify-between items-center bg-zinc-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white dark:bg-slate-900 rounded-xl w-full max-w-4xl max-h-[92vh] overflow-hidden flex flex-col shadow-2xl border border-slate-200 dark:border-slate-800">
+            <header className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
               <div>
-                <h3 className="font-bold text-zinc-900 text-sm sm:text-base">{previewTemplate.name} Sample Preview</h3>
-                <p className="text-xs text-zinc-500">{previewTemplate.tagline}</p>
+                <h3 className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">{previewTemplate.name} Sample Preview</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{previewTemplate.tagline}</p>
               </div>
               <button
                 onClick={() => setPreviewTemplate(null)}
-                className="p-1.5 text-zinc-400 hover:text-black rounded-md transition"
+                className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-md transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </header>
 
-            {/* Container fitted cleanly without horizontal scrolling */}
-            <div className="flex-1 overflow-y-auto p-2 sm:p-4 bg-zinc-100 flex justify-center items-start overflow-x-hidden">
+            {/* Container */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-100 dark:bg-slate-950 flex justify-center items-start overflow-x-hidden">
               <div className="w-full max-w-[794px] flex justify-center">
-                <LiveCVPreview data={getSampleForTemplate(previewTemplate.id)} scale={0.65} />
+                <div className="shadow-lg bg-white rounded-sm overflow-hidden">
+                  <LiveCVPreview data={getSampleForTemplate(previewTemplate.id)} scale={0.65} />
+                </div>
               </div>
             </div>
 
-            <footer className="px-5 py-3 border-t border-zinc-200 bg-white flex justify-between items-center">
-              <span className="text-xs text-zinc-500">Includes guidebook sample data</span>
+            <footer className="px-5 py-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center">
+              <span className="text-xs text-slate-500 dark:text-slate-400">Standard A4 Layout</span>
               <button
                 onClick={() => {
                   const tid = previewTemplate.id;
                   setPreviewTemplate(null);
                   onSelectTemplate(tid);
                 }}
-                className="px-5 py-2 bg-black hover:bg-zinc-800 text-white text-xs font-bold rounded transition shadow-xs flex items-center gap-2"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold rounded-lg transition-colors shadow-xs flex items-center gap-1.5"
               >
                 Use {previewTemplate.name}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </footer>
           </div>
@@ -195,3 +187,4 @@ export const TemplateGallery: React.FC<TemplateGalleryProps> = ({ onSelectTempla
     </div>
   );
 };
+

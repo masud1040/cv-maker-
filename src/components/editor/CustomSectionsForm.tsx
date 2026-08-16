@@ -80,18 +80,18 @@ export const CustomSectionsForm: React.FC<CustomSectionsFormProps> = ({ sections
 
   return (
     <div className="space-y-4">
-      <div className="border-b border-slate-200 pb-2 flex items-center justify-between">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
-            <FolderPlus className="w-4 h-4 text-blue-600" />
+          <h3 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+            <FolderPlus className="w-4 h-4 text-slate-700 dark:text-slate-300" />
             Custom Sections
           </h3>
-          <p className="text-xs text-slate-500 mt-0.5">Add additional tailored sections (e.g. Publications, Volunteer Work, Key Courses).</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Add additional tailored sections (e.g. Publications, Volunteer Work, Key Courses).</p>
         </div>
         <button
           type="button"
           onClick={handleAddSection}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 rounded-lg transition"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg transition"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Custom Section
@@ -99,12 +99,12 @@ export const CustomSectionsForm: React.FC<CustomSectionsFormProps> = ({ sections
       </div>
 
       {sections.length === 0 ? (
-        <div className="text-center py-6 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-          <p className="text-xs text-slate-500">No custom sections created.</p>
+        <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/30 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+          <p className="text-xs text-slate-500 dark:text-slate-400">No custom sections created.</p>
           <button
             type="button"
             onClick={handleAddSection}
-            className="mt-2 text-xs font-semibold text-blue-600 hover:underline"
+            className="mt-2 text-xs font-medium text-slate-900 dark:text-white underline underline-offset-2 hover:opacity-80"
           >
             + Create a custom section
           </button>
@@ -112,19 +112,19 @@ export const CustomSectionsForm: React.FC<CustomSectionsFormProps> = ({ sections
       ) : (
         <div className="space-y-4">
           {sections.map((sec) => (
-            <div key={sec.id} className="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200 space-y-3">
-              <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <div key={sec.id} className="p-4 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-3">
+              <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-700/70 pb-2.5">
                 <input
                   type="text"
                   value={sec.title}
                   onChange={(e) => handleUpdateTitle(sec.id, e.target.value)}
                   placeholder="Section Title (e.g., Publications)"
-                  className="flex-1 font-bold text-xs px-2.5 py-1 border border-slate-300 rounded-lg bg-white"
+                  className="flex-1 font-semibold text-xs px-3 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                 />
                 <button
                   type="button"
                   onClick={() => handleDeleteSection(sec.id)}
-                  className="p-1 text-slate-400 hover:text-red-600 rounded"
+                  className="p-1.5 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg transition-colors"
                   title="Delete Section"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -132,48 +132,48 @@ export const CustomSectionsForm: React.FC<CustomSectionsFormProps> = ({ sections
               </div>
 
               {/* Items */}
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {sec.items.map((item) => (
-                  <div key={item.id} className="p-2 bg-white rounded-lg border border-slate-200 space-y-2 text-xs">
+                  <div key={item.id} className="p-3 bg-white dark:bg-slate-850 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-2.5 text-xs">
                     <div className="flex justify-between items-center">
-                      <span className="font-semibold text-slate-700">Item Details</span>
+                      <span className="font-semibold text-slate-700 dark:text-slate-300 text-xs">Item Details</span>
                       <button
                         type="button"
                         onClick={() => handleDeleteItem(sec.id, item.id)}
-                        className="p-0.5 text-slate-400 hover:text-red-600"
+                        className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded transition-colors"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <input
                         type="text"
                         value={item.title}
                         onChange={(e) => handleUpdateItem(sec.id, item.id, 'title', e.target.value)}
                         placeholder="Title / Role / Heading"
-                        className="px-2 py-1 border border-slate-300 rounded"
+                        className="px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                       />
                       <input
                         type="text"
                         value={item.subtitle || ''}
                         onChange={(e) => handleUpdateItem(sec.id, item.id, 'subtitle', e.target.value)}
                         placeholder="Organization / Subtitle"
-                        className="px-2 py-1 border border-slate-300 rounded"
+                        className="px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                       />
                       <input
                         type="text"
                         value={item.date || ''}
                         onChange={(e) => handleUpdateItem(sec.id, item.id, 'date', e.target.value)}
                         placeholder="Date / Period"
-                        className="px-2 py-1 border border-slate-300 rounded"
+                        className="px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                       />
                       <input
                         type="text"
                         value={item.description}
                         onChange={(e) => handleUpdateItem(sec.id, item.id, 'description', e.target.value)}
                         placeholder="Description..."
-                        className="px-2 py-1 border border-slate-300 rounded"
+                        className="px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                       />
                     </div>
                   </div>
@@ -182,7 +182,7 @@ export const CustomSectionsForm: React.FC<CustomSectionsFormProps> = ({ sections
                 <button
                   type="button"
                   onClick={() => handleAddItem(sec.id)}
-                  className="text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1 pt-1"
+                  className="text-xs font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 pt-1 transition"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add Item to {sec.title}
                 </button>
@@ -194,3 +194,4 @@ export const CustomSectionsForm: React.FC<CustomSectionsFormProps> = ({ sections
     </div>
   );
 };
+

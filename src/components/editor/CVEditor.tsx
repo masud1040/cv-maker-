@@ -25,7 +25,6 @@ import {
   Download,
   Eye,
   RotateCcw,
-  Sparkles,
   User,
   FileText,
   GraduationCap,
@@ -43,7 +42,8 @@ import {
   PenTool,
   Contact,
   Sun,
-  Moon
+  Moon,
+  ChevronDown
 } from 'lucide-react';
 
 interface CVEditorProps {
@@ -111,7 +111,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   };
 
   const handleReset = () => {
-    if (confirm('Are you sure you want to reset this CV? This will restore sample data.')) {
+    if (confirm('Reset resume data? This will restore sample placeholder values.')) {
       setData({
         ...SAMPLE_STUDENT_CV,
         id: data.id,
@@ -135,8 +135,48 @@ export const CVEditor: React.FC<CVEditorProps> = ({
     }
   };
 
-  const navTabs = [
-    { id: 'personal', label: 'Personal', icon: User },
+  // Helper to check if section has content
+  const hasContent = (tabId: EditorTab): boolean => {
+    switch (tabId) {
+      case 'personal':
+        return Boolean(data.personalInfo.fullName);
+      case 'biodata':
+        return Boolean(data.bioData?.fatherName || data.bioData?.permanentAddress || data.bioData?.nidNumber);
+      case 'summary':
+        return Boolean(data.summary && data.summary.trim().length > 0);
+      case 'education':
+        return (data.education || []).length > 0;
+      case 'experience':
+        return (data.experience || []).length > 0;
+      case 'projects':
+        return (data.projects || []).length > 0;
+      case 'skills':
+        return Boolean(
+          (data.skills?.technical || []).length ||
+          (data.skills?.soft || []).length ||
+          (data.skills?.tools || []).length
+        );
+      case 'certifications':
+        return (data.certifications || []).length > 0;
+      case 'extracurricular':
+        return (data.extracurricular || []).length > 0;
+      case 'languages':
+        return (data.languages || []).length > 0;
+      case 'awards':
+        return (data.awards || []).length > 0;
+      case 'references':
+        return Boolean(data.references?.items?.length);
+      case 'signature':
+        return Boolean(data.signature?.enabled);
+      case 'custom':
+        return (data.customSections || []).length > 0;
+      default:
+        return false;
+    }
+  };
+
+  const navTabs: { id: EditorTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { id: 'personal', label: 'Personal Info', icon: User },
     { id: 'biodata', label: 'Bio Data', icon: Contact },
     { id: 'summary', label: 'Summary', icon: FileText },
     { id: 'education', label: 'Education', icon: GraduationCap },
@@ -154,69 +194,82 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] dark:bg-zinc-950 flex flex-col font-sans transition-colors">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex flex-col font-sans transition-colors">
       {/* Sticky Top Toolbar */}
-      <header className="sticky top-0 z-30 bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-2xs transition-colors">
-        <div className="flex items-center gap-3">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 h-14 flex items-center justify-between gap-3 transition-colors shadow-2xs">
+        {/* Left Side: Back + Title + Status */}
+        <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={onBackToMyCVs}
-            className="p-1.5 text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition"
-            title="My CVs Dashboard"
+            className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors shrink-0"
+            title="Back to Resumes"
+            aria-label="Back to Resumes"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4" />
           </button>
 
-          <div>
+          <div className="flex items-center gap-3 min-w-0">
             <input
               type="text"
               value={data.title}
               onChange={(e) => setData(prev => ({ ...prev, title: e.target.value }))}
-              placeholder="CV Title"
-              className="font-bold text-sm text-zinc-900 dark:text-white bg-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800 focus:bg-white dark:focus:bg-zinc-900 px-2 py-0.5 rounded border border-transparent focus:border-zinc-300 dark:focus:border-zinc-700 focus:outline-none transition"
+              placeholder="Resume Title"
+              className="font-bold text-sm text-slate-900 dark:text-white bg-transparent hover:bg-slate-100/70 dark:hover:bg-slate-800/70 focus:bg-white dark:focus:bg-slate-900 px-2 py-1 rounded-md border border-transparent focus:border-slate-300 dark:focus:border-slate-700 focus:outline-none transition-all truncate max-w-[160px] sm:max-w-[220px]"
             />
-            <div className="flex items-center gap-2 px-2 text-[11px] text-zinc-500 dark:text-zinc-400">
-              <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                {saveStatus === 'saving' ? 'Saving...' : 'Auto-saved locally'}
-              </span>
+            <div className="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+              <span>{saveStatus === 'saving' ? 'Saving...' : 'Auto-saved'}</span>
             </div>
           </div>
         </div>
 
-        {/* Toolbar Controls */}
-        <div className="flex items-center gap-2 flex-wrap">
+        {/* Right Side: Template Selector, Font Size, Preview, Download */}
+        <div className="flex items-center gap-2 shrink-0">
           {/* Template Switcher Dropdown */}
-          <div className="flex items-center gap-1.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md px-2.5 py-1.5 text-xs text-zinc-700 dark:text-zinc-300">
-            <Palette className="w-3.5 h-3.5 text-black dark:text-white" />
-            <span className="font-bold uppercase text-[10px] tracking-wider text-zinc-400 dark:text-zinc-500 hidden sm:inline">Template:</span>
+          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-700 dark:text-slate-300">
+            <Palette className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
             <select
               value={data.templateId}
               onChange={(e) => handleTemplateChange(e.target.value as TemplateId)}
-              className="bg-transparent font-bold text-zinc-900 dark:text-white focus:outline-none cursor-pointer text-xs"
+              className="bg-transparent font-semibold text-slate-900 dark:text-white focus:outline-none cursor-pointer text-xs pr-1"
             >
               {TEMPLATES.map(t => (
-                <option key={t.id} value={t.id} className="dark:bg-zinc-900 dark:text-white">{t.name} ({t.category})</option>
+                <option key={t.id} value={t.id} className="dark:bg-slate-900 dark:text-white">
+                  {t.name} ({t.category})
+                </option>
               ))}
             </select>
           </div>
 
           {/* Font Size Selector */}
-          <div className="hidden lg:flex items-center gap-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-md p-1 text-xs">
+          <div className="hidden xl:flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 text-xs">
             <button
               onClick={() => setData(p => ({ ...p, fontSize: 'compact' }))}
-              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'compact' ? 'bg-black dark:bg-white text-white dark:text-zinc-900 font-bold' : 'text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white'}`}
+              className={`px-2 py-0.5 rounded-md font-medium text-[11px] transition-colors ${
+                data.fontSize === 'compact'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-semibold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
             >
               Compact
             </button>
             <button
               onClick={() => setData(p => ({ ...p, fontSize: 'standard' }))}
-              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'standard' || !data.fontSize ? 'bg-black dark:bg-white text-white dark:text-zinc-900 font-bold' : 'text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white'}`}
+              className={`px-2 py-0.5 rounded-md font-medium text-[11px] transition-colors ${
+                data.fontSize === 'standard' || !data.fontSize
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-semibold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
             >
               Normal
             </button>
             <button
               onClick={() => setData(p => ({ ...p, fontSize: 'spacious' }))}
-              className={`px-2 py-0.5 rounded font-medium ${data.fontSize === 'spacious' ? 'bg-black dark:bg-white text-white dark:text-zinc-900 font-bold' : 'text-zinc-600 dark:text-zinc-300 hover:text-black dark:hover:text-white'}`}
+              className={`px-2 py-0.5 rounded-md font-medium text-[11px] transition-colors ${
+                data.fontSize === 'spacious'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs font-semibold'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
             >
               Spacious
             </button>
@@ -226,102 +279,107 @@ export const CVEditor: React.FC<CVEditorProps> = ({
           {onToggleDarkMode && (
             <button
               onClick={onToggleDarkMode}
-              className="p-2 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition"
+              className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
               title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               aria-label="Toggle theme"
             >
-              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-zinc-700" />}
+              {darkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
           )}
 
           {/* Reset button */}
           <button
             onClick={handleReset}
-            className="p-1.5 text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition"
+            className="p-1.5 text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors"
             title="Reset to sample data"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
 
-          {/* Preview PDF */}
+          {/* Preview PDF modal trigger */}
           <button
             onClick={() => setIsPreviewModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white rounded-md transition border border-zinc-200 dark:border-zinc-700"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg transition-colors border border-slate-200 dark:border-slate-700 shadow-2xs"
           >
-            <Eye className="w-4 h-4 text-zinc-600 dark:text-zinc-300" />
-            <span className="hidden sm:inline">Preview PDF</span>
+            <Eye className="w-3.5 h-3.5 text-slate-500" />
+            <span>Full Preview</span>
           </button>
 
           {/* Download PDF CTA */}
           <button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-bold bg-black dark:bg-white hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-md shadow-xs transition disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg shadow-xs transition-colors disabled:opacity-50"
           >
-            <Download className="w-4 h-4" />
-            {isDownloading ? 'Downloading...' : `Download ${data.personalInfo.fullName ? data.personalInfo.fullName.split(' ')[0] + '_CV.pdf' : 'CV.pdf'}`}
+            <Download className="w-3.5 h-3.5" />
+            <span>{isDownloading ? 'Generating...' : 'Download PDF'}</span>
           </button>
         </div>
       </header>
 
-      {/* Mobile Workspace Mode Switcher (visible only on < lg) */}
-      <div className="lg:hidden flex bg-zinc-200 dark:bg-zinc-900 p-1 border-b border-zinc-300 dark:border-zinc-800">
+      {/* Mobile Workspace Mode Switcher (visible only on mobile/tablet) */}
+      <div className="lg:hidden flex bg-slate-200 dark:bg-slate-900 p-1 border-b border-slate-300 dark:border-slate-800">
         <button
           onClick={() => setMobileView('edit')}
-          className={`flex-1 py-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-colors flex items-center justify-center gap-1.5 ${
             mobileView === 'edit'
-              ? 'bg-black dark:bg-white text-white dark:text-zinc-900 shadow-xs'
-              : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/60 dark:hover:bg-slate-800/60'
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
-          <span>Edit Details</span>
+          <span>Editor</span>
         </button>
         <button
           onClick={() => setMobileView('preview')}
-          className={`flex-1 py-2 text-xs font-bold rounded-md transition flex items-center justify-center gap-1.5 ${
+          className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-colors flex items-center justify-center gap-1.5 ${
             mobileView === 'preview'
-              ? 'bg-black dark:bg-white text-white dark:text-zinc-900 shadow-xs'
-              : 'text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-2xs'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/60 dark:hover:bg-slate-800/60'
           }`}
         >
           <Eye className="w-3.5 h-3.5" />
-          <span>Live Preview</span>
+          <span>Live Document</span>
         </button>
       </div>
 
-      {/* Main Workspace Layout */}
+      {/* Main Two-Panel Workspace Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* LEFT COLUMN: FORM EDITOR */}
         <div
-          className={`w-full lg:w-[45%] bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col h-[calc(100vh-105px)] lg:h-[calc(100vh-57px)] overflow-hidden ${
+          className={`w-full lg:w-[46%] xl:w-[42%] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-[calc(100vh-96px)] lg:h-[calc(100vh-56px)] overflow-hidden ${
             mobileView === 'edit' ? 'flex' : 'hidden lg:flex'
           }`}
         >
-          {/* Scrollable Navigation Tabs */}
-          <div className="flex items-center overflow-x-auto border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/90 dark:bg-zinc-900/90 px-2 py-2 no-scrollbar shrink-0 gap-1">
+          {/* Section Navigation Tabs Strip */}
+          <div className="flex items-center overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 px-2 py-1.5 custom-scrollbar shrink-0 gap-1">
             {navTabs.map(tab => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const filled = hasContent(tab.id);
+
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as EditorTab)}
-                  className={`flex items-center gap-1.5 px-3 py-2 sm:py-1.5 text-xs font-bold rounded whitespace-nowrap transition shrink-0 uppercase tracking-wider text-[11px] min-h-[38px] ${
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md whitespace-nowrap transition-colors shrink-0 ${
                     isActive
-                      ? 'bg-black dark:bg-white text-white dark:text-zinc-900 shadow-xs'
-                      : 'text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold shadow-2xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-zinc-900' : 'text-zinc-400 dark:text-zinc-500'}`} />
-                  {tab.label}
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-slate-900' : 'text-slate-400 dark:text-slate-500'}`} />
+                  <span>{tab.label}</span>
+                  {filled && !isActive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500/80 inline-block ml-0.5"></span>
+                  )}
                 </button>
               );
             })}
           </div>
 
           {/* Form Content Area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100">
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 custom-scrollbar">
             {activeTab === 'personal' && (
               <PersonalInfoForm
                 data={data.personalInfo}
@@ -434,15 +492,17 @@ export const CVEditor: React.FC<CVEditorProps> = ({
           </div>
         </div>
 
-        {/* RIGHT COLUMN: LIVE A4 CV PREVIEW */}
+        {/* RIGHT COLUMN: ARCHITECTURAL A4 DOCUMENT PREVIEW */}
         <div
-          className={`w-full lg:w-[55%] bg-[#E4E4E7] dark:bg-zinc-950 h-[calc(100vh-105px)] lg:h-[calc(100vh-57px)] overflow-y-auto p-2 sm:p-8 flex justify-center border-l border-zinc-200 dark:border-zinc-800 transition-colors ${
+          className={`w-full lg:w-[54%] xl:w-[58%] bg-slate-200/70 dark:bg-slate-950 h-[calc(100vh-96px)] lg:h-[calc(100vh-56px)] overflow-y-auto p-4 sm:p-8 flex justify-center custom-scrollbar transition-colors ${
             mobileView === 'preview' ? 'flex' : 'hidden lg:flex'
           }`}
           ref={previewRef}
         >
-          <div className="w-full max-w-[794px]">
-            <LiveCVPreview data={data} scale={0.9} />
+          <div className="w-full max-w-[794px] flex justify-center items-start">
+            <div className="bg-white text-slate-900 shadow-md shadow-slate-400/20 dark:shadow-black/60 rounded-xs transition-shadow">
+              <LiveCVPreview data={data} scale={0.92} />
+            </div>
           </div>
         </div>
       </div>
@@ -456,4 +516,5 @@ export const CVEditor: React.FC<CVEditorProps> = ({
     </div>
   );
 };
+
 

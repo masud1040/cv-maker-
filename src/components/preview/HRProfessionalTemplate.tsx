@@ -7,7 +7,58 @@ interface TemplateProps {
 }
 
 export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { personalInfo, summary, education, experience, projects, skills, certifications, extracurricular, languages, awards, references, customSections, accentColor = '#1e3a8a' } = data;
+  const {
+    personalInfo,
+    bioData,
+    summary,
+    education,
+    experience,
+    projects,
+    skills,
+    certifications,
+    extracurricular,
+    languages,
+    awards,
+    references,
+    customSections,
+    sectionVisibility = {},
+    accentColor = '#1e3a8a'
+  } = data;
+
+  const isVisible = (secKey: string): boolean => {
+    if (sectionVisibility[secKey] === false) return false;
+    return true;
+  };
+
+  const hasText = (val?: string | null): boolean => {
+    return Boolean(val && val.trim() !== '');
+  };
+
+  const hasBioData = Boolean(
+    hasText(bioData?.fatherName) ||
+    hasText(bioData?.motherName) ||
+    hasText(bioData?.dateOfBirth) ||
+    hasText(bioData?.gender) ||
+    hasText(bioData?.maritalStatus) ||
+    hasText(bioData?.religion) ||
+    hasText(bioData?.nationality) ||
+    hasText(bioData?.bloodGroup) ||
+    hasText(bioData?.nationalId) ||
+    hasText(bioData?.presentAddress) ||
+    hasText(bioData?.permanentAddress)
+  );
+
+  const bioItems = [
+    { label: "Father's Name", value: bioData?.fatherName },
+    { label: "Mother's Name", value: bioData?.motherName },
+    { label: 'Date of Birth', value: bioData?.dateOfBirth },
+    { label: 'Gender', value: bioData?.gender },
+    { label: 'Marital Status', value: bioData?.maritalStatus },
+    { label: 'Religion', value: bioData?.religion },
+    { label: 'Nationality', value: bioData?.nationality },
+    { label: 'Blood Group', value: bioData?.bloodGroup },
+    { label: 'National ID', value: bioData?.nationalId }
+  ].filter(item => hasText(item.value));
 
   return (
     <div className="w-full min-h-[1123px] bg-white text-slate-900 font-sans flex flex-row box-border">
@@ -82,8 +133,28 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
           </ul>
         </div>
 
+        {/* Bio Data in Sidebar if enabled */}
+        {isVisible('biodata') && hasBioData && bioItems.length > 0 && (
+          <div>
+            <h3
+              className="text-[10pt] font-extrabold uppercase tracking-wider pb-1 mb-2 border-b-2"
+              style={{ color: accentColor, borderColor: accentColor }}
+            >
+              Personal Details
+            </h3>
+            <ul className="space-y-1.5 text-[8.5pt] text-slate-700">
+              {bioItems.map((item, idx) => (
+                <li key={idx}>
+                  <span className="font-bold text-slate-900 block">{item.label}:</span>
+                  <span className="text-slate-800">{item.value}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Skills */}
-        {(skills?.technical?.length > 0 || skills?.tools?.length > 0 || skills?.soft?.length > 0) && (
+        {isVisible('skills') && (skills?.technical?.length > 0 || skills?.tools?.length > 0 || skills?.soft?.length > 0) && (
           <div>
             <h3
               className="text-[10pt] font-extrabold uppercase tracking-wider pb-1 mb-2 border-b-2"
@@ -109,7 +180,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                   <p className="font-bold text-slate-900 mb-1">Tools & Platforms:</p>
                   <div className="flex flex-wrap gap-1">
                     {skills.tools.map((st, i) => (
-                      <span key={i} className="bg-slate-200/70 text-slate-800 px-1.5 py-0.5 rounded text-[8.5pt]">
+                      <span key={i} className="bg-white border border-slate-200 text-slate-800 px-1.5 py-0.5 rounded text-[8.5pt]">
                         {st}
                       </span>
                     ))}
@@ -118,8 +189,14 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
               )}
               {skills.soft && skills.soft.length > 0 && (
                 <div>
-                  <p className="font-bold text-slate-900 mb-1 font-sans">Soft Skills:</p>
-                  <p className="text-slate-700 leading-snug">{skills.soft.join(', ')}</p>
+                  <p className="font-bold text-slate-900 mb-1">Soft Skills:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {skills.soft.map((st, i) => (
+                      <span key={i} className="bg-white border border-slate-200 text-slate-800 px-1.5 py-0.5 rounded text-[8.5pt]">
+                        {st}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -127,7 +204,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
         )}
 
         {/* Languages */}
-        {languages && languages.length > 0 && (
+        {isVisible('languages') && languages && languages.length > 0 && (
           <div>
             <h3
               className="text-[10pt] font-extrabold uppercase tracking-wider pb-1 mb-2 border-b-2"
@@ -135,19 +212,19 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
             >
               Languages
             </h3>
-            <div className="space-y-1.5 text-[9pt] text-slate-800">
-              {languages.map((lang) => (
-                <div key={lang.id} className="flex justify-between items-center">
-                  <span className="font-semibold text-slate-900">{lang.name}</span>
-                  <span className="text-[8.5pt] text-slate-600 bg-slate-200/60 px-1.5 py-0.5 rounded">{lang.proficiency}</span>
-                </div>
+            <ul className="space-y-1 text-[9pt] text-slate-700">
+              {languages.map((l) => (
+                <li key={l.id} className="flex justify-between">
+                  <span className="font-medium text-slate-900">{l.name}</span>
+                  <span className="text-slate-500">{l.proficiency}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
 
         {/* Certifications */}
-        {certifications && certifications.length > 0 && (
+        {isVisible('certifications') && certifications && certifications.length > 0 && (
           <div>
             <h3
               className="text-[10pt] font-extrabold uppercase tracking-wider pb-1 mb-2 border-b-2"
@@ -167,7 +244,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
         )}
 
         {/* Awards */}
-        {awards && awards.length > 0 && (
+        {isVisible('awards') && awards && awards.length > 0 && (
           <div>
             <h3
               className="text-[10pt] font-extrabold uppercase tracking-wider pb-1 mb-2 border-b-2"
@@ -202,7 +279,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
         </header>
 
         {/* Executive Summary */}
-        {summary?.trim() && (
+        {isVisible('summary') && summary?.trim() && (
           <section>
             <h2
               className="text-xs font-black uppercase tracking-wider mb-1.5 flex items-center gap-2"
@@ -217,7 +294,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
         )}
 
         {/* Experience */}
-        {experience && experience.length > 0 && (
+        {isVisible('experience') && experience && experience.length > 0 && (
           <section>
             <h2
               className="text-xs font-black uppercase tracking-wider mb-2.5 pb-1 border-b border-slate-200"
@@ -250,7 +327,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
         )}
 
         {/* Projects */}
-        {projects && projects.length > 0 && (
+        {isVisible('projects') && projects && projects.length > 0 && (
           <section>
             <h2
               className="text-xs font-black uppercase tracking-wider mb-2.5 pb-1 border-b border-slate-200"
@@ -285,7 +362,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
         )}
 
         {/* Education */}
-        {education && education.length > 0 && (
+        {isVisible('education') && education && education.length > 0 && (
           <section>
             <h2
               className="text-xs font-black uppercase tracking-wider mb-2 pb-1 border-b border-slate-200"
@@ -312,7 +389,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
         )}
 
         {/* Extracurricular */}
-        {extracurricular && extracurricular.length > 0 && (
+        {isVisible('extracurricular') && extracurricular && extracurricular.length > 0 && (
           <section>
             <h2
               className="text-xs font-black uppercase tracking-wider mb-2 pb-1 border-b border-slate-200"
@@ -337,6 +414,8 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
         {/* Custom Sections */}
         {customSections && customSections.length > 0 && customSections.map((cs) => {
           if (!cs.items || cs.items.length === 0) return null;
+          const hasInline = cs.items.some(it => it.layout === 'inline' || Boolean(it.value));
+
           return (
             <section key={cs.id}>
               <h2
@@ -345,51 +424,78 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
               >
                 {cs.title}
               </h2>
-              <div className="space-y-2 text-[9.5pt]">
-                {cs.items.map((item) => (
-                  <div key={item.id}>
-                    <div className="flex justify-between items-baseline font-bold text-slate-900">
-                      <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
-                      {item.date && <span className="text-[9pt] text-slate-500">{item.date}</span>}
+              {hasInline ? (
+                <div className="space-y-1 text-[9pt]">
+                  {cs.items.map((item) => {
+                    if (item.layout === 'inline' || item.value) {
+                      return (
+                        <div key={item.id} className="flex items-baseline">
+                          <span className="font-bold text-slate-900 w-32 shrink-0">{item.title}</span>
+                          <span className="font-bold text-slate-700 mx-1">:</span>
+                          <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div key={item.id} className="py-0.5">
+                        <div className="flex justify-between items-baseline font-bold text-slate-900">
+                          <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
+                          {item.date && <span className="text-[8.5pt] text-slate-500">{item.date}</span>}
+                        </div>
+                        {item.description && <p className="text-[8.5pt] text-slate-700 mt-0.5">{item.description}</p>}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="space-y-2 text-[9.5pt]">
+                  {cs.items.map((item) => (
+                    <div key={item.id}>
+                      <div className="flex justify-between items-baseline font-bold text-slate-900">
+                        <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
+                        {item.date && <span className="text-[9pt] text-slate-500">{item.date}</span>}
+                      </div>
+                      {item.description && <p className="text-[9pt] text-slate-700 mt-0.5">{item.description}</p>}
                     </div>
-                    {item.description && <p className="text-[9pt] text-slate-700 mt-0.5">{item.description}</p>}
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
           );
         })}
 
         {/* References */}
-        {references?.availableOnRequest ? (
-          <section>
-            <h2
-              className="text-xs font-black uppercase tracking-wider mb-1"
-              style={{ color: accentColor }}
-            >
-              References
-            </h2>
-            <p className="text-[9pt] italic text-slate-600">References available upon request.</p>
-          </section>
-        ) : references?.items && references.items.length > 0 ? (
-          <section>
-            <h2
-              className="text-xs font-black uppercase tracking-wider mb-2 pb-1 border-b border-slate-200"
-              style={{ color: accentColor }}
-            >
-              References
-            </h2>
-            <div className="grid grid-cols-2 gap-3 text-[9pt]">
-              {references.items.map((ref) => (
-                <div key={ref.id} className="text-slate-700">
-                  <p className="font-bold text-slate-900">{ref.name}</p>
-                  <p className="text-[8.5pt]">{ref.title}, {ref.company}</p>
-                  {ref.email && <p className="text-[8.5pt] text-slate-500">{ref.email}</p>}
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
+        {isVisible('references') && (
+          references?.availableOnRequest ? (
+            <section>
+              <h2
+                className="text-xs font-black uppercase tracking-wider mb-1"
+                style={{ color: accentColor }}
+              >
+                References
+              </h2>
+              <p className="text-[9pt] italic text-slate-600">References available upon request.</p>
+            </section>
+          ) : references?.items && references.items.length > 0 ? (
+            <section>
+              <h2
+                className="text-xs font-black uppercase tracking-wider mb-2 pb-1 border-b border-slate-200"
+                style={{ color: accentColor }}
+              >
+                References
+              </h2>
+              <div className="grid grid-cols-2 gap-3 text-[9pt]">
+                {references.items.map((ref) => (
+                  <div key={ref.id} className="text-slate-700">
+                    <p className="font-bold text-slate-900">{ref.name}</p>
+                    <p className="text-[8.5pt]">{ref.title}, {ref.company}</p>
+                    {ref.email && <p className="text-[8.5pt] text-slate-500">{ref.email}</p>}
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null
+        )}
       </main>
 
       {/* Signature Block at Bottom */}
@@ -405,7 +511,6 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                 />
               </div>
             )}
-            {/* Small line above signature */}
             <div className="w-36 border-t border-slate-900 mx-auto mb-1"></div>
             <p className="text-[9.5pt] font-bold text-slate-900 leading-snug">
               {data.signature?.signerName || personalInfo.fullName || 'Authorized Signature'}

@@ -9,6 +9,7 @@ interface ModernTwoColumnTemplateProps {
 export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = ({ data }) => {
   const {
     personalInfo,
+    bioData,
     summary,
     education,
     experience,
@@ -19,8 +20,18 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
     awards,
     references,
     customSections = [],
-    sectionOrder = []
+    sectionOrder = [],
+    sectionVisibility = {}
   } = data;
+
+  const isVisible = (secKey: string): boolean => {
+    if (sectionVisibility[secKey] === false) return false;
+    return true;
+  };
+
+  const hasText = (val?: string | null): boolean => {
+    return Boolean(val && val.trim() !== '');
+  };
 
   const hasContactInfo = Boolean(
     personalInfo.phone ||
@@ -37,9 +48,45 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
   const hasLanguages = languages && languages.length > 0;
   const hasReferences = references && (references.availableOnRequest || (references.items && references.items.length > 0));
 
+  const hasBioData = Boolean(
+    hasText(bioData?.fatherName) ||
+    hasText(bioData?.motherName) ||
+    hasText(bioData?.dateOfBirth) ||
+    hasText(bioData?.gender) ||
+    hasText(bioData?.maritalStatus) ||
+    hasText(bioData?.religion) ||
+    hasText(bioData?.nationality) ||
+    hasText(bioData?.bloodGroup) ||
+    hasText(bioData?.nationalId) ||
+    hasText(bioData?.presentAddress) ||
+    hasText(bioData?.permanentAddress)
+  );
+
+  const bioItems = [
+    { label: "Father's Name", value: bioData?.fatherName },
+    { label: "Mother's Name", value: bioData?.motherName },
+    { label: 'Date of Birth', value: bioData?.dateOfBirth },
+    { label: 'Gender', value: bioData?.gender },
+    { label: 'Marital Status', value: bioData?.maritalStatus },
+    { label: 'Religion', value: bioData?.religion },
+    { label: 'Nationality', value: bioData?.nationality },
+    { label: 'Blood Group', value: bioData?.bloodGroup },
+    { label: 'National ID', value: bioData?.nationalId },
+    { label: 'Present Address', value: bioData?.presentAddress },
+    { label: 'Permanent Address', value: bioData?.permanentAddress }
+  ].filter(item => hasText(item.value));
+
   // Default section order if missing
-  const defaultOrder = ['education', 'experience', 'projects', 'awards', 'custom'];
-  const rightSectionsToRender = sectionOrder.length > 0 ? sectionOrder : defaultOrder;
+  const defaultOrder = ['education', 'experience', 'projects', 'biodata', 'awards', 'custom'];
+  const baseOrder = sectionOrder.length > 0 ? sectionOrder : defaultOrder;
+  const rightSectionsToRender = [...baseOrder];
+  if (customSections && customSections.length > 0) {
+    customSections.forEach(cs => {
+      if (!rightSectionsToRender.includes(cs.id) && !rightSectionsToRender.includes(cs.title)) {
+        rightSectionsToRender.push(cs.id);
+      }
+    });
+  }
 
   return (
     <div className="w-[794px] min-h-[1123px] bg-white text-slate-800 px-8 py-6 font-sans leading-relaxed box-border flex flex-col justify-between">
@@ -59,7 +106,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
               </p>
             )}
 
-            {summary && (
+            {isVisible('summary') && summary && (
               <p className="text-[8.5pt] text-slate-700 leading-snug mt-1">
                 {summary}
               </p>
@@ -129,7 +176,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
             )}
 
             {/* Technical & Soft Skills */}
-            {(hasTechnicalSkills || hasSoftSkills) && (
+            {isVisible('skills') && (hasTechnicalSkills || hasSoftSkills) && (
               <div>
                 <h3 className="text-[9pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
                   Skills
@@ -145,8 +192,8 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
               </div>
             )}
 
-            {/* Training & Certification (Omitted if user hasn't added any) */}
-            {hasCerts && (
+            {/* Training & Certification */}
+            {isVisible('certifications') && hasCerts && (
               <div>
                 <h3 className="text-[9pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
                   Training & Certification
@@ -165,7 +212,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
             )}
 
             {/* Languages */}
-            {hasLanguages && (
+            {isVisible('languages') && hasLanguages && (
               <div>
                 <h3 className="text-[9pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
                   Languages
@@ -182,7 +229,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
             )}
 
             {/* References */}
-            {hasReferences && (
+            {isVisible('references') && hasReferences && (
               <div>
                 <h3 className="text-[9pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
                   References
@@ -208,6 +255,27 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
           {/* Right Main Column */}
           <main className="col-span-8 space-y-3.5">
             {rightSectionsToRender.map((secKey) => {
+              if (!isVisible(secKey)) return null;
+
+              if (secKey === 'biodata' && hasBioData) {
+                return (
+                  <section key="biodata" className="break-inside-avoid">
+                    <h2 className="text-[10pt] font-extrabold uppercase tracking-wider text-slate-900 border-b-2 border-slate-800 pb-0.5 mb-2">
+                      Personal Details
+                    </h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-[8.5pt]">
+                      {bioItems.map((item, idx) => (
+                        <div key={idx} className={`flex items-baseline ${item.label.includes('Address') ? 'sm:col-span-2' : ''}`}>
+                          <span className="font-bold text-slate-900 w-32 shrink-0">{item.label}</span>
+                          <span className="font-bold text-slate-700 mx-1">:</span>
+                          <span className="text-slate-800 flex-1">{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                );
+              }
+
               if (secKey === 'education' && education && education.length > 0) {
                 return (
                   <section key="education" className="break-inside-avoid">
@@ -331,25 +399,53 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
               }
 
               // Custom Sections
-              const customSec = customSections.find(c => c.id === secKey);
+              const customSec = customSections.find(c => c.id === secKey || c.title.toLowerCase() === secKey.toLowerCase());
               if (customSec && customSec.items && customSec.items.length > 0) {
+                const hasInline = customSec.items.some(it => it.layout === 'inline' || Boolean(it.value));
+
                 return (
                   <section key={customSec.id} className="break-inside-avoid">
                     <h2 className="text-[10pt] font-extrabold uppercase tracking-wider text-slate-900 border-b-2 border-slate-800 pb-0.5 mb-2">
                       {customSec.title}
                     </h2>
-                    <div className="space-y-2">
-                      {customSec.items.map((item) => (
-                        <div key={item.id} className="space-y-0.5">
-                          <div className="flex justify-between items-baseline">
-                            <h3 className="text-[9pt] font-bold text-slate-900">{item.title}</h3>
-                            {item.date && <span className="text-[8pt] font-semibold text-slate-600">{item.date}</span>}
+                    {hasInline ? (
+                      <div className="space-y-1 text-[8.5pt]">
+                        {customSec.items.map((item) => {
+                          if (item.layout === 'inline' || item.value) {
+                            return (
+                              <div key={item.id} className="flex items-baseline">
+                                <span className="font-bold text-slate-900 w-32 shrink-0">{item.title}</span>
+                                <span className="font-bold text-slate-700 mx-1">:</span>
+                                <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={item.id} className="space-y-0.5 py-0.5">
+                              <div className="flex justify-between items-baseline">
+                                <h3 className="text-[9pt] font-bold text-slate-900">{item.title}</h3>
+                                {item.date && <span className="text-[8pt] font-semibold text-slate-600">{item.date}</span>}
+                              </div>
+                              {item.subtitle && <p className="text-[8pt] font-medium text-slate-700">{item.subtitle}</p>}
+                              {item.description && <p className="text-[8pt] text-slate-700 leading-snug">{item.description}</p>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {customSec.items.map((item) => (
+                          <div key={item.id} className="space-y-0.5">
+                            <div className="flex justify-between items-baseline">
+                              <h3 className="text-[9pt] font-bold text-slate-900">{item.title}</h3>
+                              {item.date && <span className="text-[8pt] font-semibold text-slate-600">{item.date}</span>}
+                            </div>
+                            {item.subtitle && <p className="text-[8pt] font-medium text-slate-700">{item.subtitle}</p>}
+                            {item.description && <p className="text-[8pt] text-slate-700 leading-snug">{item.description}</p>}
                           </div>
-                          {item.subtitle && <p className="text-[8pt] font-medium text-slate-700">{item.subtitle}</p>}
-                          {item.description && <p className="text-[8pt] text-slate-700 leading-snug">{item.description}</p>}
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
                 );
               }

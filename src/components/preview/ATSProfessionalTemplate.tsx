@@ -6,9 +6,36 @@ interface TemplateProps {
 }
 
 export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
-  const { personalInfo, summary, education, experience, projects, skills, certifications, extracurricular, languages, awards, references, customSections, sectionOrder } = data;
+  const {
+    personalInfo,
+    bioData,
+    summary,
+    education,
+    experience,
+    projects,
+    skills,
+    certifications,
+    extracurricular,
+    languages,
+    awards,
+    references,
+    customSections,
+    sectionOrder,
+    sectionVisibility = {}
+  } = data;
+
+  const isVisible = (secKey: string): boolean => {
+    if (sectionVisibility[secKey] === false) return false;
+    return true;
+  };
+
+  const hasText = (val?: string | null): boolean => {
+    return Boolean(val && val.trim() !== '');
+  };
 
   const renderSection = (sectionKey: string) => {
+    if (!isVisible(sectionKey)) return null;
+
     switch (sectionKey) {
       case 'summary':
         if (!summary?.trim()) return null;
@@ -20,6 +47,53 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
             <p className="text-[10pt] leading-relaxed text-slate-800 text-justify px-0.5">
               {summary}
             </p>
+          </section>
+        );
+
+      case 'biodata':
+        const hasBioData = Boolean(
+          hasText(bioData?.fatherName) ||
+          hasText(bioData?.motherName) ||
+          hasText(bioData?.dateOfBirth) ||
+          hasText(bioData?.gender) ||
+          hasText(bioData?.maritalStatus) ||
+          hasText(bioData?.religion) ||
+          hasText(bioData?.nationality) ||
+          hasText(bioData?.bloodGroup) ||
+          hasText(bioData?.nationalId) ||
+          hasText(bioData?.presentAddress) ||
+          hasText(bioData?.permanentAddress)
+        );
+        if (!hasBioData) return null;
+
+        const bioItems = [
+          { label: "Father's Name", value: bioData?.fatherName },
+          { label: "Mother's Name", value: bioData?.motherName },
+          { label: 'Date of Birth', value: bioData?.dateOfBirth },
+          { label: 'Gender', value: bioData?.gender },
+          { label: 'Marital Status', value: bioData?.maritalStatus },
+          { label: 'Religion', value: bioData?.religion },
+          { label: 'Nationality', value: bioData?.nationality },
+          { label: 'Blood Group', value: bioData?.bloodGroup },
+          { label: 'National ID', value: bioData?.nationalId },
+          { label: 'Present Address', value: bioData?.presentAddress },
+          { label: 'Permanent Address', value: bioData?.permanentAddress }
+        ].filter(item => hasText(item.value));
+
+        return (
+          <section key="biodata" className="mb-4">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 bg-slate-100 py-1 px-2 border-l-4 border-slate-900 mb-2">
+              Personal Information & Details
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-[9.5pt] px-0.5">
+              {bioItems.map((item, idx) => (
+                <div key={idx} className={`flex items-baseline ${item.label.includes('Address') ? 'sm:col-span-2' : ''}`}>
+                  <span className="font-bold text-slate-900 w-36 shrink-0">{item.label}</span>
+                  <span className="font-bold text-slate-700 mx-1">:</span>
+                  <span className="text-slate-800 flex-1">{item.value}</span>
+                </div>
+              ))}
+            </div>
           </section>
         );
 
@@ -258,22 +332,50 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
       default:
         const customSec = customSections?.find(cs => cs.id === sectionKey || cs.title.toLowerCase() === sectionKey.toLowerCase());
         if (!customSec || !customSec.items || customSec.items.length === 0) return null;
+        
+        const hasInlineItems = customSec.items.some(it => it.layout === 'inline' || Boolean(it.value));
+
         return (
           <section key={customSec.id} className="mb-4">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 bg-slate-100 py-1 px-2 border-l-4 border-slate-900 mb-2">
               {customSec.title}
             </h2>
-            <div className="space-y-2 text-[10pt] px-0.5">
-              {customSec.items.map((item) => (
-                <div key={item.id}>
-                  <div className="flex justify-between items-baseline font-bold text-slate-900">
-                    <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
-                    {item.date && <span className="text-[9.5pt] font-semibold text-slate-700">{item.date}</span>}
+            {hasInlineItems ? (
+              <div className="space-y-1 text-[9.5pt] px-0.5">
+                {customSec.items.map((item) => {
+                  if (item.layout === 'inline' || item.value) {
+                    return (
+                      <div key={item.id} className="flex items-baseline">
+                        <span className="font-bold text-slate-900 w-36 shrink-0">{item.title}</span>
+                        <span className="font-bold text-slate-700 mx-1">:</span>
+                        <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={item.id} className="py-0.5">
+                      <div className="flex justify-between items-baseline font-bold text-slate-900">
+                        <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
+                        {item.date && <span className="text-[9.5pt] font-semibold text-slate-700">{item.date}</span>}
+                      </div>
+                      {item.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{item.description}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-2 text-[10pt] px-0.5">
+                {customSec.items.map((item) => (
+                  <div key={item.id}>
+                    <div className="flex justify-between items-baseline font-bold text-slate-900">
+                      <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
+                      {item.date && <span className="text-[9.5pt] font-semibold text-slate-700">{item.date}</span>}
+                    </div>
+                    {item.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{item.description}</p>}
                   </div>
-                  {item.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{item.description}</p>}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
         );
     }
@@ -286,6 +388,15 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
   if (personalInfo.linkedin) contactParts.push(personalInfo.linkedin);
   if (personalInfo.github) contactParts.push(personalInfo.github);
   if (personalInfo.website) contactParts.push(personalInfo.website);
+
+  const allSectionsToRender = [...sectionOrder];
+  if (customSections && customSections.length > 0) {
+    customSections.forEach(cs => {
+      if (!allSectionsToRender.includes(cs.id) && !allSectionsToRender.includes(cs.title)) {
+        allSectionsToRender.push(cs.id);
+      }
+    });
+  }
 
   return (
     <div className="w-full min-h-[1123px] bg-white text-slate-900 px-12 py-11 font-sans leading-normal box-border">
@@ -312,7 +423,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
       </header>
 
       <main>
-        {sectionOrder.map((secKey) => renderSection(secKey))}
+        {allSectionsToRender.map((secKey) => renderSection(secKey))}
       </main>
 
       {/* Signature Block at Bottom */}

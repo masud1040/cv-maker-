@@ -38,9 +38,27 @@ export const TEMPLATES: TemplateConfig[] = [
     previewThumbnail: 'https://images.unsplash.com/photo-1586281380117-5a60ae2050cc?w=600&auto=format&fit=crop&q=80'
   },
   {
+    id: 'general-cv',
+    name: 'General CV (with Bio Data)',
+    badge: 'Format 3 - General CV with Bio Data',
+    category: 'ATS',
+    tagline: 'Standard single-column professional CV with dedicated Personal Information / Bio Data section.',
+    description: 'Format 1 style clean layout with complete Personal Details (Father, Mother, DOB, NID, Marital Status, Religion, Present & Permanent Address), summary, education, experience, skills, and signature.',
+    features: [
+      'Clean 1-Column ATS structure',
+      'Personal Details / Bio Data section included',
+      'Supports Profile Photo & Signature',
+      'Education, Experience, Skills & Certifications',
+      'Ideal for Bangladeshi & International applications'
+    ],
+    supportsPhoto: true,
+    recommendedFor: 'Job Seekers, Corporate & Private Sector, Government, General Candidates, IT & Non-IT roles',
+    previewThumbnail: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=600&auto=format&fit=crop&q=80'
+  },
+  {
     id: 'hr-professional',
     name: 'HR Professional',
-    badge: 'Format 3 - Visual Two-Column',
+    badge: 'Format 4 - Visual Two-Column',
     category: 'HR',
     tagline: 'Elegant two-column design with sidebar for profile summary, skills & optional photo.',
     description: 'Designed for human recruiters and direct email applications. Balances visual elegance with dense structured information presentation.',
@@ -58,7 +76,7 @@ export const TEMPLATES: TemplateConfig[] = [
   {
     id: 'modern-two-column',
     name: 'Modern Executive Two-Column',
-    badge: 'Format 4 - Top Header & Sidebar Card',
+    badge: 'Format 5 - Top Header & Sidebar Card',
     category: 'HR',
     tagline: 'Featured modern format with light top box, left contact/skills panel, and structured experience column.',
     description: 'Matches the popular software engineer & tech executive layout: top summary header with optional profile photo, light tinted contact/skills sidebar, and clean main column.',
@@ -76,7 +94,7 @@ export const TEMPLATES: TemplateConfig[] = [
   {
     id: 'developer-clean',
     name: 'Developer / Programming Hero Clean',
-    badge: 'Format 5 - Developer Clean Layout',
+    badge: 'Format 6 - Developer Clean Layout',
     category: 'ATS',
     tagline: 'High-impact single-column developer format with categorized tech skills and project tech stacks.',
     description: 'Specially crafted for Full Stack & Web Engineers: prominent project tech stacks, categorized skills (Languages, Frontend, Backend, DB, Tools), and fully optional sections.',
@@ -94,7 +112,7 @@ export const TEMPLATES: TemplateConfig[] = [
   {
     id: 'job-biodata',
     name: 'Job Bio Data (Word & PDF Format)',
-    badge: 'Format 6 - Standard Job Bio Data',
+    badge: 'Format 7 - Standard Job Bio Data',
     category: 'HR',
     tagline: 'Standard Bio Data format with passport photo frame, key-value alignment, auto-hiding empty fields, and signature.',
     description: 'Official Job Bio Data layout with centered title, top-right photo box, aligned key-colon-value rows (Father\'s Name, DOB, Religion, Qualification, Experience, Address, Place, Date). Any field left blank is automatically excluded.',
@@ -660,5 +678,167 @@ export const SAMPLE_BIODATA_CV: CVData = {
   sectionOrder: ['biodata', 'education', 'experience', 'skills', 'languages'],
   fontSize: 'standard'
 };
+
+export const SAMPLE_GENERAL_CV: CVData = {
+  id: 'sample-general-1',
+  title: 'General Curriculum Vitae',
+  templateId: 'general-cv',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+  personalInfo: {
+    fullName: 'Md. Saiful Alam',
+    professionalTitle: 'Executive Officer / Office Assistant',
+    email: 'saiful.alam@example.com',
+    phone: '+880 1712-345678',
+    location: 'Dhaka, Bangladesh',
+    linkedin: '',
+    github: '',
+    website: '',
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
+    showPhoto: true
+  },
+  bioData: {
+    fatherName: 'Md. Rafiqul Islam',
+    motherName: 'Salma Begum',
+    spouseName: '',
+    dateOfBirth: '15 October 1999',
+    gender: 'Male',
+    maritalStatus: 'Unmarried',
+    religion: 'Islam',
+    nationality: 'Bangladeshi (By Birth)',
+    bloodGroup: 'B+ (ve)',
+    nationalId: '1999261234567890',
+    presentAddress: 'House #12, Road #4, Dhanmondi, Dhaka-1209',
+    permanentAddress: 'Village: Joypur, P.O: Chandpur, District: Cumilla',
+    place: 'Dhaka',
+    submissionDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  },
+  summary: 'Hardworking, dedicated and honest professional with strong interpersonal communication, administrative, and computer skills. Seeking a responsible position in a reputable organization to contribute effectively and grow professionally.',
+  education: [
+    {
+      id: 'gen-edu-1',
+      institution: 'National University, Bangladesh',
+      degree: 'Bachelor of Business Studies (BBS)',
+      fieldOfStudy: 'Management',
+      gpa: '3.40 / 4.00',
+      location: 'Dhaka, Bangladesh',
+      startDate: '2019',
+      endDate: '2023',
+      isCurrent: false,
+      description: 'Major coursework in Office Management, Business Communication, and Human Resource Principles.'
+    },
+    {
+      id: 'gen-edu-2',
+      institution: 'Dhaka City College',
+      degree: 'Higher Secondary Certificate (HSC)',
+      fieldOfStudy: 'Commerce',
+      gpa: '4.80 / 5.00',
+      location: 'Dhaka, Bangladesh',
+      startDate: '2017',
+      endDate: '2019',
+      isCurrent: false
+    }
+  ],
+  experience: [
+    {
+      id: 'gen-exp-1',
+      jobTitle: 'Assistant Office Executive',
+      company: 'Bengal Trade & Logistics Ltd.',
+      location: 'Dhaka, Bangladesh',
+      startDate: 'Jan 2024',
+      endDate: 'Present',
+      isCurrent: true,
+      description: 'Managing daily office correspondence, file maintenance, billing entries, and client support.',
+      bullets: [
+        'Prepared routine official letters, memoranda, spreadsheets, and meeting schedules.',
+        'Managed physical and digital file archiving, maintaining accurate records for swift retrieval.',
+        'Assisted the senior management team in day-to-day administrative operations.'
+      ]
+    }
+  ],
+  projects: [],
+  skills: {
+    technical: [
+      'MS Office (Word, Excel, PowerPoint)',
+      'Data Entry & Typing (Bengali & English)',
+      'Internet Browsing & Email Correspondence',
+      'Computer Hardware & Troubleshooting',
+      'Tailoring & Sewing / সেলাই কাজ',
+      'Hand Embroidery / হাতের কাজ',
+      'Customer Support & Front Desk Operations'
+    ],
+    soft: [
+      'Effective Communication',
+      'Teamwork & Collaboration',
+      'Time Management & Punctuality',
+      'Problem Solving & Honesty'
+    ],
+    tools: []
+  },
+  certifications: [
+    {
+      id: 'gen-cert-1',
+      name: 'Computer Office Application & Data Management',
+      organization: 'Bangladesh Technical Education Board (BTEB)',
+      year: '2023'
+    }
+  ],
+  extracurricular: [
+    {
+      id: 'gen-extra-1',
+      role: 'Volunteer / Active Member',
+      organization: 'Youth Red Crescent Society',
+      date: '2022 - 2023',
+      description: 'Participated in blood donation camps and community relief campaigns.'
+    }
+  ],
+  languages: [
+    { id: 'gen-lang-1', name: 'Bengali', proficiency: 'Native' },
+    { id: 'gen-lang-2', name: 'English', proficiency: 'Fluent' }
+  ],
+  awards: [
+    {
+      id: 'gen-award-1',
+      title: 'Best Employee of the Month',
+      issuer: 'Bengal Trade & Logistics Ltd.',
+      date: '2024'
+    }
+  ],
+  references: {
+    availableOnRequest: false,
+    items: [
+      {
+        id: 'gen-ref-1',
+        name: 'Md. Abdur Rahman',
+        title: 'Senior Manager (Administration)',
+        company: 'Bengal Trade & Logistics Ltd.',
+        phone: '+880 1711-000000',
+        email: 'abdur.rahman@example.com'
+      }
+    ]
+  },
+  customSections: [],
+  signature: {
+    enabled: true,
+    signerName: 'Md. Saiful Alam',
+    signerTitle: 'Applicant Signature'
+  },
+  sectionOrder: ['summary', 'biodata', 'education', 'experience', 'skills', 'languages', 'certifications', 'extracurricular', 'awards', 'projects', 'references'],
+  sectionVisibility: {
+    biodata: true,
+    summary: true,
+    education: true,
+    experience: true,
+    skills: true,
+    languages: true,
+    references: true,
+    certifications: false,
+    extracurricular: false,
+    awards: false,
+    projects: false
+  },
+  fontSize: 'standard'
+};
+
 
 

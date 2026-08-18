@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { CVData } from '../../types/cv';
 import { ATSStudentTemplate } from './ATSStudentTemplate';
 import { ATSProfessionalTemplate } from './ATSProfessionalTemplate';
+import { GeneralCVTemplate } from './GeneralCVTemplate';
 import { HRProfessionalTemplate } from './HRProfessionalTemplate';
 import { ModernTwoColumnTemplate } from './ModernTwoColumnTemplate';
 import { DeveloperCleanTemplate } from './DeveloperCleanTemplate';
@@ -63,6 +64,8 @@ export const LiveCVPreview: React.FC<LiveCVPreviewProps> = ({ data, scale = 1 })
         return <ATSStudentTemplate data={data} />;
       case 'ats-professional':
         return <ATSProfessionalTemplate data={data} />;
+      case 'general-cv':
+        return <GeneralCVTemplate data={data} />;
       case 'hr-professional':
         return <HRProfessionalTemplate data={data} />;
       case 'modern-two-column':

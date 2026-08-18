@@ -8,6 +8,7 @@ interface TemplateProps {
 export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
   const {
     personalInfo,
+    bioData,
     summary,
     education,
     experience,
@@ -19,10 +20,22 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
     awards,
     references,
     customSections,
-    sectionOrder
+    sectionOrder,
+    sectionVisibility = {}
   } = data;
 
+  const isVisible = (secKey: string): boolean => {
+    if (sectionVisibility[secKey] === false) return false;
+    return true;
+  };
+
+  const hasText = (val?: string | null): boolean => {
+    return Boolean(val && val.trim() !== '');
+  };
+
   const renderSection = (sectionKey: string) => {
+    if (!isVisible(sectionKey)) return null;
+
     switch (sectionKey) {
       case 'summary':
         if (!summary?.trim()) return null;
@@ -34,6 +47,53 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
             <p className="text-[8.5pt] leading-relaxed text-slate-800 text-justify">
               {summary}
             </p>
+          </section>
+        );
+
+      case 'biodata':
+        const hasBioData = Boolean(
+          hasText(bioData?.fatherName) ||
+          hasText(bioData?.motherName) ||
+          hasText(bioData?.dateOfBirth) ||
+          hasText(bioData?.gender) ||
+          hasText(bioData?.maritalStatus) ||
+          hasText(bioData?.religion) ||
+          hasText(bioData?.nationality) ||
+          hasText(bioData?.bloodGroup) ||
+          hasText(bioData?.nationalId) ||
+          hasText(bioData?.presentAddress) ||
+          hasText(bioData?.permanentAddress)
+        );
+        if (!hasBioData) return null;
+
+        const bioItems = [
+          { label: "Father's Name", value: bioData?.fatherName },
+          { label: "Mother's Name", value: bioData?.motherName },
+          { label: 'Date of Birth', value: bioData?.dateOfBirth },
+          { label: 'Gender', value: bioData?.gender },
+          { label: 'Marital Status', value: bioData?.maritalStatus },
+          { label: 'Religion', value: bioData?.religion },
+          { label: 'Nationality', value: bioData?.nationality },
+          { label: 'Blood Group', value: bioData?.bloodGroup },
+          { label: 'National ID', value: bioData?.nationalId },
+          { label: 'Present Address', value: bioData?.presentAddress },
+          { label: 'Permanent Address', value: bioData?.permanentAddress }
+        ].filter(item => hasText(item.value));
+
+        return (
+          <section key="biodata" className="mb-3.5 break-inside-avoid">
+            <h2 className="text-[10pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-1.5">
+              Personal Information & Details
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-0.5 text-[8.5pt]">
+              {bioItems.map((item, idx) => (
+                <div key={idx} className={`flex items-baseline ${item.label.includes('Address') ? 'sm:col-span-2' : ''}`}>
+                  <span className="font-bold text-slate-900 w-32 shrink-0">{item.label}</span>
+                  <span className="font-bold text-slate-700 mx-1">:</span>
+                  <span className="text-slate-800 flex-1">{item.value}</span>
+                </div>
+              ))}
+            </div>
           </section>
         );
 
@@ -315,22 +375,50 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
       default:
         const customSec = customSections?.find(cs => cs.id === sectionKey || cs.title.toLowerCase() === sectionKey.toLowerCase());
         if (!customSec || !customSec.items || customSec.items.length === 0) return null;
+        
+        const hasInlineItems = customSec.items.some(it => it.layout === 'inline' || Boolean(it.value));
+
         return (
           <section key={customSec.id} className="mb-3.5 break-inside-avoid">
             <h2 className="text-[10pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
               {customSec.title}
             </h2>
-            <div className="space-y-2 text-[8pt]">
-              {customSec.items.map((item) => (
-                <div key={item.id} className="space-y-0.5">
-                  <div className="flex justify-between items-baseline font-bold text-slate-900">
-                    <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
-                    {item.date && <span className="font-semibold text-slate-700">{item.date}</span>}
+            {hasInlineItems ? (
+              <div className="space-y-1 text-[8.5pt]">
+                {customSec.items.map((item) => {
+                  if (item.layout === 'inline' || item.value) {
+                    return (
+                      <div key={item.id} className="flex items-baseline">
+                        <span className="font-bold text-slate-900 w-32 shrink-0">{item.title}</span>
+                        <span className="font-bold text-slate-700 mx-1">:</span>
+                        <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={item.id} className="space-y-0.5 py-0.5">
+                      <div className="flex justify-between items-baseline font-bold text-slate-900">
+                        <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
+                        {item.date && <span className="font-semibold text-slate-700">{item.date}</span>}
+                      </div>
+                      {item.description && <p className="text-slate-800 leading-snug">{item.description}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-2 text-[8pt]">
+                {customSec.items.map((item) => (
+                  <div key={item.id} className="space-y-0.5">
+                    <div className="flex justify-between items-baseline font-bold text-slate-900">
+                      <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
+                      {item.date && <span className="font-semibold text-slate-700">{item.date}</span>}
+                    </div>
+                    {item.description && <p className="text-slate-800 leading-snug">{item.description}</p>}
                   </div>
-                  {item.description && <p className="text-slate-800 leading-snug">{item.description}</p>}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
         );
     }
@@ -346,7 +434,15 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
   if (personalInfo.website) contactParts.push(personalInfo.website);
 
   const defaultOrder = ['summary', 'skills', 'projects', 'experience', 'education', 'certifications', 'extracurricular', 'languages', 'awards', 'references'];
-  const sectionsToRender = sectionOrder.length > 0 ? sectionOrder : defaultOrder;
+  const baseSectionsToRender = sectionOrder.length > 0 ? sectionOrder : defaultOrder;
+  const sectionsToRender = [...baseSectionsToRender];
+  if (customSections && customSections.length > 0) {
+    customSections.forEach(cs => {
+      if (!sectionsToRender.includes(cs.id) && !sectionsToRender.includes(cs.title)) {
+        sectionsToRender.push(cs.id);
+      }
+    });
+  }
 
   return (
     <div className="w-[794px] min-h-[1123px] bg-white text-slate-900 px-8 py-6 font-sans leading-relaxed box-border flex flex-col justify-between">

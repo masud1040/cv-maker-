@@ -24,6 +24,7 @@ import {
   CheckCircle2,
   Download,
   Eye,
+  EyeOff,
   RotateCcw,
   User,
   FileText,
@@ -192,6 +193,81 @@ export const CVEditor: React.FC<CVEditorProps> = ({
       default:
         return false;
     }
+  };
+
+  const isSectionVisible = (secKey: string): boolean => {
+    return data.sectionVisibility?.[secKey] !== false;
+  };
+
+  const toggleSectionVisibility = (secKey: string) => {
+    setData(prev => {
+      const currentVis = prev.sectionVisibility || {};
+      const nextState = currentVis[secKey] === false ? true : false;
+      return {
+        ...prev,
+        sectionVisibility: {
+          ...currentVis,
+          [secKey]: nextState
+        }
+      };
+    });
+  };
+
+  const renderVisibilityToggleBanner = (secKey: string, title: string) => {
+    const visible = isSectionVisible(secKey);
+    return (
+      <div
+        className={`p-3 sm:p-3.5 rounded-xl border flex items-center justify-between gap-3 mb-4 transition-all ${
+          visible
+            ? 'bg-emerald-50/80 dark:bg-emerald-950/25 border-emerald-200/80 dark:border-emerald-800/60'
+            : 'bg-amber-50/90 dark:bg-amber-950/30 border-amber-200/90 dark:border-amber-800/60'
+        }`}
+      >
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-slate-900 dark:text-white">
+              {title} Section
+            </span>
+            <span
+              className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                visible
+                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300'
+                  : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
+              }`}
+            >
+              {visible ? 'Active (ON)' : 'Hidden (OFF)'}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
+            {visible
+              ? 'This section is ON and will appear in your CV document.'
+              : 'This section is currently OFF and hidden from the CV. Click toggle to turn ON.'}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => toggleSectionVisibility(secKey)}
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-xs shrink-0 ${
+            visible
+              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+              : 'bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-200 dark:hover:bg-white dark:text-slate-900'
+          }`}
+        >
+          {visible ? (
+            <>
+              <Eye className="w-3.5 h-3.5" />
+              <span>Turn OFF</span>
+            </>
+          ) : (
+            <>
+              <EyeOff className="w-3.5 h-3.5" />
+              <span>Turn ON</span>
+            </>
+          )}
+        </button>
+      </div>
+    );
   };
 
   const navTabs: { id: EditorTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -464,6 +540,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               const filled = hasContent(tab.id);
+              const isExplicitlyHidden = data.sectionVisibility?.[tab.id] === false;
 
               return (
                 <button
@@ -472,12 +549,21 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                   className={`relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors shrink-0 ${
                     isActive
                       ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold shadow-xs'
+                      : isExplicitlyHidden
+                      ? 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-200/40'
                       : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-slate-900' : 'text-slate-400 dark:text-slate-500'}`} />
-                  <span>{tab.label}</span>
-                  {filled && !isActive && (
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-slate-900' : isExplicitlyHidden ? 'text-slate-400 dark:text-slate-600' : 'text-slate-400 dark:text-slate-500'}`} />
+                  <span className={isExplicitlyHidden && !isActive ? 'line-through text-slate-400 dark:text-slate-500' : ''}>
+                    {tab.label}
+                  </span>
+                  {isExplicitlyHidden && (
+                    <span className="text-[9px] font-bold uppercase px-1 py-0.2 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                      OFF
+                    </span>
+                  )}
+                  {filled && !isActive && !isExplicitlyHidden && (
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block ml-0.5"></span>
                   )}
                 </button>
@@ -496,82 +582,115 @@ export const CVEditor: React.FC<CVEditorProps> = ({
             )}
 
             {activeTab === 'biodata' && (
-              <BioDataForm
-                data={data.bioData || {}}
-                personalInfo={data.personalInfo}
-                onChange={(bioData) => setData(prev => ({ ...prev, bioData }))}
-                onUpdatePersonalInfo={(personalInfo) => setData(prev => ({ ...prev, personalInfo }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('biodata', 'Bio-Data / Personal Details')}
+                <BioDataForm
+                  data={data.bioData || {}}
+                  personalInfo={data.personalInfo}
+                  onChange={(bioData) => setData(prev => ({ ...prev, bioData }))}
+                  onUpdatePersonalInfo={(personalInfo) => setData(prev => ({ ...prev, personalInfo }))}
+                />
+              </div>
             )}
 
             {activeTab === 'summary' && (
-              <SummaryForm
-                summary={data.summary}
-                onChange={(summary) => setData(prev => ({ ...prev, summary }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('summary', 'Career Summary / Objective')}
+                <SummaryForm
+                  summary={data.summary}
+                  onChange={(summary) => setData(prev => ({ ...prev, summary }))}
+                />
+              </div>
             )}
 
             {activeTab === 'education' && (
-              <EducationForm
-                entries={data.education || []}
-                onChange={(education) => setData(prev => ({ ...prev, education }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('education', 'Academic Education')}
+                <EducationForm
+                  entries={data.education || []}
+                  onChange={(education) => setData(prev => ({ ...prev, education }))}
+                />
+              </div>
             )}
 
             {activeTab === 'experience' && (
-              <ExperienceForm
-                entries={data.experience || []}
-                onChange={(experience) => setData(prev => ({ ...prev, experience }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('experience', 'Work Experience')}
+                <ExperienceForm
+                  entries={data.experience || []}
+                  onChange={(experience) => setData(prev => ({ ...prev, experience }))}
+                />
+              </div>
             )}
 
             {activeTab === 'projects' && (
-              <ProjectsForm
-                entries={data.projects || []}
-                onChange={(projects) => setData(prev => ({ ...prev, projects }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('projects', 'Key Projects')}
+                <ProjectsForm
+                  entries={data.projects || []}
+                  onChange={(projects) => setData(prev => ({ ...prev, projects }))}
+                />
+              </div>
             )}
 
             {activeTab === 'skills' && (
-              <SkillsForm
-                skills={data.skills || { technical: [], soft: [], tools: [] }}
-                onChange={(skills) => setData(prev => ({ ...prev, skills }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('skills', 'Skills & Competencies')}
+                <SkillsForm
+                  skills={data.skills || { technical: [], soft: [], tools: [] }}
+                  onChange={(skills) => setData(prev => ({ ...prev, skills }))}
+                />
+              </div>
             )}
 
             {activeTab === 'certifications' && (
-              <CertificationsForm
-                entries={data.certifications || []}
-                onChange={(certifications) => setData(prev => ({ ...prev, certifications }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('certifications', 'Certifications & Training')}
+                <CertificationsForm
+                  entries={data.certifications || []}
+                  onChange={(certifications) => setData(prev => ({ ...prev, certifications }))}
+                />
+              </div>
             )}
 
             {activeTab === 'extracurricular' && (
-              <ExtracurricularForm
-                entries={data.extracurricular || []}
-                onChange={(extracurricular) => setData(prev => ({ ...prev, extracurricular }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('extracurricular', 'Extracurricular & Activities')}
+                <ExtracurricularForm
+                  entries={data.extracurricular || []}
+                  onChange={(extracurricular) => setData(prev => ({ ...prev, extracurricular }))}
+                />
+              </div>
             )}
 
             {activeTab === 'languages' && (
-              <LanguagesForm
-                entries={data.languages || []}
-                onChange={(languages) => setData(prev => ({ ...prev, languages }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('languages', 'Languages Known')}
+                <LanguagesForm
+                  entries={data.languages || []}
+                  onChange={(languages) => setData(prev => ({ ...prev, languages }))}
+                />
+              </div>
             )}
 
             {activeTab === 'awards' && (
-              <AwardsForm
-                entries={data.awards || []}
-                onChange={(awards) => setData(prev => ({ ...prev, awards }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('awards', 'Awards & Honors')}
+                <AwardsForm
+                  entries={data.awards || []}
+                  onChange={(awards) => setData(prev => ({ ...prev, awards }))}
+                />
+              </div>
             )}
 
             {activeTab === 'references' && (
-              <ReferencesForm
-                data={data.references || { availableOnRequest: true, items: [] }}
-                onChange={(references) => setData(prev => ({ ...prev, references }))}
-              />
+              <div>
+                {renderVisibilityToggleBanner('references', 'References')}
+                <ReferencesForm
+                  data={data.references || { availableOnRequest: true, items: [] }}
+                  onChange={(references) => setData(prev => ({ ...prev, references }))}
+                />
+              </div>
             )}
 
             {activeTab === 'signature' && (
@@ -593,7 +712,9 @@ export const CVEditor: React.FC<CVEditorProps> = ({
             {activeTab === 'order' && (
               <SectionOrderManager
                 sectionOrder={data.sectionOrder}
+                sectionVisibility={data.sectionVisibility}
                 onChange={(sectionOrder) => setData(prev => ({ ...prev, sectionOrder }))}
+                onToggleVisibility={toggleSectionVisibility}
               />
             )}
           </div>

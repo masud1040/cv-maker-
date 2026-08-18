@@ -1,4 +1,4 @@
-export type TemplateId = 'ats-student' | 'ats-professional' | 'hr-professional' | 'modern-two-column' | 'developer-clean' | 'job-biodata';
+export type TemplateId = 'ats-student' | 'ats-professional' | 'general-cv' | 'hr-professional' | 'modern-two-column' | 'developer-clean' | 'job-biodata';
 
 export interface BioDataDetails {
   fatherName?: string;
@@ -30,6 +30,7 @@ export interface PersonalInfo {
   github: string;
   website: string;
   photoUrl?: string;
+  showPhoto?: boolean;
 }
 
 export interface EducationEntry {
@@ -121,19 +122,23 @@ export interface ReferencesData {
 
 export interface CustomItem {
   id: string;
-  title: string;
-  subtitle?: string;
-  date?: string;
-  description: string;
+  layout?: 'inline' | 'block'; // 'inline' for Key : Value (পাশে পাশে), 'block' for multi-line hierarchy (নিচে নিচে)
+  title: string; // Label or Heading (e.g. "Father's Name" or "Hackathon 2024")
+  value?: string; // For inline mode: e.g. "Abul Hossain"
+  subtitle?: string; // For block mode: e.g. "ICT Division"
+  date?: string; // For block mode: e.g. "1st Runner Up" or "2024"
+  description: string; // Description or details
 }
 
 export interface CustomSection {
   id: string;
   title: string;
+  layout?: 'inline' | 'block'; // Default layout for all items in this section
   items: CustomItem[];
 }
 
 export type SectionType =
+  | 'biodata'
   | 'summary'
   | 'education'
   | 'experience'
@@ -145,6 +150,22 @@ export type SectionType =
   | 'awards'
   | 'references'
   | string; // for custom sections
+
+export interface SectionVisibility {
+  biodata?: boolean;
+  summary?: boolean;
+  education?: boolean;
+  experience?: boolean;
+  projects?: boolean;
+  skills?: boolean;
+  certifications?: boolean;
+  extracurricular?: boolean;
+  languages?: boolean;
+  awards?: boolean;
+  references?: boolean;
+  signature?: boolean;
+  [key: string]: boolean | undefined;
+}
 
 export interface SignatureData {
   enabled: boolean;
@@ -173,6 +194,7 @@ export interface CVData {
   references: ReferencesData;
   customSections: CustomSection[];
   sectionOrder: SectionType[];
+  sectionVisibility?: SectionVisibility;
   bioData?: BioDataDetails;
   signature?: SignatureData;
   fontSize?: 'compact' | 'standard' | 'spacious';

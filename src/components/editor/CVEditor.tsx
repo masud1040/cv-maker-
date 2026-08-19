@@ -18,6 +18,7 @@ import { SectionOrderManager } from './SectionOrderManager';
 import { BioDataForm } from './BioDataForm';
 import { ATSSectionView } from './ATSSectionView';
 import { ATSAnalysisModal } from './ATSAnalysisModal';
+import { AIImproveModal, AIImproveTarget } from './AIImproveModal';
 import { analyzeCVForATS } from '../../utils/atsScanner';
 import { LiveCVPreview } from '../preview/LiveCVPreview';
 import { PreviewModal } from '../PreviewModal';
@@ -51,7 +52,8 @@ import {
   MoreVertical,
   Type,
   Loader2,
-  Target
+  Target,
+  Sparkles
 } from 'lucide-react';
 
 interface CVEditorProps {
@@ -94,6 +96,8 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isATSModalOpen, setIsATSModalOpen] = useState(false);
+  const [isAIModalOpen, setIsAIModalOpen] = useState(false);
+  const [aiModalTarget, setAiModalTarget] = useState<AIImproveTarget | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving'>('saved');
   const [showMobileMoreMenu, setShowMobileMoreMenu] = useState(false);
@@ -223,6 +227,63 @@ export const CVEditor: React.FC<CVEditorProps> = ({
           soft: currentSoft
         }
       };
+    });
+  };
+
+  const handleOpenAIModal = (target?: AIImproveTarget) => {
+    setAiModalTarget(target || null);
+    setIsAIModalOpen(true);
+  };
+
+  const handleApplyAIText = (target: AIImproveTarget, newText: string) => {
+    if (!newText) return;
+
+    setData(prev => {
+      if (target.sectionKey === 'summary') {
+        return { ...prev, summary: newText };
+      }
+
+      if (target.sectionKey === 'experience' && target.itemId) {
+        const updatedExp = (prev.experience || []).map(exp => {
+          if (exp.id === target.itemId) {
+            if (target.fieldName === 'bullet' && target.subIndex !== undefined) {
+              const newBullets = [...(exp.bullets || [])];
+              newBullets[target.subIndex] = newText;
+              return { ...exp, bullets: newBullets };
+            }
+            return { ...exp, description: newText };
+          }
+          return exp;
+        });
+        return { ...prev, experience: updatedExp };
+      }
+
+      if (target.sectionKey === 'project' && target.itemId) {
+        const updatedProj = (prev.projects || []).map(proj => {
+          if (proj.id === target.itemId) {
+            if (target.fieldName === 'bullet' && target.subIndex !== undefined) {
+              const newBullets = [...(proj.bullets || [])];
+              newBullets[target.subIndex] = newText;
+              return { ...proj, bullets: newBullets };
+            }
+            return { ...proj, description: newText };
+          }
+          return proj;
+        });
+        return { ...prev, projects: updatedProj };
+      }
+
+      if (target.sectionKey === 'custom' && target.itemId) {
+        const updatedCust = (prev.customSections || []).map(cust => {
+          if (cust.id === target.itemId) {
+            return { ...cust, content: newText };
+          }
+          return cust;
+        });
+        return { ...prev, customSections: updatedCust };
+      }
+
+      return prev;
     });
   };
 
@@ -388,6 +449,17 @@ export const CVEditor: React.FC<CVEditorProps> = ({
             <span className="font-mono">{atsReport.overallScore}%</span>
           </button>
 
+          {/* AI Text Improver Button */}
+          <button
+            type="button"
+            onClick={() => handleOpenAIModal()}
+            className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border border-indigo-200 dark:border-indigo-800/80 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/40 dark:hover:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 transition shadow-2xs"
+            title="AI Text Improvement & Tone Optimizer (Gemini)"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            <span className="hidden xs:inline">AI Polish</span>
+          </button>
+
           {/* Desktop Font Size Selector */}
           <div className="hidden xl:flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 text-xs">
             <button
@@ -514,6 +586,18 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                 >
                   <Target className="w-4 h-4 text-emerald-500" />
                   <span>ATS Scanner ({atsReport.overallScore}%)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMobileMoreMenu(false);
+                    handleOpenAIModal();
+                  }}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4 text-indigo-500" />
+                  <span>AI Polish & Rewrite</span>
                 </button>
 
                 <button
@@ -661,6 +745,13 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                 <SummaryForm
                   summary={data.summary}
                   onChange={(summary) => setData(prev => ({ ...prev, summary }))}
+                  onOpenAIModal={() =>
+                    handleOpenAIModal({
+                      sectionKey: 'summary',
+                      fieldName: 'description',
+                      initialText: data.summary || '',
+                    })
+                  }
                 />
               </div>
             )}
@@ -681,6 +772,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                 <ExperienceForm
                   entries={data.experience || []}
                   onChange={(experience) => setData(prev => ({ ...prev, experience }))}
+                  onOpenAIModal={handleOpenAIModal}
                 />
               </div>
             )}
@@ -691,6 +783,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                 <ProjectsForm
                   entries={data.projects || []}
                   onChange={(projects) => setData(prev => ({ ...prev, projects }))}
+                  onOpenAIModal={handleOpenAIModal}
                 />
               </div>
             )}
@@ -820,6 +913,15 @@ export const CVEditor: React.FC<CVEditorProps> = ({
         cvData={data}
         onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
         onAddSkill={handleAddSkill}
+      />
+
+      {/* AI Text Improvement Modal */}
+      <AIImproveModal
+        isOpen={isAIModalOpen}
+        onClose={() => setIsAIModalOpen(false)}
+        cvData={data}
+        initialTarget={aiModalTarget}
+        onApplyText={handleApplyAIText}
       />
     </div>
   );

@@ -1,13 +1,20 @@
 import React from 'react';
 import { ExperienceEntry } from '../../types/cv';
-import { Briefcase, Plus, Trash2, Calendar, MapPin, Building2, ListPlus } from 'lucide-react';
+import { Briefcase, Plus, Trash2, Calendar, MapPin, Building2, ListPlus, Sparkles } from 'lucide-react';
 
 interface ExperienceFormProps {
   entries: ExperienceEntry[];
   onChange: (entries: ExperienceEntry[]) => void;
+  onOpenAIModal?: (target: {
+    sectionKey: 'experience';
+    itemId: string;
+    subIndex?: number;
+    fieldName: 'description' | 'bullet';
+    initialText?: string;
+  }) => void;
 }
 
-export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChange }) => {
+export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChange, onOpenAIModal }) => {
   const handleAdd = () => {
     const newEntry: ExperienceEntry = {
       id: 'exp-' + Date.now(),
@@ -99,9 +106,30 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
               className="p-4 bg-slate-50/70 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-3.5"
             >
               <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2.5">
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                  Role #{index + 1} {exp.jobTitle ? `— ${exp.jobTitle}` : ''}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    Role #{index + 1} {exp.jobTitle ? `— ${exp.jobTitle}` : ''}
+                  </span>
+                  {onOpenAIModal && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onOpenAIModal({
+                          sectionKey: 'experience',
+                          itemId: exp.id,
+                          subIndex: 0,
+                          fieldName: 'bullet',
+                          initialText: exp.bullets[0] || exp.jobTitle,
+                        })
+                      }
+                      className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 rounded-md transition"
+                      title="Improve this role with AI"
+                    >
+                      <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                      <span>AI Polish</span>
+                    </button>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => handleDelete(exp.id)}
@@ -229,6 +257,24 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                           placeholder="e.g. Developed 12 REST API endpoints using Node.js, reducing latency by 24%."
                           className="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                         />
+                        {onOpenAIModal && bullet.trim().length > 3 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onOpenAIModal({
+                                sectionKey: 'experience',
+                                itemId: exp.id,
+                                subIndex: bIdx,
+                                fieldName: 'bullet',
+                                initialText: bullet,
+                              })
+                            }
+                            className="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 rounded-md transition-colors"
+                            title="Rewrite bullet with AI"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                         {exp.bullets.length > 1 && (
                           <button
                             type="button"

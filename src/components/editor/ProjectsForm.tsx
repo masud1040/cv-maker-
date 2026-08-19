@@ -1,13 +1,20 @@
 import React from 'react';
 import { ProjectEntry } from '../../types/cv';
-import { FolderGit2, Plus, Trash2, Link as LinkIcon, ListPlus, Calendar } from 'lucide-react';
+import { FolderGit2, Plus, Trash2, Link as LinkIcon, ListPlus, Calendar, Sparkles } from 'lucide-react';
 
 interface ProjectsFormProps {
   entries: ProjectEntry[];
   onChange: (entries: ProjectEntry[]) => void;
+  onOpenAIModal?: (target: {
+    sectionKey: 'project';
+    itemId: string;
+    subIndex?: number;
+    fieldName: 'description' | 'bullet';
+    initialText?: string;
+  }) => void;
 }
 
-export const ProjectsForm: React.FC<ProjectsFormProps> = ({ entries, onChange }) => {
+export const ProjectsForm: React.FC<ProjectsFormProps> = ({ entries, onChange, onOpenAIModal }) => {
   const handleAdd = () => {
     const newEntry: ProjectEntry = {
       id: 'proj-' + Date.now(),
@@ -96,9 +103,30 @@ export const ProjectsForm: React.FC<ProjectsFormProps> = ({ entries, onChange })
               className="p-4 bg-slate-50/70 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-3.5"
             >
               <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2.5">
-                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
-                  Project #{index + 1} {proj.name ? `— ${proj.name}` : ''}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                    Project #{index + 1} {proj.name ? `— ${proj.name}` : ''}
+                  </span>
+                  {onOpenAIModal && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        onOpenAIModal({
+                          sectionKey: 'project',
+                          itemId: proj.id,
+                          subIndex: 0,
+                          fieldName: 'description',
+                          initialText: proj.description || proj.name,
+                        })
+                      }
+                      className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 rounded-md transition"
+                      title="Improve this project with AI"
+                    >
+                      <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                      <span>AI Polish</span>
+                    </button>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => handleDelete(proj.id)}
@@ -213,6 +241,24 @@ export const ProjectsForm: React.FC<ProjectsFormProps> = ({ entries, onChange })
                           placeholder="e.g. Achieved 99.9% uptime with automated health-check failover."
                           className="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                         />
+                        {onOpenAIModal && bullet.trim().length > 3 && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onOpenAIModal({
+                                sectionKey: 'project',
+                                itemId: proj.id,
+                                subIndex: bIdx,
+                                fieldName: 'bullet',
+                                initialText: bullet,
+                              })
+                            }
+                            className="p-1.5 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/60 rounded-md transition-colors"
+                            title="Rewrite bullet with AI"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                         {proj.bullets.length > 1 && (
                           <button
                             type="button"

@@ -16,6 +16,9 @@ import { SignatureForm } from './SignatureForm';
 import { CustomSectionsForm } from './CustomSectionsForm';
 import { SectionOrderManager } from './SectionOrderManager';
 import { BioDataForm } from './BioDataForm';
+import { ATSSectionView } from './ATSSectionView';
+import { ATSAnalysisModal } from './ATSAnalysisModal';
+import { analyzeCVForATS } from '../../utils/atsScanner';
 import { LiveCVPreview } from '../preview/LiveCVPreview';
 import { PreviewModal } from '../PreviewModal';
 import { generatePDFFromElement } from '../../utils/pdfExport';
@@ -47,7 +50,8 @@ import {
   ChevronDown,
   MoreVertical,
   Type,
-  Loader2
+  Loader2,
+  Target
 } from 'lucide-react';
 
 interface CVEditorProps {
@@ -74,7 +78,8 @@ type EditorTab =
   | 'references'
   | 'signature'
   | 'custom'
-  | 'order';
+  | 'order'
+  | 'ats';
 
 export const CVEditor: React.FC<CVEditorProps> = ({
   cvData,
@@ -88,11 +93,15 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   const [activeTab, setActiveTab] = useState<EditorTab>('personal');
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+  const [isATSModalOpen, setIsATSModalOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving'>('saved');
   const [showMobileMoreMenu, setShowMobileMoreMenu] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Real-time ATS report calculation
+  const atsReport = analyzeCVForATS(data);
 
   // Sync internal state when prop changes
   useEffect(() => {
@@ -195,6 +204,28 @@ export const CVEditor: React.FC<CVEditorProps> = ({
     }
   };
 
+  const handleAddSkill = (newSkill: string) => {
+    if (!newSkill || !newSkill.trim()) return;
+    const clean = newSkill.trim();
+    setData(prev => {
+      const currentTech = prev.skills?.technical || [];
+      const currentTools = prev.skills?.tools || [];
+      const currentSoft = prev.skills?.soft || [];
+      if ([...currentTech, ...currentTools, ...currentSoft].includes(clean)) {
+        return prev;
+      }
+      return {
+        ...prev,
+        skills: {
+          ...prev.skills,
+          technical: [...currentTech, clean],
+          tools: currentTools,
+          soft: currentSoft
+        }
+      };
+    });
+  };
+
   const isSectionVisible = (secKey: string): boolean => {
     return data.sectionVisibility?.[secKey] !== false;
   };
@@ -285,7 +316,8 @@ export const CVEditor: React.FC<CVEditorProps> = ({
     { id: 'references', label: 'References', icon: UserCheck },
     { id: 'signature', label: 'Signature', icon: PenTool },
     { id: 'custom', label: 'Custom', icon: FolderPlus },
-    { id: 'order', label: 'Reorder', icon: Layers }
+    { id: 'order', label: 'Reorder', icon: Layers },
+    { id: 'ats', label: 'ATS Scan', icon: Target }
   ];
 
   return (
@@ -319,7 +351,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
           </div>
         </div>
 
-        {/* Right Side: Template Selector, Font Size, Theme, Preview, Download */}
+        {/* Right Side: Template Selector, ATS Score, Font Size, Theme, Preview, Download */}
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Template Switcher Dropdown */}
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-700 dark:text-slate-300 max-w-[110px] xs:max-w-[140px] sm:max-w-[180px]">
@@ -337,6 +369,24 @@ export const CVEditor: React.FC<CVEditorProps> = ({
               ))}
             </select>
           </div>
+
+          {/* ATS Analysis Score Pill */}
+          <button
+            type="button"
+            onClick={() => setIsATSModalOpen(true)}
+            className={`inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 text-xs font-bold rounded-lg border transition shadow-2xs ${
+              atsReport.overallScore >= 80
+                ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/50 dark:text-emerald-300 dark:border-emerald-800/60'
+                : atsReport.overallScore >= 60
+                ? 'bg-blue-50 hover:bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:hover:bg-blue-900/50 dark:text-blue-300 dark:border-blue-800/60'
+                : 'bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:hover:bg-amber-900/50 dark:text-amber-300 dark:border-amber-800/60'
+            }`}
+            title="Open Live ATS Scanner & Optimization Checklist"
+          >
+            <Target className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline">ATS:</span>
+            <span className="font-mono">{atsReport.overallScore}%</span>
+          </button>
 
           {/* Desktop Font Size Selector */}
           <div className="hidden xl:flex items-center gap-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-0.5 text-xs">
@@ -415,7 +465,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
             </button>
 
             {showMobileMoreMenu && (
-              <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl py-2 z-50 animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-3 py-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
                   Text Density
                 </div>
@@ -453,6 +503,18 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                 </div>
 
                 <div className="border-t border-slate-100 dark:border-slate-800 my-1" />
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowMobileMoreMenu(false);
+                    setIsATSModalOpen(true);
+                  }}
+                  className="w-full px-3.5 py-2 text-left text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 flex items-center gap-2"
+                >
+                  <Target className="w-4 h-4 text-emerald-500" />
+                  <span>ATS Scanner ({atsReport.overallScore}%)</span>
+                </button>
 
                 <button
                   type="button"
@@ -717,6 +779,15 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                 onToggleVisibility={toggleSectionVisibility}
               />
             )}
+
+            {activeTab === 'ats' && (
+              <ATSSectionView
+                cvData={data}
+                onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
+                onAddSkill={handleAddSkill}
+                onOpenFullModal={() => setIsATSModalOpen(true)}
+              />
+            )}
           </div>
         </div>
 
@@ -740,6 +811,15 @@ export const CVEditor: React.FC<CVEditorProps> = ({
         isOpen={isPreviewModalOpen}
         onClose={() => setIsPreviewModalOpen(false)}
         data={data}
+      />
+
+      {/* Full ATS Analysis & Optimization Modal */}
+      <ATSAnalysisModal
+        isOpen={isATSModalOpen}
+        onClose={() => setIsATSModalOpen(false)}
+        cvData={data}
+        onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
+        onAddSkill={handleAddSkill}
       />
     </div>
   );

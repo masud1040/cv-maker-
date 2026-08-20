@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TEMPLATES, SAMPLE_STUDENT_CV } from '../data/templates';
+import { TEMPLATES, SAMPLE_STUDENT_CV, SAMPLE_GENERAL_CV, SAMPLE_DEVELOPER_CV } from '../data/templates';
 import { LiveCVPreview } from './preview/LiveCVPreview';
 import {
   FileText,
@@ -15,7 +15,11 @@ import {
   BookOpen,
   Briefcase,
   Lock,
-  ChevronRight
+  ChevronRight,
+  TrendingUp,
+  Check,
+  Target,
+  Sliders
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -29,237 +33,346 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   onExploreTemplatesClick,
   onMyCVsClick
 }) => {
-  const [selectedTemplateIndex, setSelectedTemplateIndex] = useState(0);
+  const [activeTabSample, setActiveTabSample] = useState<'student' | 'general' | 'developer'>('general');
+
+  const getActiveSample = () => {
+    if (activeTabSample === 'student') return SAMPLE_STUDENT_CV;
+    if (activeTabSample === 'developer') return SAMPLE_DEVELOPER_CV;
+    return SAMPLE_GENERAL_CV;
+  };
+
+  const steps = [
+    {
+      num: 1,
+      title: 'Create or import',
+      desc: 'Start from a clean template or adapt your existing profile in seconds.'
+    },
+    {
+      num: 2,
+      title: 'Improve with AI',
+      desc: 'Sharpen your profile, work experience and skills with smart AI rewrites.'
+    },
+    {
+      num: 3,
+      title: 'Test your CV',
+      desc: 'Check structure, readability, and ATS scanner compatibility in real time.'
+    },
+    {
+      num: 4,
+      title: 'Customize effortlessly',
+      desc: 'Toggle photo, bio data, awards, and skills with simple one-click switches.'
+    },
+    {
+      num: 5,
+      title: 'Export & Apply',
+      desc: 'Download crisp, high-resolution A4 PDFs ready for instant job applications.'
+    }
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans antialiased overflow-x-hidden">
       {/* Hero Section */}
-      <section className="relative pt-12 sm:pt-18 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+      <section className="relative pt-10 sm:pt-16 pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
         <div className="text-center space-y-5 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-full shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>ATS-Friendly & Recruiter Approved</span>
+          {/* Top Trust Badge matching cvdesignr */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-full shadow-xs">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+            </span>
+            <span className="font-bold text-cyan-700 dark:text-cyan-400">4x</span>
+            <span className="text-slate-600 dark:text-slate-300">more interviews secured with ATS-ready formatting</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white leading-[1.15]">
-            Build a professional resume that gets noticed.
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.12]">
+            A CV that looks like you, <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-cyan-600 via-sky-600 to-indigo-600 bg-clip-text text-transparent">
+              powered by AI.
+            </span>
           </h1>
 
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto font-normal">
-            Create clean, job-ready resumes formatted for applicant tracking systems and human recruiters. Real-time A4 preview with instant PDF export.
+            Build clean, professional resumes tailored for human recruiters and applicant tracking systems. Real-time preview, AI assistance, and instant PDF download.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <button
               onClick={onCreateClick}
-              className="w-full sm:w-auto px-6 py-3 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-semibold text-sm rounded-lg shadow-xs transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-7 py-3.5 bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-white font-bold text-sm rounded-xl shadow-md shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 active:scale-98"
             >
-              Create My Resume
+              Create My CV for Free
               <ArrowRight className="w-4 h-4" />
             </button>
 
             <button
               onClick={onExploreTemplatesClick}
-              className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-800 dark:text-slate-200 font-semibold text-sm rounded-lg border border-slate-300 dark:border-slate-700 shadow-2xs transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-6 py-3.5 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-800 dark:text-slate-200 font-semibold text-sm rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs transition-all flex items-center justify-center gap-2"
             >
               Explore Templates
             </button>
           </div>
 
-          <div className="pt-3 flex items-center justify-center gap-6 text-xs text-slate-500 dark:text-slate-400 font-medium flex-wrap">
+          <div className="pt-2 flex items-center justify-center gap-6 text-xs text-slate-500 dark:text-slate-400 font-medium flex-wrap">
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-slate-700 dark:text-slate-300" /> Free & Private
+              <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 stroke-[3]" /> 100% Free & No Sign-up
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-slate-700 dark:text-slate-300" /> No Sign-Up Required
+              <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 stroke-[3]" /> ATS & Recruiter Tested
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-slate-700 dark:text-slate-300" /> Print-Ready A4 PDF
+              <Check className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400 stroke-[3]" /> Print-Ready A4 PDF
             </span>
           </div>
         </div>
 
-        {/* Hero Interactive Document Showcase */}
-        <div className="mt-12 sm:mt-14 max-w-4xl mx-auto rounded-xl bg-slate-900 dark:bg-slate-900 p-3 sm:p-5 shadow-xl border border-slate-800 overflow-hidden">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-800 text-xs text-slate-400 mb-3 px-2">
-            <div className="flex items-center gap-2">
-              <div className="flex gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-700 inline-block"></span>
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-700 inline-block"></span>
-                <span className="w-2.5 h-2.5 rounded-full bg-slate-700 inline-block"></span>
-              </div>
-              <span className="ml-2 font-mono text-[11px] text-slate-400">Preview Canvas (A4 Standard)</span>
-            </div>
-            <div className="text-[11px] font-medium text-slate-400">
-              Live Interactive Document
-            </div>
-          </div>
-
-          <div className="flex justify-center bg-slate-200/90 dark:bg-slate-950 p-2 sm:p-6 rounded-lg overflow-hidden">
-            <div className="shadow-lg rounded-sm overflow-hidden bg-white text-slate-900 max-w-full">
-              <LiveCVPreview data={SAMPLE_STUDENT_CV} scale={0.78} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Core Pillars / Features */}
-      <section className="py-16 bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <div className="text-center space-y-2 max-w-xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Designed for career success
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">
-              Structured to pass algorithmic screening and impress hiring managers.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-2.5 transition-colors">
-              <div className="w-9 h-9 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg flex items-center justify-center font-bold">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">ATS Compliant Layouts</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Standard semantic headers and clean single-column structure ensure automated parsing without dropped data.
-              </p>
-            </div>
-
-            <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-2.5 transition-colors">
-              <div className="w-9 h-9 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg flex items-center justify-center font-bold">
-                <Eye className="w-4 h-4" />
-              </div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Real-Time A4 Preview</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                See exact print margins and page breaks update instantaneously as you type your experience.
-              </p>
-            </div>
-
-            <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-2.5 transition-colors">
-              <div className="w-9 h-9 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg flex items-center justify-center font-bold">
-                <Download className="w-4 h-4" />
-              </div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Vector-Clean PDF</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Export high-resolution PDFs automatically formatted and named for professional job applications.
-              </p>
-            </div>
-
-            <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-2.5 transition-colors">
-              <div className="w-9 h-9 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg flex items-center justify-center font-bold">
-                <Lock className="w-4 h-4" />
-              </div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Private & Local Storage</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Your data stays exclusively in your local browser storage. No account creation or data harvesting.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Templates Showcase */}
-      <section className="py-16 bg-slate-50 dark:bg-slate-950">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-          <div className="text-center space-y-2 max-w-xl mx-auto">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Curated Resume Templates
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">
-              Tailored for students, early-career graduates, and seasoned industry professionals.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {TEMPLATES.map((t) => (
-              <div
-                key={t.id}
-                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-2xs hover:border-slate-400 dark:hover:border-slate-600 transition-all p-5 flex flex-col justify-between space-y-4"
-              >
-                <div className="space-y-2.5">
-                  <span className="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded border border-slate-200 dark:border-slate-700">
-                    {t.badge}
-                  </span>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white">{t.name}</h3>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{t.description}</p>
+        {/* Hero Interactive Document Showcase (cvdesignr Device Mockup + Floating Assistant) */}
+        <div className="mt-12 sm:mt-16 max-w-5xl mx-auto relative">
+          {/* Main Browser / Device Frame */}
+          <div className="rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 p-2 sm:p-5 shadow-2xl border border-slate-200/80 dark:border-slate-800">
+            {/* Header bar of mockup */}
+            <div className="flex items-center justify-between pb-3 px-3 border-b border-slate-100 dark:border-slate-800 text-xs">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 inline-block"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 inline-block"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 inline-block"></span>
                 </div>
+                <span className="ml-3 font-semibold text-slate-700 dark:text-slate-300">CVDesignR Editor</span>
+              </div>
 
-                <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-lg text-xs space-y-1 border border-slate-200 dark:border-slate-700">
-                  <span className="font-semibold text-slate-700 dark:text-slate-300 uppercase text-[10px] tracking-wider block">
-                    Ideal For:
-                  </span>
-                  <p className="text-slate-600 dark:text-slate-400 text-[11px]">{t.recommendedFor}</p>
-                </div>
-
+              {/* Template Switcher Tabs */}
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
                 <button
-                  onClick={onExploreTemplatesClick}
-                  className="w-full py-2 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-semibold rounded-lg transition-colors"
+                  onClick={() => setActiveTabSample('general')}
+                  className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-colors ${
+                    activeTabSample === 'general'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
                 >
-                  Use {t.name}
+                  General CV
+                </button>
+                <button
+                  onClick={() => setActiveTabSample('student')}
+                  className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-colors ${
+                    activeTabSample === 'student'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  ATS Student
+                </button>
+                <button
+                  onClick={() => setActiveTabSample('developer')}
+                  className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-colors ${
+                    activeTabSample === 'developer'
+                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                >
+                  Developer Clean
                 </button>
               </div>
-            ))}
+            </div>
+
+            {/* Document Canvas Container */}
+            <div className="relative flex justify-center bg-slate-100/70 dark:bg-slate-950 p-3 sm:p-8 rounded-xl sm:rounded-2xl overflow-hidden mt-3 min-h-[460px]">
+              <div className="shadow-xl rounded-sm overflow-hidden bg-white text-slate-900 max-w-full transform transition-transform duration-300">
+                <LiveCVPreview data={getActiveSample()} scale={0.78} />
+              </div>
+
+              {/* Floating CV Assistant Widget - Inspired by Screenshot 1 */}
+              <div className="hidden lg:block absolute right-6 bottom-8 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-indigo-100 dark:border-indigo-900/50 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-fuchsia-500 to-indigo-600 flex items-center justify-center text-white shadow-xs">
+                      <Sparkles className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-white">CV Assistant</div>
+                      <div className="flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                        Ready to optimize
+                      </div>
+                    </div>
+                  </div>
+                  <span className="px-2 py-0.5 text-[9px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 rounded-full">
+                    AI Active
+                  </span>
+                </div>
+
+                <div className="space-y-2 pt-1">
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-100 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 flex items-center gap-2 hover:bg-indigo-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                    <Target className="w-3.5 h-3.5 text-cyan-600 shrink-0" />
+                    <span>Strengthen profile with key skills for this role</span>
+                  </div>
+
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-100 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 flex items-center gap-2 hover:bg-indigo-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                    <TrendingUp className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                    <span>Highlight measurable impact & metrics</span>
+                  </div>
+
+                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/70 rounded-xl border border-slate-100 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300 flex items-center gap-2 hover:bg-indigo-50/50 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+                    <Zap className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                    <span>Instant ATS keyword optimization</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating 4x Interviews Pill Badge */}
+              <div className="hidden sm:flex absolute left-6 top-8 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-xl p-3 shadow-lg border border-slate-200/80 dark:border-slate-800 items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">4x More Callbacks</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">Validated ATS architecture</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works Workflow */}
-      <section className="py-16 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      {/* Social Proof Brand Logotypes - Inspired by Screenshot 1 */}
+      <section className="py-8 border-y border-slate-100 dark:border-slate-800/60 bg-white/60 dark:bg-slate-900/30">
+        <div className="max-w-6xl mx-auto px-4 text-center space-y-4">
+          <p className="text-xs font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+            Candidates secured interviews and jobs at
+          </p>
+          <div className="flex items-center justify-center gap-8 sm:gap-14 flex-wrap opacity-60 dark:opacity-40 grayscale hover:grayscale-0 transition-all">
+            <span className="font-extrabold text-lg tracking-tighter text-slate-800 dark:text-slate-200">Google</span>
+            <span className="font-bold text-lg tracking-tight text-slate-800 dark:text-slate-200">Microsoft</span>
+            <span className="font-extrabold text-lg tracking-tight text-slate-800 dark:text-slate-200">amazon</span>
+            <span className="font-bold text-lg tracking-wide text-slate-800 dark:text-slate-200">Meta</span>
+            <span className="font-extrabold text-lg tracking-tight text-slate-800 dark:text-slate-200">Spotify</span>
+            <span className="font-bold text-lg tracking-tight text-slate-800 dark:text-slate-200">airbnb</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 5-Step Process Timeline - Matching Screenshot 2 exactly */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <div className="text-center space-y-3 mb-16">
+          <div className="inline-block px-3 py-1 bg-cyan-50 dark:bg-cyan-950/50 text-cyan-700 dark:text-cyan-300 text-xs font-bold rounded-full">
+            HOW IT WORKS
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Bring you closer to your next job
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 text-sm max-w-xl mx-auto">
+            From picking a format to landing the interview, our streamlined workflow guides every step.
+          </p>
+        </div>
+
+        {/* Step-by-step Timeline with pink/cyan connecting line */}
+        <div className="relative max-w-2xl mx-auto pl-6 sm:pl-10 space-y-10">
+          {/* Vertical connecting line */}
+          <div className="absolute left-[19px] sm:left-[35px] top-4 bottom-6 w-0.5 bg-gradient-to-b from-pink-500 via-cyan-500 to-indigo-600"></div>
+
+          {steps.map((step) => (
+            <div key={step.num} className="relative flex items-start gap-4 sm:gap-6 group">
+              {/* Number Circle */}
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white dark:bg-slate-900 border-2 border-pink-500 text-pink-600 dark:text-pink-400 font-bold text-xs sm:text-sm flex items-center justify-center shrink-0 z-10 shadow-xs group-hover:scale-110 transition-transform">
+                {step.num}
+              </div>
+
+              {/* Step Content */}
+              <div className="pt-0.5 space-y-1">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                  {step.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed max-w-lg">
+                  {step.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center pt-12">
+          <button
+            onClick={onCreateClick}
+            className="px-8 py-3.5 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold rounded-xl shadow-md transition-all inline-flex items-center gap-2"
+          >
+            Start Building My CV
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      </section>
+
+      {/* Features Overview Grid */}
+      <section className="py-16 bg-white dark:bg-slate-900/60 border-t border-slate-100 dark:border-slate-800">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="text-center space-y-2 max-w-xl mx-auto">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-              Simple 3-Step Process
+              Crafted for results & precision
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm">
-              From blank page to job-ready PDF in under ten minutes.
+            <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm">
+              Everything you need to create a stand-out CV without the hassle.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2 text-center">
-              <div className="w-8 h-8 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full flex items-center justify-center font-bold text-xs mx-auto">
-                1
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3 hover:border-cyan-200 dark:hover:border-cyan-800 transition-colors">
+              <div className="w-10 h-10 bg-cyan-100 dark:bg-cyan-950/70 text-cyan-700 dark:text-cyan-300 rounded-xl flex items-center justify-center font-bold">
+                <ShieldCheck className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Choose a Format</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Select an ATS-optimized template that matches your career level.</p>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">ATS Optimized Structure</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Standard single-column and clear hierarchies ensure automated parsers read 100% of your credentials.
+              </p>
             </div>
 
-            <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2 text-center">
-              <div className="w-8 h-8 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full flex items-center justify-center font-bold text-xs mx-auto">
-                2
+            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3 hover:border-cyan-200 dark:hover:border-cyan-800 transition-colors">
+              <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-950/70 text-indigo-700 dark:text-indigo-300 rounded-xl flex items-center justify-center font-bold">
+                <Sparkles className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Fill In Details</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Add education, work history, projects, and skills with structured forms.</p>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">AI Polish & Rewrite</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Powered by Gemini to convert rough bullet points into impactful, action-driven career achievements.
+              </p>
             </div>
 
-            <div className="p-5 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200 dark:border-slate-700 space-y-2 text-center">
-              <div className="w-8 h-8 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full flex items-center justify-center font-bold text-xs mx-auto">
-                3
+            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3 hover:border-cyan-200 dark:hover:border-cyan-800 transition-colors">
+              <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 rounded-xl flex items-center justify-center font-bold">
+                <Sliders className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Export Clean PDF</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Download high-resolution A4 PDF ready for instant job applications.</p>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Flexible Section Toggles</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                Easily turn on or off photo, bio data, awards, certificates, and skills with simple switches.
+              </p>
+            </div>
+
+            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-3 hover:border-cyan-200 dark:hover:border-cyan-800 transition-colors">
+              <div className="w-10 h-10 bg-sky-100 dark:bg-sky-950/70 text-sky-700 dark:text-sky-300 rounded-xl flex items-center justify-center font-bold">
+                <Download className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">Instant A4 PDF Export</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                High-definition vector PDF generation formatted strictly to standard international A4 dimensions.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-14 bg-slate-900 text-white text-center">
+      {/* Clean Call to Action */}
+      <section className="py-16 bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 text-white text-center">
         <div className="max-w-3xl mx-auto px-4 space-y-5">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Ready to craft your resume?
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
+            Ready to build your winning CV?
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm max-w-lg mx-auto">
-            Build your resume with ATS-ready structure and start applying with confidence today.
+          <p className="text-slate-300 text-xs sm:text-sm max-w-lg mx-auto font-normal">
+            No signup required. Pick a format, customize in minutes, and export your polished resume.
           </p>
-          <div>
+          <div className="pt-2">
             <button
               onClick={onCreateClick}
-              className="px-6 py-3 bg-white hover:bg-slate-100 text-slate-900 font-semibold text-xs rounded-lg shadow-md transition-all inline-flex items-center gap-2"
+              className="px-8 py-3.5 bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs rounded-xl shadow-lg transition-all inline-flex items-center gap-2 active:scale-98"
             >
               Start Building Now
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -267,4 +380,3 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     </div>
   );
 };
-

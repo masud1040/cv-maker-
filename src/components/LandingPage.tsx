@@ -126,15 +126,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <span className="text-slate-600 dark:text-slate-300">more interviews secured with ATS-ready formatting</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.12]">
-            A CV that looks like you, <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-cyan-600 via-sky-600 to-indigo-600 bg-clip-text text-transparent">
-              powered by AI.
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-slate-900 dark:text-white">
+            <span className="block">Create your professional CV</span>
+            <span className="block text-slate-700 dark:text-slate-200">online for free with</span>
+            <span className="inline-block bg-gradient-to-r from-cyan-600 via-sky-500 to-indigo-600 bg-clip-text text-transparent drop-shadow-xs pt-1">
+              CVDesignR
             </span>
           </h1>
 
           <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl mx-auto font-normal">
-            Build clean, professional resumes tailored for human recruiters and applicant tracking systems. Real-time preview, AI assistance, and instant PDF download.
+            A CV that looks like you, powered by AI. Build clean, ATS-ready professional resumes tailored for human recruiters and applicant tracking systems with instant PDF export.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">

@@ -337,6 +337,150 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
+      {/* ATS Scanner and Recruiter Perspective Section (Requested Feature) */}
+      <section className="py-16 sm:py-20 bg-[#eef7fd] dark:bg-slate-950/80 border-b border-cyan-100/60 dark:border-slate-800/60 transition-colors">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            
+            {/* Left Column: Interactive Visual AI Assistant & ATS Scanner Mockup Card */}
+            <div className="lg:col-span-6 order-2 lg:order-1">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200/80 dark:border-slate-800 space-y-4 relative overflow-hidden">
+                
+                {/* Mockup Top Bar */}
+                <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <h4 className="font-extrabold text-sm text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                    Professional Experience
+                  </h4>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r from-pink-500 to-fuchsia-600 shadow-xs">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    AI Assistant
+                  </span>
+                </div>
+
+                {/* Grid Layout inside Mockup */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                  {/* Left Column inside Mockup: Current Input Fields */}
+                  <div className="md:col-span-7 space-y-3">
+                    <div>
+                      <label className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">
+                        Job Title
+                      </label>
+                      <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 text-xs font-bold text-slate-800 dark:text-slate-200">
+                        Chef de projet digital
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">
+                        Current Description
+                      </label>
+                      <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-2">
+                        <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                          Gestion de projets et coordination des équipes.
+                        </p>
+                        <div className="space-y-1.5 pt-1 opacity-40">
+                          <div className="h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full w-full"></div>
+                          <div className="h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full w-4/5"></div>
+                          <div className="h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full w-3/5"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-medium text-slate-400 dark:text-slate-500 block mb-1">
+                        Associated Skills
+                      </label>
+                      <div className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 text-[11px] font-medium text-slate-600 dark:text-slate-400">
+                        Gestion de projet • Coordination • Reporting
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column inside Mockup: AI Premium Proposition Card */}
+                  <div className="md:col-span-5 flex flex-col justify-between p-3.5 rounded-2xl border-2 border-pink-200 dark:border-pink-900/60 bg-gradient-to-b from-pink-50/50 to-white dark:from-pink-950/20 dark:to-slate-900 space-y-3">
+                    <div className="space-y-2">
+                      <div className="space-y-0.5">
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 block tracking-tight">
+                          Suggestion Premium
+                        </span>
+                        <span className="text-[9px] font-extrabold text-pink-600 dark:text-pink-400 uppercase tracking-wider block">
+                          PROPOSITION
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-700 dark:text-slate-200 font-semibold leading-relaxed">
+                        Coordination de projets digitaux, suivi des priorités et collaboration avec les équipes marketing, produit et commerciales.
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2 border-t border-pink-100 dark:border-pink-900/40">
+                      <button
+                        type="button"
+                        className="px-2.5 py-1 text-[11px] font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 rounded-lg transition-colors"
+                      >
+                        Ignorer
+                      </button>
+                      <button
+                        type="button"
+                        className="flex-1 px-3 py-1 text-[11px] font-bold text-white bg-pink-500 hover:bg-pink-600 rounded-lg shadow-xs transition-colors text-center"
+                      >
+                        Appliquer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: Copy & Value Proposition Cards */}
+            <div className="lg:col-span-6 order-1 lg:order-2 space-y-6">
+              <div className="space-y-3">
+                <span className="text-xs font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase block">
+                  ATS SCANNER AND RECRUITER PERSPECTIVE
+                </span>
+                <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight">
+                  A good-looking CV is not enough.{' '}
+                  <span className="text-pink-500 dark:text-pink-400">It must be easy to read.</span>
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed pt-1">
+                  Before you send it, analyze your file, its content, readability and the presence of essential sections. You get an overall score and practical recommendations to fix issues that could hinder recruitment software or slow down human readers.
+                </p>
+              </div>
+
+              {/* Numbered Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                {/* Card 1 */}
+                <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-2.5 hover:shadow-md transition-shadow">
+                  <div className="w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-950/80 text-pink-600 dark:text-pink-400 font-bold text-sm flex items-center justify-center shrink-0">
+                    1
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                    Readable by ATS software
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Job titles, dates and sections that recruitment tools can process more easily.
+                  </p>
+                </div>
+
+                {/* Card 2 */}
+                <div className="p-5 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200/80 dark:border-slate-800 space-y-2.5 hover:shadow-md transition-shadow">
+                  <div className="w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-950/80 text-pink-600 dark:text-pink-400 font-bold text-sm flex items-center justify-center shrink-0">
+                    2
+                  </div>
+                  <h3 className="font-bold text-sm text-slate-900 dark:text-white">
+                    Convincing for recruiters
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    A clear hierarchy that quickly brings your value to the forefront.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* 5-Step Process Timeline - Matching Screenshot 2 exactly */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
         <div className="text-center space-y-3 mb-16">

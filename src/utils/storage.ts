@@ -1,5 +1,5 @@
 import { CVData } from '../types/cv';
-import { SAMPLE_STUDENT_CV, SAMPLE_GENERAL_CV, SAMPLE_DEVELOPER_CV, SAMPLE_HR_CV, SAMPLE_MODERN_CV, SAMPLE_BIODATA_CV } from '../data/templates';
+import { SAMPLE_STUDENT_CV, SAMPLE_GENERAL_CV, SAMPLE_DEVELOPER_CV, SAMPLE_HR_CV, SAMPLE_MODERN_CV, SAMPLE_BIODATA_CV, getBlankCVData } from '../data/templates';
 
 const STORAGE_KEY = 'cv_maker_app_data_v2';
 const ACTIVE_CV_KEY = 'cv_maker_active_id_v2';
@@ -109,30 +109,7 @@ export function duplicateCV(id: string): { list: CVData[]; newCv: CVData | null 
 }
 
 export function createNewCV(templateId: CVData['templateId'] = 'ats-student', title?: string): CVData {
-  let baseSample = SAMPLE_STUDENT_CV;
-  if (templateId === 'general-cv') baseSample = SAMPLE_GENERAL_CV;
-  else if (templateId === 'job-biodata') baseSample = SAMPLE_BIODATA_CV;
-  else if (templateId === 'developer-clean') baseSample = SAMPLE_DEVELOPER_CV;
-  else if (templateId === 'hr-professional') baseSample = SAMPLE_HR_CV;
-  else if (templateId === 'modern-two-column') baseSample = SAMPLE_MODERN_CV;
-
-  const defaultTitle = 
-    templateId === 'general-cv' ? 'My General CV' :
-    templateId === 'job-biodata' ? 'My Job Bio Data' :
-    templateId === 'developer-clean' ? 'My Developer CV' :
-    templateId === 'hr-professional' ? 'My HR Professional CV' :
-    templateId === 'ats-professional' ? 'My ATS Professional CV' :
-    templateId === 'modern-two-column' ? 'My Executive CV' :
-    'My Student Resume';
-
-  const newCv: CVData = {
-    ...baseSample,
-    id: 'cv-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
-    title: title || defaultTitle,
-    templateId,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
+  const newCv = getBlankCVData(templateId, title);
 
   const current = loadSavedCVs();
   saveAllCVs([newCv, ...current]);

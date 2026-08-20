@@ -1,6 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CVData, TemplateId } from '../../types/cv';
-import { TEMPLATES, SAMPLE_STUDENT_CV } from '../../data/templates';
+import {
+  TEMPLATES,
+  SAMPLE_STUDENT_CV,
+  SAMPLE_GENERAL_CV,
+  SAMPLE_BIODATA_CV,
+  SAMPLE_DEVELOPER_CV,
+  SAMPLE_HR_CV,
+  SAMPLE_MODERN_CV,
+  getBlankCVData,
+  getSampleDataForTemplate
+} from '../../data/templates';
 import { PersonalInfoForm } from './PersonalInfoForm';
 import { SummaryForm } from './SummaryForm';
 import { EducationForm } from './EducationForm';
@@ -19,6 +29,7 @@ import { BioDataForm } from './BioDataForm';
 import { ATSSectionView } from './ATSSectionView';
 import { ATSAnalysisModal } from './ATSAnalysisModal';
 import { AIImproveModal, AIImproveTarget } from './AIImproveModal';
+import { DesignTab } from './DesignTab';
 import { analyzeCVForATS } from '../../utils/atsScanner';
 import { LiveCVPreview } from '../preview/LiveCVPreview';
 import { PreviewModal } from '../PreviewModal';
@@ -53,8 +64,11 @@ import {
   Type,
   Loader2,
   Target,
-  Sparkles
+  Sparkles,
+  Eraser,
+  Sparkle
 } from 'lucide-react';
+
 
 interface CVEditorProps {
   cvData: CVData;
@@ -92,6 +106,8 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   onToggleDarkMode
 }) => {
   const [data, setData] = useState<CVData>(cvData);
+  const [mainMode, setMainMode] = useState<'preview' | 'design'>('preview');
+  const [showSampleInDesign, setShowSampleInDesign] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<EditorTab>('personal');
   const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -103,6 +119,22 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   const [showMobileMoreMenu, setShowMobileMoreMenu] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  // Compute preview data: when in design mode with empty data or toggle ON, show populated template sample
+  const isDataEmpty = !data.personalInfo.fullName && !data.summary && (!data.experience || data.experience.length === 0) && (!data.education || data.education.length === 0);
+  const sampleDataForCurrentTemplate = getSampleDataForTemplate(data.templateId);
+
+  const displayPreviewData: CVData = (mainMode === 'design' && (showSampleInDesign || isDataEmpty))
+    ? {
+        ...sampleDataForCurrentTemplate,
+        id: data.id,
+        title: data.title,
+        templateId: data.templateId,
+        fontSize: data.fontSize,
+        sectionOrder: data.sectionOrder || sampleDataForCurrentTemplate.sectionOrder,
+        sectionVisibility: data.sectionVisibility || sampleDataForCurrentTemplate.sectionVisibility
+      }
+    : data;
 
   // Real-time ATS report calculation
   const atsReport = analyzeCVForATS(data);
@@ -142,16 +174,36 @@ export const CVEditor: React.FC<CVEditorProps> = ({
     }));
   };
 
-  const handleReset = () => {
-    if (confirm('Reset resume data? This will restore sample placeholder values.')) {
+  const handleClearAllFields = () => {
+    if (confirm('সব ফিল্ড খালি করতে চান? (This will clear all text inputs so you start with a blank CV)')) {
+      const blank = getBlankCVData(data.templateId, data.title);
       setData({
-        ...SAMPLE_STUDENT_CV,
-        id: data.id,
-        title: data.title
+        ...blank,
+        id: data.id
       });
       setShowMobileMoreMenu(false);
     }
   };
+
+  const handleLoadSampleData = () => {
+    if (confirm('স্যাম্পল তথ্য লোড করতে চান? (This will load demo content)')) {
+      let baseSample = SAMPLE_STUDENT_CV;
+      if (data.templateId === 'general-cv') baseSample = SAMPLE_GENERAL_CV;
+      else if (data.templateId === 'job-biodata') baseSample = SAMPLE_BIODATA_CV;
+      else if (data.templateId === 'developer-clean') baseSample = SAMPLE_DEVELOPER_CV;
+      else if (data.templateId === 'hr-professional') baseSample = SAMPLE_HR_CV;
+      else if (data.templateId === 'modern-two-column') baseSample = SAMPLE_MODERN_CV;
+
+      setData({
+        ...baseSample,
+        id: data.id,
+        title: data.title,
+        templateId: data.templateId
+      });
+      setShowMobileMoreMenu(false);
+    }
+  };
+
 
   const handleDownloadPDF = async () => {
     try {
@@ -506,14 +558,15 @@ export const CVEditor: React.FC<CVEditorProps> = ({
             </button>
           )}
 
-          {/* Desktop Reset button */}
+          {/* Desktop Clear All Fields button */}
           <button
-            onClick={handleReset}
-            className="hidden md:inline-flex p-1.5 sm:p-2 text-slate-400 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
-            title="Reset to sample data"
+            onClick={handleClearAllFields}
+            className="hidden md:inline-flex p-1.5 sm:p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+            title="Clear all text fields (সব ফিল্ড খালি করুন)"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <Eraser className="w-3.5 h-3.5" />
           </button>
+
 
           {/* Desktop Preview PDF modal trigger */}
           <button
@@ -614,12 +667,13 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 <button
                   type="button"
-                  onClick={handleReset}
+                  onClick={handleClearAllFields}
                   className="w-full px-3.5 py-2 text-left text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 flex items-center gap-2"
                 >
-                  <RotateCcw className="w-4 h-4 text-red-500" />
-                  Reset to Sample Data
+                  <Eraser className="w-4 h-4 text-red-500" />
+                  Clear All Fields (সব ফিল্ড খালি করুন)
                 </button>
+
               </div>
             )}
           </div>
@@ -645,6 +699,63 @@ export const CVEditor: React.FC<CVEditorProps> = ({
           </button>
         </div>
       </header>
+
+      {/* Primary Sub-Header Bar: 2 Main Options (Preview & Design) + Clear All Button */}
+      <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-2 sm:px-6 py-2 flex items-center justify-between gap-2 shrink-0">
+        {/* Left: 2 Primary Mode Options */}
+        <div className="flex items-center bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl border border-slate-300/60 dark:border-slate-700 font-bold text-xs">
+          <button
+            type="button"
+            onClick={() => setMainMode('preview')}
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              mainMode === 'preview'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-extrabold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Eye className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+            <span>Preview (প্রিভিউ)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMainMode('design')}
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              mainMode === 'design'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-extrabold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Palette className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <span>Design (ডিজাইন)</span>
+          </button>
+        </div>
+
+        {/* Right: Clear All Fields / Blank CV Button */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleClearAllFields}
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 rounded-lg border border-red-200 dark:border-red-800/60 transition shadow-2xs cursor-pointer"
+            title="Clear all fields to start with a blank CV"
+          >
+            <Eraser className="w-3.5 h-3.5 text-red-500" />
+            <span className="hidden sm:inline">সব ফিল্ড খালি করুন</span>
+            <span className="sm:hidden">খালি করুন</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleLoadSampleData}
+            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+            title="Load sample placeholder text"
+          >
+            <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+            <span>স্যাম্পল তথ্য</span>
+          </button>
+        </div>
+      </div>
+
 
       {/* Mobile Workspace Mode Switcher (visible only on mobile/tablet) */}
       <div className="lg:hidden flex bg-slate-200/80 dark:bg-slate-900 p-1 border-b border-slate-300/80 dark:border-slate-800 w-full shrink-0">
@@ -674,226 +785,264 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
       {/* Main Two-Panel Workspace Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden w-full max-w-full">
-        {/* LEFT COLUMN: FORM EDITOR */}
+        {/* LEFT COLUMN: FORM EDITOR or DESIGN CENTER */}
         <div
           className={`w-full lg:w-[46%] xl:w-[42%] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-[calc(100vh-104px)] lg:h-[calc(100vh-56px)] overflow-hidden min-w-0 ${
             mobileView === 'edit' ? 'flex' : 'hidden lg:flex'
           }`}
         >
-          {/* Section Navigation Tabs Strip */}
-          <div className="flex items-center overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 px-2 py-1.5 custom-scrollbar shrink-0 gap-1 w-full">
-            {navTabs.map(tab => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              const filled = hasContent(tab.id);
-              const isExplicitlyHidden = data.sectionVisibility?.[tab.id] === false;
-
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors shrink-0 ${
-                    isActive
-                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold shadow-xs'
-                      : isExplicitlyHidden
-                      ? 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-200/40'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-slate-900' : isExplicitlyHidden ? 'text-slate-400 dark:text-slate-600' : 'text-slate-400 dark:text-slate-500'}`} />
-                  <span className={isExplicitlyHidden && !isActive ? 'line-through text-slate-400 dark:text-slate-500' : ''}>
-                    {tab.label}
-                  </span>
-                  {isExplicitlyHidden && (
-                    <span className="text-[9px] font-bold uppercase px-1 py-0.2 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                      OFF
-                    </span>
-                  )}
-                  {filled && !isActive && !isExplicitlyHidden && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block ml-0.5"></span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Form Content Area */}
-          <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-6 space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 custom-scrollbar">
-            {activeTab === 'personal' && (
-              <PersonalInfoForm
-                data={data.personalInfo}
-                templateId={data.templateId}
-                onChange={(personalInfo) => setData(prev => ({ ...prev, personalInfo }))}
-              />
-            )}
-
-            {activeTab === 'biodata' && (
-              <div>
-                {renderVisibilityToggleBanner('biodata', 'Bio-Data / Personal Details')}
-                <BioDataForm
-                  data={data.bioData || {}}
-                  personalInfo={data.personalInfo}
-                  onChange={(bioData) => setData(prev => ({ ...prev, bioData }))}
-                  onUpdatePersonalInfo={(personalInfo) => setData(prev => ({ ...prev, personalInfo }))}
-                />
-              </div>
-            )}
-
-            {activeTab === 'summary' && (
-              <div>
-                {renderVisibilityToggleBanner('summary', 'Career Summary / Objective')}
-                <SummaryForm
-                  summary={data.summary}
-                  onChange={(summary) => setData(prev => ({ ...prev, summary }))}
-                  onOpenAIModal={() =>
-                    handleOpenAIModal({
-                      sectionKey: 'summary',
-                      fieldName: 'description',
-                      initialText: data.summary || '',
-                    })
-                  }
-                />
-              </div>
-            )}
-
-            {activeTab === 'education' && (
-              <div>
-                {renderVisibilityToggleBanner('education', 'Academic Education')}
-                <EducationForm
-                  entries={data.education || []}
-                  onChange={(education) => setData(prev => ({ ...prev, education }))}
-                />
-              </div>
-            )}
-
-            {activeTab === 'experience' && (
-              <div>
-                {renderVisibilityToggleBanner('experience', 'Work Experience')}
-                <ExperienceForm
-                  entries={data.experience || []}
-                  onChange={(experience) => setData(prev => ({ ...prev, experience }))}
-                  onOpenAIModal={handleOpenAIModal}
-                />
-              </div>
-            )}
-
-            {activeTab === 'projects' && (
-              <div>
-                {renderVisibilityToggleBanner('projects', 'Key Projects')}
-                <ProjectsForm
-                  entries={data.projects || []}
-                  onChange={(projects) => setData(prev => ({ ...prev, projects }))}
-                  onOpenAIModal={handleOpenAIModal}
-                />
-              </div>
-            )}
-
-            {activeTab === 'skills' && (
-              <div>
-                {renderVisibilityToggleBanner('skills', 'Skills & Competencies')}
-                <SkillsForm
-                  skills={data.skills || { technical: [], soft: [], tools: [] }}
-                  onChange={(skills) => setData(prev => ({ ...prev, skills }))}
-                />
-              </div>
-            )}
-
-            {activeTab === 'certifications' && (
-              <div>
-                {renderVisibilityToggleBanner('certifications', 'Certifications & Training')}
-                <CertificationsForm
-                  entries={data.certifications || []}
-                  onChange={(certifications) => setData(prev => ({ ...prev, certifications }))}
-                />
-              </div>
-            )}
-
-            {activeTab === 'extracurricular' && (
-              <div>
-                {renderVisibilityToggleBanner('extracurricular', 'Extracurricular & Activities')}
-                <ExtracurricularForm
-                  entries={data.extracurricular || []}
-                  onChange={(extracurricular) => setData(prev => ({ ...prev, extracurricular }))}
-                />
-              </div>
-            )}
-
-            {activeTab === 'languages' && (
-              <div>
-                {renderVisibilityToggleBanner('languages', 'Languages Known')}
-                <LanguagesForm
-                  entries={data.languages || []}
-                  onChange={(languages) => setData(prev => ({ ...prev, languages }))}
-                />
-              </div>
-            )}
-
-            {activeTab === 'awards' && (
-              <div>
-                {renderVisibilityToggleBanner('awards', 'Awards & Honors')}
-                <AwardsForm
-                  entries={data.awards || []}
-                  onChange={(awards) => setData(prev => ({ ...prev, awards }))}
-                />
-              </div>
-            )}
-
-            {activeTab === 'references' && (
-              <div>
-                {renderVisibilityToggleBanner('references', 'References')}
-                <ReferencesForm
-                  data={data.references || { availableOnRequest: true, items: [] }}
-                  onChange={(references) => setData(prev => ({ ...prev, references }))}
-                />
-              </div>
-            )}
-
-            {activeTab === 'signature' && (
-              <SignatureForm
-                signature={data.signature}
-                defaultName={data.personalInfo.fullName}
-                defaultTitle={data.personalInfo.professionalTitle}
-                onChange={(signature) => setData(prev => ({ ...prev, signature }))}
-              />
-            )}
-
-            {activeTab === 'custom' && (
-              <CustomSectionsForm
-                sections={data.customSections || []}
-                onChange={(customSections) => setData(prev => ({ ...prev, customSections }))}
-              />
-            )}
-
-            {activeTab === 'order' && (
-              <SectionOrderManager
+          {mainMode === 'design' ? (
+            /* DESIGN CENTER VIEW */
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-white dark:bg-slate-900">
+              <DesignTab
+                currentTemplateId={data.templateId}
+                fontSize={data.fontSize}
+                sectionVisibility={data.sectionVisibility || {}}
                 sectionOrder={data.sectionOrder}
-                sectionVisibility={data.sectionVisibility}
-                onChange={(sectionOrder) => setData(prev => ({ ...prev, sectionOrder }))}
+                showSamplePreview={showSampleInDesign}
+                onToggleSamplePreview={setShowSampleInDesign}
+                onSelectTemplate={(templateId) => setData(prev => ({ ...prev, templateId }))}
+                onChangeFontSize={(fontSize) => setData(prev => ({ ...prev, fontSize }))}
                 onToggleVisibility={toggleSectionVisibility}
+                onChangeSectionOrder={(sectionOrder) => setData(prev => ({ ...prev, sectionOrder }))}
               />
-            )}
+            </div>
+          ) : (
+            /* PREVIEW / FORM EDITOR VIEW */
+            <>
+              {/* Section Navigation Tabs Strip */}
+              <div className="flex items-center overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 px-2 py-1.5 custom-scrollbar shrink-0 gap-1 w-full">
+                {navTabs.map(tab => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  const filled = hasContent(tab.id);
+                  const isExplicitlyHidden = data.sectionVisibility?.[tab.id] === false;
 
-            {activeTab === 'ats' && (
-              <ATSSectionView
-                cvData={data}
-                onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
-                onAddSkill={handleAddSkill}
-                onOpenFullModal={() => setIsATSModalOpen(true)}
-              />
-            )}
-          </div>
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
+                        isActive
+                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold shadow-xs'
+                          : isExplicitlyHidden
+                          ? 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-200/40'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-slate-900' : isExplicitlyHidden ? 'text-slate-400 dark:text-slate-600' : 'text-slate-400 dark:text-slate-500'}`} />
+                      <span className={isExplicitlyHidden && !isActive ? 'line-through text-slate-400 dark:text-slate-500' : ''}>
+                        {tab.label}
+                      </span>
+                      {isExplicitlyHidden && (
+                        <span className="text-[9px] font-bold uppercase px-1 py-0.2 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                          OFF
+                        </span>
+                      )}
+                      {filled && !isActive && !isExplicitlyHidden && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block ml-0.5"></span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Form Content Area */}
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-6 space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 custom-scrollbar">
+                {activeTab === 'personal' && (
+                  <PersonalInfoForm
+                    data={data.personalInfo}
+                    templateId={data.templateId}
+                    onChange={(personalInfo) => setData(prev => ({ ...prev, personalInfo }))}
+                  />
+                )}
+
+                {activeTab === 'biodata' && (
+                  <div>
+                    {renderVisibilityToggleBanner('biodata', 'Bio-Data / Personal Details')}
+                    <BioDataForm
+                      data={data.bioData || {}}
+                      personalInfo={data.personalInfo}
+                      onChange={(bioData) => setData(prev => ({ ...prev, bioData }))}
+                      onUpdatePersonalInfo={(personalInfo) => setData(prev => ({ ...prev, personalInfo }))}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'summary' && (
+                  <div>
+                    {renderVisibilityToggleBanner('summary', 'Career Summary / Objective')}
+                    <SummaryForm
+                      summary={data.summary}
+                      onChange={(summary) => setData(prev => ({ ...prev, summary }))}
+                      onOpenAIModal={() =>
+                        handleOpenAIModal({
+                          sectionKey: 'summary',
+                          fieldName: 'description',
+                          initialText: data.summary || '',
+                        })
+                      }
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'education' && (
+                  <div>
+                    {renderVisibilityToggleBanner('education', 'Academic Education')}
+                    <EducationForm
+                      entries={data.education || []}
+                      onChange={(education) => setData(prev => ({ ...prev, education }))}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'experience' && (
+                  <div>
+                    {renderVisibilityToggleBanner('experience', 'Work Experience')}
+                    <ExperienceForm
+                      entries={data.experience || []}
+                      onChange={(experience) => setData(prev => ({ ...prev, experience }))}
+                      onOpenAIModal={handleOpenAIModal}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'projects' && (
+                  <div>
+                    {renderVisibilityToggleBanner('projects', 'Key Projects')}
+                    <ProjectsForm
+                      entries={data.projects || []}
+                      onChange={(projects) => setData(prev => ({ ...prev, projects }))}
+                      onOpenAIModal={handleOpenAIModal}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'skills' && (
+                  <div>
+                    {renderVisibilityToggleBanner('skills', 'Skills & Competencies')}
+                    <SkillsForm
+                      skills={data.skills || { technical: [], soft: [], tools: [] }}
+                      onChange={(skills) => setData(prev => ({ ...prev, skills }))}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'certifications' && (
+                  <div>
+                    {renderVisibilityToggleBanner('certifications', 'Certifications & Training')}
+                    <CertificationsForm
+                      entries={data.certifications || []}
+                      onChange={(certifications) => setData(prev => ({ ...prev, certifications }))}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'extracurricular' && (
+                  <div>
+                    {renderVisibilityToggleBanner('extracurricular', 'Extracurricular & Activities')}
+                    <ExtracurricularForm
+                      entries={data.extracurricular || []}
+                      onChange={(extracurricular) => setData(prev => ({ ...prev, extracurricular }))}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'languages' && (
+                  <div>
+                    {renderVisibilityToggleBanner('languages', 'Languages Known')}
+                    <LanguagesForm
+                      entries={data.languages || []}
+                      onChange={(languages) => setData(prev => ({ ...prev, languages }))}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'awards' && (
+                  <div>
+                    {renderVisibilityToggleBanner('awards', 'Awards & Honors')}
+                    <AwardsForm
+                      entries={data.awards || []}
+                      onChange={(awards) => setData(prev => ({ ...prev, awards }))}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'references' && (
+                  <div>
+                    {renderVisibilityToggleBanner('references', 'References')}
+                    <ReferencesForm
+                      data={data.references || { availableOnRequest: true, items: [] }}
+                      onChange={(references) => setData(prev => ({ ...prev, references }))}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'signature' && (
+                  <SignatureForm
+                    signature={data.signature}
+                    defaultName={data.personalInfo.fullName}
+                    defaultTitle={data.personalInfo.professionalTitle}
+                    onChange={(signature) => setData(prev => ({ ...prev, signature }))}
+                  />
+                )}
+
+                {activeTab === 'custom' && (
+                  <CustomSectionsForm
+                    sections={data.customSections || []}
+                    onChange={(customSections) => setData(prev => ({ ...prev, customSections }))}
+                  />
+                )}
+
+                {activeTab === 'order' && (
+                  <SectionOrderManager
+                    sectionOrder={data.sectionOrder}
+                    sectionVisibility={data.sectionVisibility}
+                    onChange={(sectionOrder) => setData(prev => ({ ...prev, sectionOrder }))}
+                    onToggleVisibility={toggleSectionVisibility}
+                  />
+                )}
+
+                {activeTab === 'ats' && (
+                  <ATSSectionView
+                    cvData={data}
+                    onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
+                    onAddSkill={handleAddSkill}
+                    onOpenFullModal={() => setIsATSModalOpen(true)}
+                  />
+                )}
+              </div>
+            </>
+          )}
         </div>
+
 
         {/* RIGHT COLUMN: ARCHITECTURAL A4 DOCUMENT PREVIEW */}
         <div
-          className={`w-full lg:w-[54%] xl:w-[58%] bg-slate-200/70 dark:bg-slate-950 h-[calc(100vh-104px)] lg:h-[calc(100vh-56px)] overflow-y-auto overflow-x-hidden p-2 sm:p-6 lg:p-8 flex justify-center custom-scrollbar transition-colors ${
+          className={`w-full lg:w-[54%] xl:w-[58%] bg-slate-200/70 dark:bg-slate-950 h-[calc(100vh-104px)] lg:h-[calc(100vh-56px)] overflow-y-auto overflow-x-hidden p-2 sm:p-6 lg:p-8 flex flex-col items-center custom-scrollbar transition-colors ${
             mobileView === 'preview' ? 'flex' : 'hidden lg:flex'
           }`}
           ref={previewRef}
         >
-          <div className="w-full max-w-[794px] flex justify-center items-start">
+          <div className="w-full max-w-[794px] flex flex-col items-center">
+            {mainMode === 'design' && (
+              <div className="w-full mb-3 px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center justify-between gap-2 shadow-xs border border-slate-700">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+                  {(showSampleInDesign || isDataEmpty) ? 'টেমপ্লেটের আসল সম্পূর্ণ ডিজাইন ডেমো দেখাচ্ছে' : 'আপনার ইনপুট করা ডাটা দিয়ে ডিজাইন দেখাচ্ছে'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowSampleInDesign(!showSampleInDesign)}
+                  className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-[11px] text-white font-bold transition cursor-pointer"
+                >
+                  {(showSampleInDesign || isDataEmpty) ? 'নিজের ডাটা দিয়ে দেখুন' : 'স্যাম্পল ডেমো দেখুন'}
+                </button>
+              </div>
+            )}
+
             <div className="bg-white text-slate-900 shadow-md shadow-slate-400/20 dark:shadow-black/60 rounded-xs transition-shadow w-full flex justify-center">
-              <LiveCVPreview data={data} scale={0.92} />
+              <LiveCVPreview data={displayPreviewData} scale={0.92} />
             </div>
           </div>
         </div>

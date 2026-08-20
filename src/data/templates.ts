@@ -1,4 +1,4 @@
-import { CVData, TemplateConfig } from '../types/cv';
+import { CVData, TemplateConfig, TemplateId } from '../types/cv';
 
 export const TEMPLATES: TemplateConfig[] = [
   {
@@ -863,6 +863,124 @@ export const SAMPLE_GENERAL_CV: CVData = {
   },
   fontSize: 'standard'
 };
+
+export function getSampleDataForTemplate(templateId: TemplateId): CVData {
+  switch (templateId) {
+    case 'general-cv':
+      return SAMPLE_GENERAL_CV;
+    case 'job-biodata':
+      return SAMPLE_BIODATA_CV;
+    case 'developer-clean':
+      return SAMPLE_DEVELOPER_CV;
+    case 'hr-professional':
+      return SAMPLE_HR_CV;
+    case 'modern-two-column':
+      return SAMPLE_MODERN_CV;
+    case 'ats-professional':
+      return { ...SAMPLE_HR_CV, templateId: 'ats-professional' };
+    case 'ats-student':
+    default:
+      return SAMPLE_STUDENT_CV;
+  }
+}
+
+export function getBlankCVData(templateId: TemplateId = 'ats-student', title?: string): CVData {
+  const defaultTitle = 
+    templateId === 'general-cv' ? 'My CV' :
+    templateId === 'job-biodata' ? 'My Bio Data' :
+    templateId === 'developer-clean' ? 'My Developer CV' :
+    templateId === 'hr-professional' ? 'My HR Resume' :
+    templateId === 'ats-professional' ? 'My ATS Professional CV' :
+    templateId === 'modern-two-column' ? 'My Executive Resume' :
+    'My Resume';
+
+  return {
+    id: 'cv-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
+    title: title || defaultTitle,
+    templateId,
+    fontSize: 'standard',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    personalInfo: {
+      fullName: '',
+      professionalTitle: '',
+      email: '',
+      phone: '',
+      location: '',
+      website: '',
+      linkedin: '',
+      github: '',
+      photoUrl: ''
+    },
+    summary: '',
+    education: [],
+    experience: [],
+    projects: [],
+    skills: {
+      technical: [],
+      tools: [],
+      soft: []
+    },
+    certifications: [],
+    extracurricular: [],
+    languages: [],
+    awards: [],
+    references: {
+      availableOnRequest: true,
+      items: []
+    },
+    bioData: {
+      fatherName: '',
+      motherName: '',
+      maritalStatus: '',
+      gender: '',
+      nationality: '',
+      religion: '',
+      bloodGroup: '',
+      dateOfBirth: '',
+      nationalId: '',
+      permanentAddress: '',
+      presentAddress: ''
+    },
+    customSections: [],
+    signature: {
+      enabled: false,
+      signerName: '',
+      signerTitle: ''
+    },
+    sectionOrder: [
+      'summary',
+      'biodata',
+      'education',
+      'experience',
+      'projects',
+      'skills',
+      'certifications',
+      'extracurricular',
+      'languages',
+      'awards',
+      'references',
+      'custom',
+      'signature'
+    ],
+    sectionVisibility: {
+      summary: true,
+      biodata: true,
+      education: true,
+      experience: true,
+      projects: true,
+      skills: true,
+      certifications: true,
+      extracurricular: true,
+      languages: true,
+      awards: true,
+      references: true,
+      signature: true
+    }
+  };
+}
+
+
 
 
 

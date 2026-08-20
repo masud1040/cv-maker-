@@ -39,21 +39,138 @@ const SAMPLE_TABS = [
 ] as const;
 
 const TRUSTED_COMPANIES = [
-  { name: 'Google', symbol: 'G', tag: 'Tech' },
-  { name: 'Microsoft', symbol: 'MS', tag: 'Cloud' },
-  { name: 'Amazon', symbol: 'a', tag: 'E-Comm' },
-  { name: 'Meta', symbol: 'M', tag: 'AI & Social' },
-  { name: 'Apple', symbol: '', tag: 'Consumer' },
-  { name: 'Spotify', symbol: 'Sp', tag: 'Audio' },
-  { name: 'Netflix', symbol: 'N', tag: 'Media' },
-  { name: 'Airbnb', symbol: 'Ab', tag: 'Hospitality' },
-  { name: 'Uber', symbol: 'Ub', tag: 'Mobility' },
-  { name: 'Salesforce', symbol: 'SF', tag: 'Enterprise' },
-  { name: 'Stripe', symbol: 'St', tag: 'FinTech' },
-  { name: 'NVIDIA', symbol: 'NV', tag: 'Hardware' },
-  { name: 'Adobe', symbol: 'Ad', tag: 'Design' },
-  { name: 'ByteDance', symbol: 'BD', tag: 'Video' },
-  { name: 'LinkedIn', symbol: 'in', tag: 'Career' }
+  {
+    name: 'Google',
+    tag: 'Tech',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/>
+        <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.29v3.15C3.26 21.3 7.31 24 12 24z"/>
+        <path fill="#FBBC05" d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.29C.47 8.2.01 10.04.01 12c0 1.96.46 3.8 1.28 5.42l3.99-3.15z"/>
+        <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.58l3.99 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Microsoft',
+    tag: 'Cloud',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24">
+        <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+        <rect x="13" y="1" width="10" height="10" fill="#7FBA00"/>
+        <rect x="1" y="13" width="10" height="10" fill="#00A4EF"/>
+        <rect x="13" y="13" width="10" height="10" fill="#FFB900"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Amazon',
+    tag: 'E-Comm',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#FF9900">
+        <path d="M13.87 11.53c0-.98-.62-1.46-1.55-1.46-1.22 0-1.85.73-1.85 1.9 0 1.25.68 1.83 1.85 1.83.95 0 1.55-.45 1.55-1.42v-.85zm-4.7 4.14c.83 0 1.53-.25 2.15-.75l.13 1.3h1.75v-6.42c0-2.31-1.32-3.32-3.46-3.32-1.93 0-3.3.92-3.42 2.38h1.8c.13-.62.72-1 1.62-1 .97 0 1.5.42 1.5 1.32v.63c-.5-.3-1.22-.45-2.02-.45-1.92 0-3.35.82-3.35 2.58 0 1.82 1.35 2.73 3.3 2.73zM21.5 20.3c-2.3 1.7-5.58 2.6-8.48 2.6-4.1 0-7.8-1.5-10.5-4-.2-.2-.02-.45.23-.3 2.85 1.65 6.3 2.65 9.87 2.65 2.58 0 5.37-.62 7.72-1.9.38-.2.68.25.16.95z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Meta',
+    tag: 'AI & Social',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#0668E1">
+        <path d="M17.5 3c-2.2 0-4.1 1.2-5.5 2.9C10.6 4.2 8.7 3 6.5 3 2.9 3 0 5.9 0 9.5c0 4.7 4.5 9 10.8 11.2l1.2.4 1.2-.4C19.5 18.5 24 14.2 24 9.5 24 5.9 21.1 3 17.5 3zm-11 12.5C3.8 13.9 2 11.7 2 9.5 2 7 3.9 5 6.5 5c1.8 0 3.3 1 4.1 2.5l1.4 2.5-1.4 2.5c-.8 1.5-2.3 2.5-4.1 2.5zm11 0c-1.8 0-3.3-1-4.1-2.5l-1.4-2.5 1.4-2.5c.8-1.5 2.3-2.5 4.1-2.5 2.6 0 4.5 2 4.5 4.5 0 2.2-1.8 4.4-4.5 6c-.1 0-.1 0 0 0z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Apple',
+    tag: 'Consumer',
+    logo: (
+      <svg className="w-5 h-5 text-slate-800 dark:text-slate-200" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.09c.68-.82 1.13-1.96.99-3.09-1 .04-2.22.67-2.92 1.49-.62.73-1.17 1.9-1.02 3.03 1.12.09 2.27-.61 2.95-1.43z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Spotify',
+    tag: 'Audio',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1ED760">
+        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.02 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.48-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.281 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.18-.1.2-1.2-.42-.18-.6.42-1.2 1.02-1.38 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Netflix',
+    tag: 'Media',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#E50914">
+        <path d="M5.398 0v24l4.636-2.528V8.125L14.61 24H19.2V0l-4.636 2.528v13.347L9.988 0H5.398z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Airbnb',
+    tag: 'Hospitality',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#FF5A5F">
+        <path d="M12 0C8.1 0 5 3.1 5 7c0 5.2 7 12.3 7 12.3s7-7.1 7-12.3c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5s1.1-2.5 2.5-2.5 2.5 1.1 2.5 2.5-1.1 2.5-2.5 2.5z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Uber',
+    tag: 'Mobility',
+    logo: (
+      <svg className="w-5 h-5 text-slate-900 dark:text-white" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm0 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm-1-9h2v4h-2z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Salesforce',
+    tag: 'Enterprise',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#00A1E0">
+        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Stripe',
+    tag: 'FinTech',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#635BFF">
+        <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-3.728C17.788 2.457 15.228 1.8 12.37 1.8 7.375 1.8 3.842 4.417 3.842 8.375c0 5.484 7.234 5.86 7.234 8.423 0 .973-.806 1.481-2.253 1.481-2.409 0-5.127-1.127-6.848-2.148l-.946 3.842C2.88 21.05 5.836 22 9.07 22c5.317 0 8.878-2.585 8.878-6.612 0-5.836-7.394-6.17-7.394-8.623-.001-.973.806-1.385 2.253-1.385z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'NVIDIA',
+    tag: 'Hardware',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#76B900">
+        <path d="M12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm0 18.5c-3.59 0-6.5-2.91-6.5-6.5S8.41 5.5 12 5.5s6.5 2.91 6.5 6.5-2.91 6.5-6.5 6.5z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'Adobe',
+    tag: 'Design',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#FF0000">
+        <path d="M13.966 22h6.034L20 2H13.966v20zM0 2v20h6.034L0 2zm8.384 10.395l2.64 6.326h3.407L9.771 7.218 8.384 12.395z"/>
+      </svg>
+    )
+  },
+  {
+    name: 'LinkedIn',
+    tag: 'Career',
+    logo: (
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#0A66C2">
+        <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.25V10.9H6.46M7.86 6.58a1.6 1.6 0 1 0 0 3.2 1.6 1.6 0 0 0 0-3.2z"/>
+      </svg>
+    )
+  }
 ];
 
 type SampleTabId = (typeof SAMPLE_TABS)[number]['id'];
@@ -293,13 +410,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* Social Proof Brand Logotypes - Smooth Infinite Horizontal Marquee */}
-      <section className="py-12 border-y border-slate-200/70 dark:border-slate-800/80 bg-white dark:bg-slate-900/40 relative overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 text-center space-y-4 mb-6">
+      <section className="py-10 border-y border-slate-200/70 dark:border-slate-800/80 bg-white dark:bg-slate-900/40 relative">
+        <div className="max-w-6xl mx-auto px-4 text-center space-y-3 mb-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200/60 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300 text-xs font-bold uppercase tracking-wider">
             <Building2 className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
             Top Hiring Partners
           </div>
-          <h3 className="text-lg sm:text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
+          <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100">
             Candidates secured interviews and jobs at
           </h3>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
@@ -307,34 +424,36 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           </p>
         </div>
 
-        {/* Marquee Container with Left and Right Fade Gradients */}
-        <div className="relative w-full overflow-hidden">
-          {/* Left Gradient Edge Mask */}
-          <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-white dark:from-slate-900 to-transparent z-10 pointer-events-none" />
+        {/* Bounded Container - Not Fullscreen, Centered with White Shadow Fade Masks */}
+        <div className="max-w-4xl sm:max-w-5xl mx-auto px-4">
+          <div className="relative overflow-hidden rounded-2xl bg-slate-50/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 p-2 sm:p-3 shadow-inner">
+            {/* Left White Gradient Edge Mask */}
+            <div className="absolute left-0 top-0 bottom-0 w-20 sm:w-36 bg-gradient-to-r from-slate-50 via-slate-50/95 dark:from-slate-900 dark:via-slate-900/95 to-transparent z-20 pointer-events-none" />
 
-          {/* Right Gradient Edge Mask */}
-          <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 pointer-events-none" />
+            {/* Right White Gradient Edge Mask */}
+            <div className="absolute right-0 top-0 bottom-0 w-20 sm:w-36 bg-gradient-to-l from-slate-50 via-slate-50/95 dark:from-slate-900 dark:via-slate-900/95 to-transparent z-20 pointer-events-none" />
 
-          {/* Continuous Ticker */}
-          <div className="animate-marquee flex items-center gap-4 py-2">
-            {[...TRUSTED_COMPANIES, ...TRUSTED_COMPANIES].map((company, index) => (
-              <div
-                key={`${company.name}-${index}`}
-                className="group shrink-0 flex items-center gap-3 px-4 sm:px-5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-2xs hover:shadow-md hover:border-cyan-500/40 dark:hover:border-cyan-500/40 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200 cursor-default"
-              >
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-700 dark:to-slate-950 text-white flex items-center justify-center font-bold text-xs shadow-xs group-hover:scale-105 transition-transform">
-                  {company.symbol}
+            {/* Continuous Ticker */}
+            <div className="animate-marquee flex items-center gap-3 py-1">
+              {[...TRUSTED_COMPANIES, ...TRUSTED_COMPANIES].map((company, index) => (
+                <div
+                  key={`${company.name}-${index}`}
+                  className="group shrink-0 flex items-center gap-3 px-3.5 sm:px-4 py-2 rounded-xl bg-white dark:bg-slate-800/90 border border-slate-200/80 dark:border-slate-700/60 shadow-2xs hover:shadow-md hover:border-cyan-500/40 dark:hover:border-cyan-500/40 transition-all duration-200 cursor-default"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 flex items-center justify-center p-1.5 shadow-2xs group-hover:scale-110 transition-transform">
+                    {company.logo}
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors block leading-tight">
+                      {company.name}
+                    </span>
+                    <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold block pt-0.5">
+                      {company.tag}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors block">
-                    {company.name}
-                  </span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold block">
-                    {company.tag}
-                  </span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>

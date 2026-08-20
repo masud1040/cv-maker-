@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { TEMPLATES, SAMPLE_STUDENT_CV, SAMPLE_GENERAL_CV, SAMPLE_DEVELOPER_CV } from '../data/templates';
 import { LiveCVPreview } from './preview/LiveCVPreview';
 import {
@@ -19,7 +20,9 @@ import {
   TrendingUp,
   Check,
   Target,
-  Sliders
+  Sliders,
+  Sparkle,
+  Building2
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -28,12 +31,51 @@ interface LandingPageProps {
   onMyCVsClick: () => void;
 }
 
+const SAMPLE_TABS = [
+  { id: 'general', label: 'General CV', subtitle: 'Format 3' },
+  { id: 'student', label: 'ATS Student', subtitle: 'Format 1' },
+  { id: 'developer', label: 'Developer Clean', subtitle: 'Format 6' }
+] as const;
+
+const TRUSTED_COMPANIES = [
+  { name: 'Google', symbol: 'G', tag: 'Tech' },
+  { name: 'Microsoft', symbol: 'MS', tag: 'Cloud' },
+  { name: 'Amazon', symbol: 'a', tag: 'E-Comm' },
+  { name: 'Meta', symbol: 'M', tag: 'AI & Social' },
+  { name: 'Apple', symbol: '', tag: 'Consumer' },
+  { name: 'Spotify', symbol: 'Sp', tag: 'Audio' },
+  { name: 'Netflix', symbol: 'N', tag: 'Media' },
+  { name: 'Airbnb', symbol: 'Ab', tag: 'Hospitality' },
+  { name: 'Uber', symbol: 'Ub', tag: 'Mobility' },
+  { name: 'Salesforce', symbol: 'SF', tag: 'Enterprise' },
+  { name: 'Stripe', symbol: 'St', tag: 'FinTech' },
+  { name: 'NVIDIA', symbol: 'NV', tag: 'Hardware' },
+  { name: 'Adobe', symbol: 'Ad', tag: 'Design' },
+  { name: 'ByteDance', symbol: 'BD', tag: 'Video' },
+  { name: 'LinkedIn', symbol: 'in', tag: 'Career' }
+];
+
+type SampleTabId = (typeof SAMPLE_TABS)[number]['id'];
+
 export const LandingPage: React.FC<LandingPageProps> = ({
   onCreateClick,
   onExploreTemplatesClick,
   onMyCVsClick
 }) => {
-  const [activeTabSample, setActiveTabSample] = useState<'student' | 'general' | 'developer'>('general');
+  const [activeTabSample, setActiveTabSample] = useState<SampleTabId>('general');
+
+  // Auto-cycle CVs every 3 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveTabSample((current) => {
+        const idx = SAMPLE_TABS.findIndex((t) => t.id === current);
+        const nextIdx = (idx + 1) % SAMPLE_TABS.length;
+        return SAMPLE_TABS[nextIdx].id;
+      });
+    }, 3000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const getActiveSample = () => {
     if (activeTabSample === 'student') return SAMPLE_STUDENT_CV;
@@ -126,60 +168,74 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
 
         {/* Hero Interactive Document Showcase (cvdesignr Device Mockup + Floating Assistant) */}
-        <div className="mt-12 sm:mt-16 max-w-5xl mx-auto relative">
+        <div className="mt-10 sm:mt-16 max-w-5xl mx-auto relative">
           {/* Main Browser / Device Frame */}
           <div className="rounded-2xl sm:rounded-3xl bg-white dark:bg-slate-900 p-2 sm:p-5 shadow-2xl border border-slate-200/80 dark:border-slate-800">
-            {/* Header bar of mockup */}
-            <div className="flex items-center justify-between pb-3 px-3 border-b border-slate-100 dark:border-slate-800 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 inline-block"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 inline-block"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300 dark:bg-slate-700 inline-block"></span>
+            {/* Header bar of mockup - fully responsive */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 px-2 sm:px-3 border-b border-slate-100 dark:border-slate-800 text-xs">
+              {/* Left side: Colorful Traffic Lights + Title */}
+              <div className="flex items-center justify-between sm:justify-start gap-3">
+                <div className="flex items-center gap-1.5 shrink-0 bg-slate-100/80 dark:bg-slate-800/80 px-2 py-1.5 rounded-full">
+                  <span
+                    className="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e]/40 shadow-xs inline-block transition-transform hover:scale-110 cursor-pointer"
+                    title="Close"
+                  ></span>
+                  <span
+                    className="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123]/40 shadow-xs inline-block transition-transform hover:scale-110 cursor-pointer"
+                    title="Minimize"
+                  ></span>
+                  <span
+                    className="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29]/40 shadow-xs inline-block transition-transform hover:scale-110 cursor-pointer"
+                    title="Maximize"
+                  ></span>
                 </div>
-                <span className="ml-3 font-semibold text-slate-700 dark:text-slate-300">CVDesignR Editor</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap text-xs sm:text-sm">
+                  CVDesignR Editor
+                </span>
               </div>
 
-              {/* Template Switcher Tabs */}
-              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                <button
-                  onClick={() => setActiveTabSample('general')}
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-colors ${
-                    activeTabSample === 'general'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  General CV
-                </button>
-                <button
-                  onClick={() => setActiveTabSample('student')}
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-colors ${
-                    activeTabSample === 'student'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  ATS Student
-                </button>
-                <button
-                  onClick={() => setActiveTabSample('developer')}
-                  className={`px-3 py-1 rounded-md text-[11px] font-semibold transition-colors ${
-                    activeTabSample === 'developer'
-                      ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs'
-                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
-                  }`}
-                >
-                  Developer Clean
-                </button>
+              {/* Template Switcher Tabs - responsive horizontal scroll / wrap */}
+              <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl overflow-x-auto no-scrollbar shrink-0">
+                {SAMPLE_TABS.map((tab) => {
+                  const isActive = activeTabSample === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTabSample(tab.id)}
+                      className={`relative px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all duration-300 flex items-center gap-1.5 ${
+                        isActive
+                          ? 'bg-white dark:bg-slate-700 text-cyan-700 dark:text-cyan-300 shadow-xs font-bold'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-slate-700/50'
+                      }`}
+                    >
+                      {isActive && (
+                        <motion.span
+                          layoutId="activeTabIndicator"
+                          className="absolute inset-0 bg-white dark:bg-slate-700 rounded-lg shadow-xs ring-1 ring-cyan-500/20 -z-10"
+                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                      <span>{tab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Document Canvas Container */}
-            <div className="relative flex justify-center bg-slate-100/70 dark:bg-slate-950 p-3 sm:p-8 rounded-xl sm:rounded-2xl overflow-hidden mt-3 min-h-[460px]">
-              <div className="shadow-xl rounded-sm overflow-hidden bg-white text-slate-900 max-w-full transform transition-transform duration-300">
-                <LiveCVPreview data={getActiveSample()} scale={0.78} />
-              </div>
+            <div className="relative flex justify-center bg-slate-100/70 dark:bg-slate-950 p-2 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl overflow-hidden mt-3 min-h-[460px]">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTabSample}
+                  initial={{ opacity: 0, y: 10, scale: 0.985 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.985 }}
+                  transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
+                  className="shadow-xl rounded-sm overflow-hidden bg-white text-slate-900 max-w-full"
+                >
+                  <LiveCVPreview data={getActiveSample()} scale={0.78} showPageBreak={false} />
+                </motion.div>
+              </AnimatePresence>
 
               {/* Floating CV Assistant Widget - Inspired by Screenshot 1 */}
               <div className="hidden lg:block absolute right-6 bottom-8 w-72 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border border-indigo-100 dark:border-indigo-900/50 space-y-3 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -234,19 +290,49 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* Social Proof Brand Logotypes - Inspired by Screenshot 1 */}
-      <section className="py-8 border-y border-slate-100 dark:border-slate-800/60 bg-white/60 dark:bg-slate-900/30">
-        <div className="max-w-6xl mx-auto px-4 text-center space-y-4">
-          <p className="text-xs font-bold tracking-wider text-slate-600 dark:text-slate-300 uppercase">
+      {/* Social Proof Brand Logotypes - Smooth Infinite Horizontal Marquee */}
+      <section className="py-12 border-y border-slate-200/70 dark:border-slate-800/80 bg-white dark:bg-slate-900/40 relative overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4 text-center space-y-4 mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200/60 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300 text-xs font-bold uppercase tracking-wider">
+            <Building2 className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
+            Top Hiring Partners
+          </div>
+          <h3 className="text-lg sm:text-2xl font-bold tracking-tight text-slate-800 dark:text-slate-100">
             Candidates secured interviews and jobs at
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-lg mx-auto">
+            Our ATS-optimized templates helped applicants land roles at world-class companies
           </p>
-          <div className="flex items-center justify-center gap-8 sm:gap-14 flex-wrap opacity-60 dark:opacity-40 grayscale hover:grayscale-0 transition-all">
-            <span className="font-extrabold text-lg tracking-tighter text-slate-800 dark:text-slate-200">Google</span>
-            <span className="font-bold text-lg tracking-tight text-slate-800 dark:text-slate-200">Microsoft</span>
-            <span className="font-extrabold text-lg tracking-tight text-slate-800 dark:text-slate-200">amazon</span>
-            <span className="font-bold text-lg tracking-wide text-slate-800 dark:text-slate-200">Meta</span>
-            <span className="font-extrabold text-lg tracking-tight text-slate-800 dark:text-slate-200">Spotify</span>
-            <span className="font-bold text-lg tracking-tight text-slate-800 dark:text-slate-200">airbnb</span>
+        </div>
+
+        {/* Marquee Container with Left and Right Fade Gradients */}
+        <div className="relative w-full overflow-hidden">
+          {/* Left Gradient Edge Mask */}
+          <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-white dark:from-slate-900 to-transparent z-10 pointer-events-none" />
+
+          {/* Right Gradient Edge Mask */}
+          <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-white dark:from-slate-900 to-transparent z-10 pointer-events-none" />
+
+          {/* Continuous Ticker */}
+          <div className="animate-marquee flex items-center gap-4 py-2">
+            {[...TRUSTED_COMPANIES, ...TRUSTED_COMPANIES].map((company, index) => (
+              <div
+                key={`${company.name}-${index}`}
+                className="group shrink-0 flex items-center gap-3 px-4 sm:px-5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/60 shadow-2xs hover:shadow-md hover:border-cyan-500/40 dark:hover:border-cyan-500/40 hover:bg-white dark:hover:bg-slate-800 transition-all duration-200 cursor-default"
+              >
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 dark:from-slate-700 dark:to-slate-950 text-white flex items-center justify-center font-bold text-xs shadow-xs group-hover:scale-105 transition-transform">
+                  {company.symbol}
+                </div>
+                <div className="text-left">
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors block">
+                    {company.name}
+                  </span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold block">
+                    {company.tag}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

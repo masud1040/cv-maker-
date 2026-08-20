@@ -251,9 +251,21 @@ export const SAMPLE_STUDENT_CV: CVData = {
     items: []
   },
   customSections: [],
-  sectionOrder: ['summary', 'education', 'skills', 'projects', 'experience', 'certifications', 'extracurricular', 'languages', 'awards', 'references'],
+  sectionOrder: ['summary', 'education', 'skills', 'projects', 'experience'],
+  sectionVisibility: {
+    summary: true,
+    education: true,
+    skills: true,
+    projects: true,
+    experience: true,
+    certifications: false,
+    extracurricular: false,
+    languages: false,
+    awards: false,
+    references: false
+  },
   signature: {
-    enabled: true,
+    enabled: false,
     signerName: 'Saiful Alam Masud',
     signerTitle: 'Applicant Signature',
     date: '10 Aug 2026'
@@ -573,7 +585,19 @@ export const SAMPLE_DEVELOPER_CV: CVData = {
     availableOnRequest: true,
     items: []
   },
-  sectionOrder: ['summary', 'skills', 'projects', 'experience', 'education', 'certifications', 'extracurricular', 'languages', 'awards', 'references'],
+  sectionOrder: ['summary', 'skills', 'projects', 'experience', 'education'],
+  sectionVisibility: {
+    summary: true,
+    skills: true,
+    projects: true,
+    experience: true,
+    education: true,
+    certifications: false,
+    extracurricular: false,
+    languages: false,
+    awards: false,
+    references: false
+  },
   fontSize: 'standard'
 };
 
@@ -819,11 +843,11 @@ export const SAMPLE_GENERAL_CV: CVData = {
   },
   customSections: [],
   signature: {
-    enabled: true,
+    enabled: false,
     signerName: 'Md. Saiful Alam',
     signerTitle: 'Applicant Signature'
   },
-  sectionOrder: ['summary', 'biodata', 'education', 'experience', 'skills', 'languages', 'certifications', 'extracurricular', 'awards', 'projects', 'references'],
+  sectionOrder: ['summary', 'biodata', 'education', 'experience', 'skills', 'languages'],
   sectionVisibility: {
     biodata: true,
     summary: true,
@@ -831,7 +855,7 @@ export const SAMPLE_GENERAL_CV: CVData = {
     experience: true,
     skills: true,
     languages: true,
-    references: true,
+    references: false,
     certifications: false,
     extracurricular: false,
     awards: false,

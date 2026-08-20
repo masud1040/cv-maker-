@@ -12,9 +12,10 @@ interface LiveCVPreviewProps {
   data: CVData;
   scale?: number;
   interactive?: boolean;
+  showPageBreak?: boolean;
 }
 
-export const LiveCVPreview: React.FC<LiveCVPreviewProps> = ({ data, scale = 1 }) => {
+export const LiveCVPreview: React.FC<LiveCVPreviewProps> = ({ data, scale = 1, showPageBreak = true }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const paperRef = useRef<HTMLDivElement>(null);
   const [autoscale, setAutoscale] = useState<number>(scale);
@@ -128,7 +129,7 @@ export const LiveCVPreview: React.FC<LiveCVPreviewProps> = ({ data, scale = 1 })
           {renderTemplate()}
 
           {/* Visual Page 1 / Page 2 boundary indicator for live editor */}
-          {contentHeight > 1130 && (
+          {showPageBreak && contentHeight > 1130 && (
             <div
               className="absolute left-0 right-0 pointer-events-none z-10 flex items-center justify-between select-none no-print"
               style={{ top: '1123px' }}

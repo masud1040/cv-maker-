@@ -60,15 +60,17 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
   const [goal, setGoal] = useState<AIImprovementGoal>('executive');
   const [customInstructions, setCustomInstructions] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [response, setResponse] = useState<AIImprovementResponse | null>(null);
   const [selectedSuggestionId, setSelectedSuggestionId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [appliedNotification, setAppliedNotification] = useState<string | null>(null);
 
-  // Synchronize initial target when modal opens or initialTarget changes
+  // Synchronize target when modal opens
   useEffect(() => {
     if (!isOpen) return;
 
+    setErrorMessage(null);
     if (initialTarget) {
       setSelectedSection(initialTarget.sectionKey);
       if (initialTarget.itemId) setSelectedItemId(initialTarget.itemId);
@@ -86,9 +88,7 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
       setSelectedSection('summary');
       extractTextFromData('summary');
     }
-    setResponse(null);
-    setSelectedSuggestionId(null);
-  }, [isOpen, initialTarget, cvData]);
+  }, [isOpen, initialTarget]);
 
   const extractTextFromData = (
     sec: 'summary' | 'experience' | 'project' | 'custom' | 'freeform',
@@ -140,7 +140,8 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
       const targetCust = itemId ? customList.find(c => c.id === itemId) : customList[0];
       if (targetCust) {
         setSelectedItemId(targetCust.id);
-        setCurrentText(targetCust.content || '');
+        const itemDesc = targetCust.items?.[0]?.description || '';
+        setCurrentText(itemDesc || targetCust.title || '');
       } else {
         setCurrentText('');
       }
@@ -159,6 +160,7 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
     setSelectedSubIndex(0);
     setSelectedFieldType('description');
     setResponse(null);
+    setErrorMessage(null);
     setSelectedSuggestionId(null);
     extractTextFromData(sec);
   };
@@ -169,6 +171,7 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
     setSelectedFieldType(field);
     setSelectedSubIndex(bIdx);
     setResponse(null);
+    setErrorMessage(null);
     setSelectedSuggestionId(null);
     extractTextFromData('experience', expId, bIdx, field);
   };
@@ -179,23 +182,41 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
     setSelectedFieldType(field);
     setSelectedSubIndex(bIdx);
     setResponse(null);
+    setErrorMessage(null);
     setSelectedSuggestionId(null);
     extractTextFromData('project', projId, bIdx, field);
   };
 
-  // Custom section entry change handler
-  const handleCustomSectionSelect = (custSecId: string) => {
-    setSelectedItemId(custSecId);
-    setSelectedFieldType('description');
-    setResponse(null);
-    setSelectedSuggestionId(null);
-    extractTextFromData('custom', custSecId);
+  // Pre-fill starter text based on profile
+  const handleAutoFillFromProfile = () => {
+    const role = cvData.personalInfo?.professionalTitle || 'Software Engineer';
+    const allSkills = [
+      ...(cvData.skills?.technical || []),
+      ...(cvData.skills?.tools || []),
+    ].slice(0, 5);
+
+    if (selectedSection === 'summary') {
+      setCurrentText(
+        `Dynamic ${role} with strong background in ${allSkills.length > 0 ? allSkills.join(', ') : 'modern development methodologies'}. Passionate about building robust, scalable solutions and optimizing workflow efficiency.`
+      );
+    } else if (selectedSection === 'experience') {
+      setCurrentText(
+        `Developed and maintained high-performance features as ${role}, collaborating with cross-functional teams to streamline delivery.`
+      );
+    } else if (selectedSection === 'project') {
+      setCurrentText(
+        `Built scalable web application leveraging modern stack, improving user engagement and automating core workflows.`
+      );
+    } else {
+      setCurrentText(
+        `Executed key deliverables and collaborated with team members to achieve operational excellence.`
+      );
+    }
   };
 
   const handleGenerate = async () => {
-    if (!currentText.trim()) return;
-
     setIsLoading(true);
+    setErrorMessage(null);
     setAppliedNotification(null);
 
     let mappedSectionType: 'summary' | 'experience_bullet' | 'experience_desc' | 'project_desc' | 'skills_list' | 'custom' | 'general' = 'general';
@@ -208,25 +229,39 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
       mappedSectionType = 'custom';
     }
 
+    const effectiveText = currentText.trim()
+      ? currentText.trim()
+      : `Professional ${cvData.personalInfo?.professionalTitle || 'Candidate'} with expertise in ${
+          (cvData.skills?.technical || []).slice(0, 4).join(', ') || 'industry best practices'
+        }`;
+
     try {
       const res = await improveCVText({
-        text: currentText,
+        text: effectiveText,
         sectionType: mappedSectionType,
         goal,
         customInstructions,
         context: {
-          jobTitle: cvData.personalInfo?.professionalTitle,
-          targetRole: cvData.personalInfo?.professionalTitle,
-          applicantName: cvData.personalInfo?.fullName,
+          jobTitle: cvData.personalInfo?.professionalTitle || 'Software Professional',
+          targetRole: cvData.personalInfo?.professionalTitle || 'Professional',
+          applicantName: cvData.personalInfo?.fullName || 'Candidate',
+          skills: [
+            ...(cvData.skills?.technical || []),
+            ...(cvData.skills?.tools || []),
+            ...(cvData.skills?.soft || []),
+          ],
         },
       });
 
-      setResponse(res);
-      if (res.suggestions && res.suggestions.length > 0) {
-        setSelectedSuggestionId(res.suggestions[0].id);
+      if (!res || !res.suggestions || res.suggestions.length === 0) {
+        throw new Error('No suggestions returned from AI service. Please try again.');
       }
+
+      setResponse(res);
+      setSelectedSuggestionId(res.suggestions[0].id);
     } catch (error: any) {
       console.error('Error rewriting text with AI:', error);
+      setErrorMessage(error?.message || 'Failed to generate suggestions. Please check your connection and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -490,17 +525,28 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                    2. Original Text
+                    2. Original Text / Draft
                   </label>
-                  <span className="text-[11px] font-mono text-slate-400">
-                    {currentText.trim().split(/\s+/).filter(Boolean).length} words
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleAutoFillFromProfile}
+                      className="text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                      title="Insert starter text based on your profile"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      Auto-Draft
+                    </button>
+                    <span className="text-[11px] font-mono text-slate-400">
+                      {currentText.trim().split(/\s+/).filter(Boolean).length} words
+                    </span>
+                  </div>
                 </div>
                 <textarea
                   rows={4}
                   value={currentText}
                   onChange={(e) => setCurrentText(e.target.value)}
-                  placeholder="Paste or write the text you want the AI to elevate..."
+                  placeholder="Paste or write your text here, or click Auto-Draft to generate from your profile role..."
                   className="w-full p-3 text-xs bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition leading-relaxed"
                 />
               </div>
@@ -583,18 +629,20 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
               <button
                 type="button"
                 onClick={handleGenerate}
-                disabled={isLoading || !currentText.trim()}
-                className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
+                disabled={isLoading}
+                className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 disabled:opacity-50 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isLoading ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Analyzing & Elevating Content...</span>
+                    <span>Analyzing & Generating with AI...</span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    <span>Rewrite & Optimize with AI</span>
+                    <span>
+                      {currentText.trim() ? 'Rewrite & Optimize with AI' : 'Generate Starter Text with AI'}
+                    </span>
                   </>
                 )}
               </button>
@@ -606,11 +654,18 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-amber-500" />
-                    AI Optimized Variations
-                  </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4 text-amber-500" />
+                      AI Optimized Variations
+                    </h3>
+                    {response?.source === 'gemini' && (
+                      <span className="px-2 py-0.5 text-[9px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 rounded-full border border-emerald-200 dark:border-emerald-800/60">
+                        Live Gemini Output
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     Compare tailored rewrites and apply the highest-impact variation directly to your resume.
                   </p>
                 </div>
@@ -619,7 +674,7 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
                     type="button"
                     onClick={handleGenerate}
                     disabled={isLoading}
-                    className="p-1.5 text-xs text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center gap-1 shadow-2xs"
+                    className="p-1.5 text-xs text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex items-center gap-1 shadow-2xs cursor-pointer"
                     title="Regenerate alternatives"
                   >
                     <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
@@ -627,6 +682,24 @@ export const AIImproveModal: React.FC<AIImproveModalProps> = ({
                   </button>
                 )}
               </div>
+
+              {/* ERROR MESSAGE BANNER */}
+              {errorMessage && (
+                <div className="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-2.5 text-xs text-red-800 dark:text-red-300">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-bold">Generation Error</p>
+                    <p className="text-[11px] text-red-700 dark:text-red-400 mt-0.5">{errorMessage}</p>
+                    <button
+                      type="button"
+                      onClick={handleGenerate}
+                      className="mt-2 px-2.5 py-1 bg-red-600 text-white rounded-md text-[11px] font-bold hover:bg-red-700 transition"
+                    >
+                      Try Again
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {/* EMPTY STATE */}
               {!response && !isLoading && (

@@ -40,11 +40,11 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'summary':
         if (!summary?.trim()) return null;
         return (
-          <section key="summary" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
-              Professional Summary
+          <section key="summary" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
+              Career Objective & Summary
             </h2>
-            <p className="text-[10pt] leading-relaxed text-slate-800 text-justify">
+            <p className="text-[9.5pt] leading-relaxed text-slate-800 text-justify">
               {summary}
             </p>
           </section>
@@ -75,21 +75,21 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
           { label: 'Religion', value: bioData?.religion },
           { label: 'Nationality', value: bioData?.nationality },
           { label: 'Blood Group', value: bioData?.bloodGroup },
-          { label: 'National ID', value: bioData?.nationalId },
+          { label: 'National ID (NID)', value: bioData?.nationalId },
           { label: 'Present Address', value: bioData?.presentAddress },
           { label: 'Permanent Address', value: bioData?.permanentAddress }
         ].filter(item => hasText(item.value));
 
         return (
-          <section key="biodata" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
-              Personal Details & Bio Data
+          <section key="biodata" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
+              Personal Information & Bio Data
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-[9.5pt]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-[9pt]">
               {bioItems.map((item, idx) => (
                 <div key={idx} className={`flex items-baseline ${item.label.includes('Address') ? 'sm:col-span-2' : ''}`}>
                   <span className="font-bold text-slate-900 w-36 shrink-0">{item.label}</span>
-                  <span className="font-bold text-slate-700 mx-1">:</span>
+                  <span className="font-bold text-slate-600 mx-1">:</span>
                   <span className="text-slate-800 flex-1">{item.value}</span>
                 </div>
               ))}
@@ -100,23 +100,23 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'education':
         if (!education || education.length === 0) return null;
         return (
-          <section key="education" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key="education" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
               Education
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {education.map((edu) => (
-                <div key={edu.id} className="text-[10pt]">
+                <div key={edu.id} className="text-[9.5pt]">
                   <div className="flex justify-between items-baseline font-bold text-slate-900">
-                    <span>{edu.institution}{edu.location ? `, ${edu.location}` : ''}</span>
-                    <span className="text-[9.5pt] font-normal text-slate-700">{edu.startDate} – {edu.isCurrent ? 'Present' : edu.endDate}</span>
+                    <span className="text-[10pt]">{edu.institution}{edu.location ? `, ${edu.location}` : ''}</span>
+                    <span className="text-[9pt] font-semibold text-slate-700">{edu.startDate} – {edu.isCurrent ? 'Present' : edu.endDate}</span>
                   </div>
-                  <div className="flex justify-between items-baseline italic text-slate-800">
-                    <span>{edu.degree} in {edu.fieldOfStudy}</span>
-                    {edu.gpa && <span className="font-semibold text-slate-900 text-[9.5pt]">GPA: {edu.gpa}</span>}
+                  <div className="flex justify-between items-baseline text-slate-800 text-[9pt]">
+                    <span className="font-medium">{edu.degree}{edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ''}</span>
+                    {edu.gpa && <span className="font-semibold text-slate-900">GPA: {edu.gpa}</span>}
                   </div>
                   {edu.description && (
-                    <p className="mt-1 text-[9.5pt] text-slate-700 leading-normal">{edu.description}</p>
+                    <p className="mt-0.5 text-[9pt] text-slate-700 leading-snug">{edu.description}</p>
                   )}
                 </div>
               ))}
@@ -131,26 +131,26 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
         if (!hasTech && !hasSoft && !hasTools) return null;
 
         return (
-          <section key="skills" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key="skills" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
               Technical & Soft Skills
             </h2>
-            <div className="text-[10pt] space-y-1 text-slate-800">
+            <div className="text-[9.5pt] space-y-1 text-slate-800">
               {hasTech && (
-                <div>
+                <div className="leading-tight">
                   <span className="font-bold text-slate-900">Technical Skills: </span>
                   <span>{skills.technical.join(', ')}</span>
                 </div>
               )}
               {hasTools && (
-                <div>
+                <div className="leading-tight">
                   <span className="font-bold text-slate-900">Developer Tools & Platforms: </span>
                   <span>{skills.tools.join(', ')}</span>
                 </div>
               )}
               {hasSoft && (
-                <div>
-                  <span className="font-bold text-slate-900">Soft Skills & Competencies: </span>
+                <div className="leading-tight">
+                  <span className="font-bold text-slate-900">Core Competencies: </span>
                   <span>{skills.soft.join(', ')}</span>
                 </div>
               )}
@@ -161,34 +161,37 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'projects':
         if (!projects || projects.length === 0) return null;
         return (
-          <section key="projects" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key="projects" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2.5">
               Academic & Technical Projects
             </h2>
             <div className="space-y-3">
               {projects.map((proj) => (
-                <div key={proj.id} className="text-[10pt]">
+                <div key={proj.id} className="text-[9.5pt]">
                   <div className="flex justify-between items-baseline">
-                    <span className="font-bold text-slate-900">
+                    <span className="font-bold text-slate-900 text-[9.5pt]">
                       {proj.name}
                       {proj.link && (
-                        <span className="font-normal text-slate-600 text-[9pt] ml-2">[{proj.link}]</span>
+                        <span className="font-normal text-slate-600 text-[8.5pt] ml-2 underline underline-offset-2">
+                          {proj.link}
+                        </span>
                       )}
                     </span>
-                    {proj.date && <span className="text-[9.5pt] text-slate-700">{proj.date}</span>}
+                    {proj.date && <span className="text-[9pt] font-semibold text-slate-700">{proj.date}</span>}
                   </div>
                   {proj.technologies && (
-                    <div className="text-[9.5pt] italic text-slate-700">
-                      Technologies: {proj.technologies}
+                    <div className="text-[8.5pt] font-medium text-slate-700">
+                      <span className="font-semibold text-slate-900">Tech Stack: </span>
+                      {proj.technologies}
                     </div>
                   )}
                   {proj.description && (
-                    <p className="mt-0.5 text-[9.5pt] text-slate-800">{proj.description}</p>
+                    <p className="mt-0.5 text-[9pt] text-slate-800 leading-snug">{proj.description}</p>
                   )}
                   {proj.bullets && proj.bullets.length > 0 && (
-                    <ul className="list-disc list-inside mt-1 space-y-0.5 text-[9.5pt] text-slate-800 pl-1">
+                    <ul className="list-disc list-outside ml-4 mt-1 space-y-0.5 text-[9pt] text-slate-800">
                       {proj.bullets.filter(b => b.trim()).map((bullet, idx) => (
-                        <li key={idx} className="leading-tight">{bullet}</li>
+                        <li key={idx} className="leading-snug">{bullet}</li>
                       ))}
                     </ul>
                   )}
@@ -201,23 +204,23 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'experience':
         if (!experience || experience.length === 0) return null;
         return (
-          <section key="experience" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key="experience" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2.5">
               Work & Internship Experience
             </h2>
             <div className="space-y-3">
               {experience.map((exp) => (
-                <div key={exp.id} className="text-[10pt]">
+                <div key={exp.id} className="text-[9.5pt]">
                   <div className="flex justify-between items-baseline font-bold text-slate-900">
-                    <span>{exp.jobTitle} – <span className="font-semibold text-slate-800">{exp.company}</span></span>
-                    <span className="text-[9.5pt] font-normal text-slate-700">{exp.startDate} – {exp.isCurrent ? 'Present' : exp.endDate}</span>
+                    <span className="text-[10pt]">{exp.jobTitle} – <span className="font-medium text-slate-800">{exp.company}</span></span>
+                    <span className="text-[9pt] font-semibold text-slate-700">{exp.startDate} – {exp.isCurrent ? 'Present' : exp.endDate}</span>
                   </div>
-                  {exp.location && <div className="text-[9.5pt] italic text-slate-600">{exp.location}</div>}
-                  {exp.description && <p className="mt-0.5 text-[9.5pt] text-slate-800">{exp.description}</p>}
+                  {exp.location && <div className="text-[8.5pt] text-slate-600 font-normal">{exp.location}</div>}
+                  {exp.description && <p className="mt-0.5 text-[9pt] text-slate-800 leading-snug">{exp.description}</p>}
                   {exp.bullets && exp.bullets.length > 0 && (
-                    <ul className="list-disc list-inside mt-1 space-y-0.5 text-[9.5pt] text-slate-800 pl-1">
+                    <ul className="list-disc list-outside ml-4 mt-1 space-y-0.5 text-[9pt] text-slate-800">
                       {exp.bullets.filter(b => b.trim()).map((bullet, idx) => (
-                        <li key={idx} className="leading-tight">{bullet}</li>
+                        <li key={idx} className="leading-snug">{bullet}</li>
                       ))}
                     </ul>
                   )}
@@ -230,18 +233,18 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'extracurricular':
         if (!extracurricular || extracurricular.length === 0) return null;
         return (
-          <section key="extracurricular" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key="extracurricular" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
               Leadership & Extracurricular Activities
             </h2>
             <div className="space-y-2">
               {extracurricular.map((extra) => (
-                <div key={extra.id} className="text-[10pt]">
+                <div key={extra.id} className="text-[9.5pt]">
                   <div className="flex justify-between items-baseline font-bold text-slate-900">
-                    <span>{extra.role}, <span className="font-semibold text-slate-800">{extra.organization}</span></span>
-                    <span className="text-[9.5pt] font-normal text-slate-700">{extra.date}</span>
+                    <span>{extra.role} – <span className="font-medium text-slate-800">{extra.organization}</span></span>
+                    <span className="text-[9pt] font-semibold text-slate-700">{extra.date}</span>
                   </div>
-                  {extra.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{extra.description}</p>}
+                  {extra.description && <p className="text-[9pt] text-slate-800 mt-0.5 leading-snug">{extra.description}</p>}
                 </div>
               ))}
             </div>
@@ -251,15 +254,15 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'certifications':
         if (!certifications || certifications.length === 0) return null;
         return (
-          <section key="certifications" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key="certifications" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
               Certifications & Training
             </h2>
-            <ul className="list-disc list-inside space-y-1 text-[10pt] text-slate-800">
+            <ul className="list-disc list-outside ml-4 space-y-0.5 text-[9.5pt] text-slate-800">
               {certifications.map((cert) => (
-                <li key={cert.id}>
-                  <span className="font-semibold text-slate-900">{cert.name}</span> – {cert.organization} ({cert.year})
-                  {cert.link && <span className="text-[9pt] text-slate-600 ml-1">[{cert.link}]</span>}
+                <li key={cert.id} className="leading-snug">
+                  <span className="font-bold text-slate-900">{cert.name}</span> – {cert.organization} ({cert.year})
+                  {cert.link && <span className="text-[8.5pt] text-slate-600 ml-1 underline">({cert.link})</span>}
                 </li>
               ))}
             </ul>
@@ -269,11 +272,11 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'languages':
         if (!languages || languages.length === 0) return null;
         return (
-          <section key="languages" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key="languages" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-1.5">
               Languages
             </h2>
-            <p className="text-[10pt] text-slate-800">
+            <p className="text-[9.5pt] text-slate-800">
               {languages.map(l => `${l.name} (${l.proficiency})`).join(' • ')}
             </p>
           </section>
@@ -282,18 +285,18 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'awards':
         if (!awards || awards.length === 0) return null;
         return (
-          <section key="awards" className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key="awards" className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
               Honors & Awards
             </h2>
-            <div className="space-y-1.5 text-[10pt]">
+            <div className="space-y-1.5 text-[9.5pt]">
               {awards.map((award) => (
                 <div key={award.id} className="flex justify-between items-baseline">
                   <div>
-                    <span className="font-semibold text-slate-900">{award.title}</span> – <span className="text-slate-800">{award.issuer}</span>
-                    {award.description && <p className="text-[9.5pt] text-slate-700 mt-0.5">{award.description}</p>}
+                    <span className="font-bold text-slate-900">{award.title}</span> – <span className="text-slate-800">{award.issuer}</span>
+                    {award.description && <p className="text-[9pt] text-slate-700 mt-0.5 leading-snug">{award.description}</p>}
                   </div>
-                  <span className="text-[9.5pt] text-slate-700 font-medium shrink-0 ml-2">{award.date}</span>
+                  <span className="text-[9pt] text-slate-700 font-semibold shrink-0 ml-2">{award.date}</span>
                 </div>
               ))}
             </div>
@@ -303,27 +306,27 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
       case 'references':
         if (references?.availableOnRequest) {
           return (
-            <section key="references" className="mb-4">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-1">
+            <section key="references" className="mb-4 break-inside-avoid">
+              <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-1">
                 References
               </h2>
-              <p className="text-[10pt] italic text-slate-700">Professional references available upon request.</p>
+              <p className="text-[9.5pt] italic text-slate-700">Professional references available upon request.</p>
             </section>
           );
         }
         if (references?.items && references.items.length > 0) {
           return (
-            <section key="references" className="mb-4">
-              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+            <section key="references" className="mb-4 break-inside-avoid">
+              <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
                 References
               </h2>
-              <div className="grid grid-cols-2 gap-3 text-[10pt]">
+              <div className="grid grid-cols-2 gap-4 text-[9.5pt]">
                 {references.items.map((ref) => (
                   <div key={ref.id} className="text-slate-800">
                     <p className="font-bold text-slate-900">{ref.name}</p>
-                    <p className="text-[9.5pt] text-slate-700">{ref.title}, {ref.company}</p>
-                    {ref.email && <p className="text-[9pt] text-slate-600">{ref.email}</p>}
-                    {ref.phone && <p className="text-[9pt] text-slate-600">{ref.phone}</p>}
+                    <p className="text-[9pt] text-slate-700 font-medium">{ref.title}, {ref.company}</p>
+                    {ref.email && <p className="text-[8.5pt] text-slate-600">{ref.email}</p>}
+                    {ref.phone && <p className="text-[8.5pt] text-slate-600">{ref.phone}</p>}
                   </div>
                 ))}
               </div>
@@ -333,25 +336,24 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
         return null;
 
       default:
-        // Handle custom sections
         const customSec = customSections?.find(cs => cs.id === sectionKey || cs.title.toLowerCase() === sectionKey.toLowerCase());
         if (!customSec || !customSec.items || customSec.items.length === 0) return null;
         
         const hasInlineItems = customSec.items.some(it => it.layout === 'inline' || Boolean(it.value));
 
         return (
-          <section key={customSec.id} className="mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1 mb-2">
+          <section key={customSec.id} className="mb-4 break-inside-avoid">
+            <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
               {customSec.title}
             </h2>
             {hasInlineItems ? (
-              <div className="space-y-1 text-[9.5pt]">
+              <div className="space-y-1 text-[9pt]">
                 {customSec.items.map((item) => {
                   if (item.layout === 'inline' || item.value) {
                     return (
                       <div key={item.id} className="flex items-baseline">
                         <span className="font-bold text-slate-900 w-36 shrink-0">{item.title}</span>
-                        <span className="font-bold text-slate-700 mx-1">:</span>
+                        <span className="font-bold text-slate-600 mx-1">:</span>
                         <span className="text-slate-800 flex-1">{item.value || item.description}</span>
                       </div>
                     );
@@ -360,22 +362,22 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
                     <div key={item.id} className="py-0.5">
                       <div className="flex justify-between items-baseline font-bold text-slate-900">
                         <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
-                        {item.date && <span className="text-[9.5pt] font-normal text-slate-700">{item.date}</span>}
+                        {item.date && <span className="text-[9pt] font-semibold text-slate-700">{item.date}</span>}
                       </div>
-                      {item.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{item.description}</p>}
+                      {item.description && <p className="text-[9pt] text-slate-800 mt-0.5">{item.description}</p>}
                     </div>
                   );
                 })}
               </div>
             ) : (
-              <div className="space-y-2 text-[10pt]">
+              <div className="space-y-2 text-[9.5pt]">
                 {customSec.items.map((item) => (
                   <div key={item.id}>
                     <div className="flex justify-between items-baseline font-bold text-slate-900">
                       <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
-                      {item.date && <span className="text-[9.5pt] font-normal text-slate-700">{item.date}</span>}
+                      {item.date && <span className="text-[9pt] font-semibold text-slate-700">{item.date}</span>}
                     </div>
-                    {item.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{item.description}</p>}
+                    {item.description && <p className="text-[9pt] text-slate-800 mt-0.5">{item.description}</p>}
                   </div>
                 ))}
               </div>
@@ -385,7 +387,6 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
     }
   };
 
-  // Contact line elements array
   const contactParts: string[] = [];
   if (personalInfo.phone) contactParts.push(personalInfo.phone);
   if (personalInfo.email) contactParts.push(personalInfo.email);
@@ -404,23 +405,23 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
   }
 
   return (
-    <div className="w-full min-h-[1123px] bg-white text-slate-900 px-12 py-11 font-sans leading-normal box-border">
-      {/* Centered ATS Header */}
-      <header className="text-center pb-4 mb-4 border-b-2 border-slate-900">
-        <h1 className="text-2xl font-bold uppercase tracking-tight text-slate-950">
+    <div className="w-full min-h-[1123px] bg-white text-slate-900 px-12 py-10 font-sans leading-normal box-border">
+      {/* Centered High-Impact ATS Header */}
+      <header className="text-center pb-3.5 mb-4 border-b-2 border-slate-900">
+        <h1 className="text-2xl font-black uppercase tracking-tight text-slate-950">
           {personalInfo.fullName || 'Your Full Name'}
         </h1>
         {personalInfo.professionalTitle && (
-          <p className="text-xs uppercase tracking-widest font-semibold text-slate-700 mt-1">
+          <p className="text-[10pt] font-bold uppercase tracking-wider text-slate-700 mt-0.5">
             {personalInfo.professionalTitle}
           </p>
         )}
         {contactParts.length > 0 && (
-          <div className="text-[9.5pt] text-slate-700 mt-2 flex flex-wrap justify-center items-center gap-x-2 gap-y-1">
+          <div className="text-[9pt] text-slate-700 mt-2 flex flex-wrap justify-center items-center gap-x-2 gap-y-1">
             {contactParts.map((item, idx) => (
               <React.Fragment key={idx}>
-                <span>{item}</span>
-                {idx < contactParts.length - 1 && <span className="text-slate-400">•</span>}
+                <span className="font-medium">{item}</span>
+                {idx < contactParts.length - 1 && <span className="text-slate-400 font-bold">•</span>}
               </React.Fragment>
             ))}
           </div>
@@ -445,13 +446,12 @@ export const ATSStudentTemplate: React.FC<TemplateProps> = ({ data }) => {
                 />
               </div>
             )}
-            {/* Small line above signature */}
             <div className="w-36 border-t border-slate-900 mx-auto mb-1"></div>
-            <p className="text-[9.5pt] font-bold text-slate-900 leading-snug">
+            <p className="text-[9pt] font-bold text-slate-900 leading-snug">
               {data.signature?.signerName || personalInfo.fullName || 'Authorized Signature'}
             </p>
             {data.signature?.signerTitle && (
-              <p className="text-[8.5pt] font-medium text-slate-700 leading-tight">
+              <p className="text-[8pt] font-medium text-slate-600 leading-tight">
                 {data.signature.signerTitle}
               </p>
             )}

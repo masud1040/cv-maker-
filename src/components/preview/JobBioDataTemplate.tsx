@@ -299,7 +299,7 @@ export const JobBioDataTemplate: React.FC<TemplateProps> = ({ data }) => {
   const dateValue = bioData?.submissionDate || (isSignatureEnabled ? signature?.date : '') || '';
   const hasDeclaration = hasText(bioData?.declaration);
   const showFooter = hasPlace || hasDate || isSignatureEnabled;
-  const showPhotoBox = personalInfo.showPhoto !== false;
+  const showPhotoBox = Boolean(personalInfo.photoUrl && personalInfo.showPhoto !== false);
 
   return (
     <div className="w-[794px] min-h-[1123px] bg-white text-black px-12 py-10 font-sans leading-normal box-border flex flex-col justify-between selection:bg-zinc-200">

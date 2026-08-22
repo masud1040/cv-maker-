@@ -93,22 +93,16 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({ skills, onChange }) => {
   };
 
   return (
-    <div className="space-y-5">
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
-        <div>
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-            Skills & Competencies
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Type your skills into the text field. All skills sit side-by-side on your CV.
-          </p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+          {allSkills.length} {allSkills.length === 1 ? 'skill' : 'skills'} added
+        </span>
 
         <button
           type="button"
           onClick={() => setIsAdvancedCategorized(!isAdvancedCategorized)}
-          className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+          className="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
         >
           {isAdvancedCategorized ? (
             <>
@@ -126,8 +120,8 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({ skills, onChange }) => {
 
       {!isAdvancedCategorized ? (
         /* Simple Unified Single Text Field (Side-by-Side Skills) */
-        <div className="space-y-4">
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/70 space-y-3">
+        <div className="space-y-3.5">
+          <div className="p-3.5 bg-white dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700/80 shadow-2xs space-y-3">
             <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">
               Enter Skills (Type name & press Enter, or separate with commas)
             </label>
@@ -139,34 +133,34 @@ export const SkillsForm: React.FC<SkillsFormProps> = ({ skills, onChange }) => {
                 onChange={(e) => setSingleInput(e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, () => handleAddSingleSkill())}
                 placeholder="e.g. MS Word & Excel, Data Entry, Tailoring, Driving..."
-                className="flex-1 px-3 py-2 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
+                className="flex-1 px-3 py-1.5 text-xs bg-slate-50/50 dark:bg-slate-900/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
               />
               <button
                 type="button"
                 onClick={() => handleAddSingleSkill()}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg transition shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg transition shadow-2xs cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
-                Add Skill
+                Add
               </button>
             </div>
 
             {/* Current Side-by-Side Skills */}
-            <div className="pt-2">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
+            <div className="pt-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-2">
                 Active Skills ({allSkills.length}):
               </span>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {allSkills.map((skill, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-xs px-3 py-1.5 rounded-lg shadow-2xs font-medium"
+                    className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-600 font-medium"
                   >
                     <span>{skill}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveSkill(skill)}
-                      className="text-slate-400 hover:text-red-600 dark:hover:text-red-400 p-0.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                      className="text-slate-400 hover:text-red-500 dark:hover:text-red-400 p-0.5 rounded-full transition cursor-pointer"
                       title={`Remove ${skill}`}
                     >
                       <X className="w-3 h-3" />

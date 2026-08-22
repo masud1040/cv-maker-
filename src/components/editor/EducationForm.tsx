@@ -86,37 +86,31 @@ export const EducationForm: React.FC<EducationFormProps> = ({ entries, onChange 
   };
 
   return (
-    <div className="space-y-5">
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
-        <div>
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-            <GraduationCap className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-            Academic Education
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Academic degrees, diplomas, and relevant coursework. Drag cards or use arrows to reorder.
-          </p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+          {entries.length} {entries.length === 1 ? 'degree' : 'degrees'} added
+        </span>
         <button
           type="button"
           onClick={handleAdd}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg shadow-2xs transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg shadow-2xs transition-colors cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
-          Add Education
+          Add Degree
         </button>
       </div>
 
       {entries.length === 0 ? (
-        <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+        <div className="text-center py-8 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
           <p className="text-xs text-slate-500 dark:text-slate-400">No education entries added yet.</p>
           <button
             type="button"
             onClick={handleAdd}
-            className="mt-2 text-xs font-semibold text-slate-900 dark:text-white hover:underline inline-flex items-center gap-1"
+            className="mt-2 text-xs font-semibold text-slate-900 dark:text-white hover:underline inline-flex items-center gap-1 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            Add your university or school
+            Add your degree or diploma
           </button>
         </div>
       ) : (
@@ -135,24 +129,25 @@ export const EducationForm: React.FC<EducationFormProps> = ({ entries, onChange 
                 onDragEnd={handleDragEnd}
                 className={`p-4 rounded-xl border space-y-3.5 transition-all select-none ${
                   isDragging
-                    ? 'opacity-40 border-dashed border-cyan-500 bg-cyan-50/20 dark:bg-cyan-950/20 scale-[0.99]'
+                    ? 'opacity-40 border-dashed border-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/20 scale-[0.99]'
                     : isOver
-                    ? 'border-cyan-500 dark:border-cyan-400 bg-cyan-50/60 dark:bg-cyan-950/40 ring-2 ring-cyan-500/40 shadow-sm'
-                    : 'bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-50/90 dark:hover:bg-slate-800/70 border-slate-200 dark:border-slate-700/70'
+                    ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-500/40 shadow-sm'
+                    : 'bg-white dark:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 border-slate-200 dark:border-slate-700/80 shadow-2xs'
                 }`}
               >
-                <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2.5">
+                <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex items-center gap-2 min-w-0">
                     {/* Drag Handle */}
                     <div
-                      className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 rounded transition-colors"
-                      title="Drag to reorder this degree entry"
+                      className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded transition-colors"
+                      title="Drag to reorder"
                     >
                       <GripVertical className="w-4 h-4" />
                     </div>
 
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-                      Degree #{index + 1} {edu.institution ? `— ${edu.institution}` : ''}
+                      {edu.degree || `Degree #${index + 1}`}
+                      {edu.fieldOfStudy ? ` in ${edu.fieldOfStudy}` : ''}
                     </span>
                   </div>
 
@@ -162,7 +157,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ entries, onChange 
                       type="button"
                       disabled={index === 0}
                       onClick={() => moveEducation(index, 'up')}
-                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded disabled:opacity-20 transition"
+                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded disabled:opacity-20 transition cursor-pointer"
                       title="Move degree up"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
@@ -171,7 +166,7 @@ export const EducationForm: React.FC<EducationFormProps> = ({ entries, onChange 
                       type="button"
                       disabled={index === entries.length - 1}
                       onClick={() => moveEducation(index, 'down')}
-                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded disabled:opacity-20 transition"
+                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded disabled:opacity-20 transition cursor-pointer"
                       title="Move degree down"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
@@ -179,8 +174,8 @@ export const EducationForm: React.FC<EducationFormProps> = ({ entries, onChange 
                     <button
                       type="button"
                       onClick={() => handleDelete(edu.id)}
-                      className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-md transition-colors ml-1"
-                      title="Delete Entry"
+                      className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-md transition-colors ml-1 cursor-pointer"
+                      title="Delete Degree"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

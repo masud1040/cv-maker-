@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CVData } from '../../types/cv';
-import { analyzeCVForATS } from '../../utils/atsScanner';
+import { analyzeCVForATS, INDUSTRY_CATALOG } from '../../utils/atsScanner';
 import {
   Target,
   CheckCircle2,
@@ -23,19 +23,32 @@ interface ATSSectionViewProps {
   onNavigateToTab: (tabId: string) => void;
   onAddSkill: (skill: string) => void;
   onOpenFullModal: () => void;
+  selectedIndustry?: string;
+  onChangeIndustry?: (industry: string) => void;
 }
 
 export const ATSSectionView: React.FC<ATSSectionViewProps> = ({
   cvData,
   onNavigateToTab,
   onAddSkill,
-  onOpenFullModal
+  onOpenFullModal,
+  selectedIndustry: propIndustry,
+  onChangeIndustry
 }) => {
-  const [selectedIndustry, setSelectedIndustry] = useState('general');
+  const [internalIndustry, setInternalIndustry] = useState(propIndustry || 'general');
   const [jobDescription, setJobDescription] = useState('');
   const [copiedText, setCopiedText] = useState<string | null>(null);
 
-  const report = analyzeCVForATS(cvData, jobDescription, selectedIndustry);
+  const currentIndustry = propIndustry || internalIndustry;
+
+  const handleIndustryChange = (ind: string) => {
+    setInternalIndustry(ind);
+    if (onChangeIndustry) {
+      onChangeIndustry(ind);
+    }
+  };
+
+  const report = analyzeCVForATS(cvData, jobDescription, currentIndustry);
 
   const passedCount = report.checklist.filter(i => i.status === 'pass').length;
   const issuesCount = report.checklist.filter(i => i.status !== 'pass').length;
@@ -276,15 +289,15 @@ export const ATSSectionView: React.FC<ATSSectionViewProps> = ({
           </h4>
 
           <select
-            value={selectedIndustry}
-            onChange={(e) => setSelectedIndustry(e.target.value)}
-            className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+            value={currentIndustry}
+            onChange={(e) => handleIndustryChange(e.target.value)}
+            className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none cursor-pointer"
           >
-            <option value="general">General & Administration</option>
-            <option value="software">Software & IT</option>
-            <option value="office_admin">Office Admin</option>
-            <option value="marketing_sales">Marketing & Sales</option>
-            <option value="finance_accounting">Finance</option>
+            {INDUSTRY_CATALOG.map(ind => (
+              <option key={ind.id} value={ind.id}>
+                {ind.name}
+              </option>
+            ))}
           </select>
         </div>
 

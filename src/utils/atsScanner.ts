@@ -18,6 +18,17 @@ export interface KeywordMatchResult {
   category: string;
 }
 
+export interface ATSSuggestion {
+  id: string;
+  title: string;
+  description: string;
+  severity: 'high' | 'medium' | 'low';
+  category: 'contact' | 'summary' | 'experience' | 'skills' | 'education' | 'format';
+  targetTab: string;
+  actionLabel?: string;
+  suggestedItems?: string[];
+}
+
 export interface ATSAnalysisReport {
   overallScore: number; // 0 to 100
   grade: 'Excellent' | 'Good' | 'Needs Improvement' | 'Poor';
@@ -36,6 +47,12 @@ export interface ATSAnalysisReport {
   metricsDetected: string[];
   wordCount: number;
   industryKeywordMatches: KeywordMatchResult[];
+  matchedKeywordCount: number;
+  totalIndustryKeywords: number;
+  keywordMatchPercentage: number;
+  missingIndustryKeywords: string[];
+  matchedIndustryKeywords: string[];
+  topSuggestions: ATSSuggestion[];
   jobDescriptionMatchScore?: number;
   jobDescriptionMissingKeywords?: string[];
   jobDescriptionMatchedKeywords?: string[];
@@ -46,36 +63,143 @@ export const COMMON_ACTION_VERBS = [
   'orchestrated', 'streamlined', 'collaborated', 'delivered', 'resolved', 'supervised',
   'engineered', 'executed', 'formulated', 'generated', 'initiated', 'negotiated',
   'programmed', 'reduced', 'increased', 'trained', 'organized', 'accelerated',
-  'coordinated', 'automated', 'achieved', 'launched', 'structured', 'facilitated'
+  'coordinated', 'automated', 'achieved', 'launched', 'structured', 'facilitated',
+  'mentored', 'constructed', 'deployed', 'monitored', 'authored', 'transformed'
 ];
 
-export const INDUSTRY_KEYWORDS: Record<string, string[]> = {
-  general: [
-    'communication', 'teamwork', 'organization', 'time management', 'problem solving',
-    'microsoft office', 'excel', 'data entry', 'customer service', 'documentation',
-    'multitasking', 'reporting', 'client relations', 'scheduling', 'leadership'
-  ],
-  software: [
-    'typescript', 'javascript', 'react', 'node.js', 'python', 'git', 'api', 'rest',
-    'sql', 'database', 'docker', 'ci/cd', 'cloud', 'aws', 'agile', 'scrum',
-    'frontend', 'backend', 'full stack', 'testing', 'debugging', 'architecture'
-  ],
-  office_admin: [
-    'administration', 'data management', 'filing', 'correspondence', 'billing',
-    'invoicing', 'bookkeeping', 'phone etiquette', 'calendar management', 'inventory',
-    'vendor relations', 'procurement', 'spreadsheets', 'office 365', 'google workspace'
-  ],
-  marketing_sales: [
-    'lead generation', 'crm', 'seo', 'conversion', 'social media', 'analytics',
-    'b2b', 'b2c', 'content strategy', 'campaigns', 'negotiation', 'roi',
-    'market research', 'branding', 'email marketing', 'sales pipeline'
-  ],
-  finance_accounting: [
-    'financial reporting', 'reconciliation', 'general ledger', 'accounts payable',
-    'accounts receivable', 'audit', 'tax compliance', 'forecasting', 'budgeting',
-    'p&l', 'quickbooks', 'tally', 'balance sheet', 'variance analysis', 'compliance'
-  ]
-};
+export interface IndustryDefinition {
+  id: string;
+  name: string;
+  iconName: string;
+  description: string;
+  keywords: string[];
+}
+
+export const INDUSTRY_CATALOG: IndustryDefinition[] = [
+  {
+    id: 'general',
+    name: 'General Professional',
+    iconName: 'Briefcase',
+    description: 'Universal business, administration, leadership & communication competencies',
+    keywords: [
+      'communication', 'teamwork', 'leadership', 'problem solving', 'time management',
+      'organization', 'microsoft office', 'excel', 'data analysis', 'customer service',
+      'documentation', 'multitasking', 'reporting', 'client relations', 'strategic planning',
+      'adaptability', 'critical thinking', 'project coordination'
+    ]
+  },
+  {
+    id: 'software',
+    name: 'Software & Web Development',
+    iconName: 'Code',
+    description: 'Frontend, backend, cloud, DevOps, algorithms and full-stack technologies',
+    keywords: [
+      'typescript', 'javascript', 'react', 'node.js', 'python', 'git', 'rest api',
+      'sql', 'database', 'docker', 'ci/cd', 'cloud', 'aws', 'agile', 'scrum',
+      'frontend', 'backend', 'full stack', 'testing', 'debugging', 'architecture',
+      'html5', 'css3', 'tailwind', 'microservices', 'mongodb', 'performance optimization'
+    ]
+  },
+  {
+    id: 'office_admin',
+    name: 'Office & Executive Admin',
+    iconName: 'FileSpreadsheet',
+    description: 'Administrative support, data management, scheduling and office logistics',
+    keywords: [
+      'administration', 'data management', 'filing', 'correspondence', 'billing',
+      'invoicing', 'bookkeeping', 'phone etiquette', 'calendar management', 'inventory',
+      'vendor relations', 'procurement', 'spreadsheets', 'office 365', 'google workspace',
+      'data entry', 'meeting coordination', 'travel management', 'confidentiality'
+    ]
+  },
+  {
+    id: 'marketing_sales',
+    name: 'Marketing, Sales & Growth',
+    iconName: 'TrendingUp',
+    description: 'Digital marketing, CRM, lead gen, campaigns, SEO, and client acquisition',
+    keywords: [
+      'lead generation', 'crm', 'seo', 'conversion rate', 'social media', 'analytics',
+      'b2b', 'b2c', 'content strategy', 'campaigns', 'negotiation', 'roi',
+      'market research', 'branding', 'email marketing', 'sales pipeline', 'hubspot',
+      'google analytics', 'customer acquisition', 'copywriting', 'pitching'
+    ]
+  },
+  {
+    id: 'finance_accounting',
+    name: 'Finance & Accounting',
+    iconName: 'DollarSign',
+    description: 'Financial reporting, reconciliation, ledger, taxation, audit & auditing',
+    keywords: [
+      'financial reporting', 'reconciliation', 'general ledger', 'accounts payable',
+      'accounts receivable', 'audit', 'tax compliance', 'forecasting', 'budgeting',
+      'p&l', 'quickbooks', 'tally', 'balance sheet', 'variance analysis', 'compliance',
+      'gaap', 'cash flow management', 'financial modeling', 'excel formulas'
+    ]
+  },
+  {
+    id: 'healthcare',
+    name: 'Healthcare & Medical',
+    iconName: 'HeartPulse',
+    description: 'Clinical care, patient documentation, triage, diagnosis, and medical protocols',
+    keywords: [
+      'patient care', 'clinical documentation', 'electronic health records', 'vital signs',
+      'cpr', 'bls', 'triage', 'medical terminology', 'patient assessment', 'infection control',
+      'pharmacology', 'hipaa', 'diagnostic support', 'medication administration',
+      'emergency care', 'interdisciplinary care', 'health education'
+    ]
+  },
+  {
+    id: 'education',
+    name: 'Education & Teaching',
+    iconName: 'GraduationCap',
+    description: 'Curriculum design, classroom management, lesson planning, student evaluation',
+    keywords: [
+      'curriculum development', 'classroom management', 'lesson planning', 'student assessment',
+      'differentiated instruction', 'e-learning', 'educational technology', 'parent communication',
+      'mentorship', 'academic counseling', 'pedagogy', 'grading', 'interactive learning',
+      'special education', 'course design'
+    ]
+  },
+  {
+    id: 'engineering',
+    name: 'Engineering & Hardware',
+    iconName: 'Cpu',
+    description: 'CAD design, QA, quality control, prototyping, systems, and safety standards',
+    keywords: [
+      'cad', 'autocad', 'project management', 'quality assurance', 'product design',
+      'simulation', 'technical documentation', 'lean manufacturing', 'troubleshooting',
+      'safety compliance', 'prototyping', 'systems engineering', 'six sigma',
+      'solidworks', 'schematics', 'testing protocols', 'maintenance'
+    ]
+  },
+  {
+    id: 'design_creative',
+    name: 'UI/UX & Creative Design',
+    iconName: 'Palette',
+    description: 'User experience, wireframing, Figma, Adobe Suite, prototyping & visual branding',
+    keywords: [
+      'ui design', 'ux research', 'figma', 'wireframing', 'prototyping', 'adobe illustrator',
+      'photoshop', 'design systems', 'user testing', 'typography', 'visual identity',
+      'interaction design', 'responsive design', 'user journeys', 'accessibility'
+    ]
+  },
+  {
+    id: 'customer_service',
+    name: 'Customer Support & Success',
+    iconName: 'Headphones',
+    description: 'Client retention, ticket resolution, empathy, helpdesk, SLA management',
+    keywords: [
+      'customer support', 'ticket management', 'zendesk', 'sla adherence', 'client retention',
+      'empathy', 'active listening', 'conflict resolution', 'live chat', 'knowledge base',
+      'troubleshooting', 'customer satisfaction', 'crm systems', 'onboarding'
+    ]
+  }
+];
+
+export const INDUSTRY_KEYWORDS: Record<string, string[]> = INDUSTRY_CATALOG.reduce((acc, ind) => {
+  acc[ind.id] = ind.keywords;
+  return acc;
+}, {} as Record<string, string[]>);
 
 /**
  * Scan CV text content and produce a comprehensive ATS compatibility report
@@ -461,6 +585,107 @@ export function analyzeCVForATS(cvData: CVData, targetJobDescription = '', indus
     category: industry
   }));
 
+  const matchedIndustryKeywords = industryKeywordMatches.filter(k => k.found).map(k => k.keyword);
+  const missingIndustryKeywords = industryKeywordMatches.filter(k => !k.found).map(k => k.keyword);
+  const matchedKeywordCount = matchedIndustryKeywords.length;
+  const totalIndustryKeywords = targetKeywords.length;
+  const keywordMatchPercentage = totalIndustryKeywords > 0 
+    ? Math.round((matchedKeywordCount / totalIndustryKeywords) * 100) 
+    : 0;
+
+  // Build Prioritized Top Actionable Suggestions
+  const topSuggestions: ATSSuggestion[] = [];
+
+  // 1. Missing keywords suggestion
+  if (missingIndustryKeywords.length > 0) {
+    topSuggestions.push({
+      id: 'missing_keywords',
+      title: `Add target ${industry.replace('_', ' ')} keywords`,
+      description: `Your CV is missing top industry competencies like ${missingIndustryKeywords.slice(0, 3).map(k => `"${k}"`).join(', ')}.`,
+      severity: missingIndustryKeywords.length > 8 ? 'high' : 'medium',
+      category: 'skills',
+      targetTab: 'skills',
+      actionLabel: 'Add to Skills',
+      suggestedItems: missingIndustryKeywords.slice(0, 6)
+    });
+  }
+
+  // 2. Action verbs suggestion
+  if (detectedActionVerbs.length < 5) {
+    topSuggestions.push({
+      id: 'missing_action_verbs',
+      title: 'Strengthen role descriptions with active verbs',
+      description: `Only ${detectedActionVerbs.length} high-impact action verbs detected. Use verbs like ${missingActionVerbs.slice(0, 4).join(', ')}.`,
+      severity: detectedActionVerbs.length < 2 ? 'high' : 'medium',
+      category: 'experience',
+      targetTab: 'experience',
+      actionLabel: 'Enhance Experience',
+      suggestedItems: missingActionVerbs.slice(0, 6)
+    });
+  }
+
+  // 3. Measurable metrics
+  if (uniqueMetrics.length < 2) {
+    topSuggestions.push({
+      id: 'missing_metrics',
+      title: 'Include quantifiable results & numbers',
+      description: 'Add specific figures, percentages, or scale (e.g., "boosted speed by 35%", "led team of 4").',
+      severity: 'medium',
+      category: 'experience',
+      targetTab: 'experience',
+      actionLabel: 'Add Metrics'
+    });
+  }
+
+  // 4. Summary check
+  if (summaryLength === 0) {
+    topSuggestions.push({
+      id: 'empty_summary',
+      title: 'Add a professional career summary',
+      description: 'Recruiter screeners look for a 3–5 sentence executive summary at the top of your CV.',
+      severity: 'high',
+      category: 'summary',
+      targetTab: 'summary',
+      actionLabel: 'Write Summary'
+    });
+  } else if (summaryLength < 30) {
+    topSuggestions.push({
+      id: 'short_summary',
+      title: 'Expand summary with target skills',
+      description: `Your summary is only ${summaryLength} words. Aim for 40–100 words with your specialization.`,
+      severity: 'low',
+      category: 'summary',
+      targetTab: 'summary',
+      actionLabel: 'Expand Summary'
+    });
+  }
+
+  // 5. Contact information
+  if (!hasValidEmail || !hasPhone) {
+    topSuggestions.push({
+      id: 'contact_missing',
+      title: 'Complete essential contact details',
+      description: 'Ensure your direct email address and mobile number are formatted cleanly.',
+      severity: 'high',
+      category: 'contact',
+      targetTab: 'personal',
+      actionLabel: 'Fix Contact Info'
+    });
+  }
+
+  // 6. Skills count
+  if (totalSkillsCount < 5) {
+    topSuggestions.push({
+      id: 'low_skills',
+      title: 'List more technical and soft skills',
+      description: `Currently ${totalSkillsCount} skills listed. Most ATS filters score highest with 8–15 relevant skills.`,
+      severity: 'high',
+      category: 'skills',
+      targetTab: 'skills',
+      actionLabel: 'Add More Skills'
+    });
+  }
+
   // Target Job Description Keyword Scanner (if provided by user)
   let jobDescriptionMatchScore: number | undefined;
   let jobDescriptionMatchedKeywords: string[] | undefined;
@@ -492,6 +717,12 @@ export function analyzeCVForATS(cvData: CVData, targetJobDescription = '', indus
     metricsDetected: uniqueMetrics,
     wordCount: totalWords,
     industryKeywordMatches,
+    matchedKeywordCount,
+    totalIndustryKeywords,
+    keywordMatchPercentage,
+    missingIndustryKeywords,
+    matchedIndustryKeywords,
+    topSuggestions,
     jobDescriptionMatchScore,
     jobDescriptionMatchedKeywords,
     jobDescriptionMissingKeywords

@@ -28,6 +28,7 @@ import { SectionOrderManager } from './SectionOrderManager';
 import { BioDataForm } from './BioDataForm';
 import { ATSSectionView } from './ATSSectionView';
 import { ATSAnalysisModal } from './ATSAnalysisModal';
+import { ATSRealtimeIndicator } from './ATSRealtimeIndicator';
 import { AIImproveModal, AIImproveTarget } from './AIImproveModal';
 import { DesignTab } from './DesignTab';
 import { analyzeCVForATS } from '../../utils/atsScanner';
@@ -106,12 +107,13 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   onToggleDarkMode
 }) => {
   const [data, setData] = useState<CVData>(cvData);
-  const [mainMode, setMainMode] = useState<'preview' | 'design'>('preview');
+  const [workspaceMode, setWorkspaceMode] = useState<'editor' | 'design'>('editor');
+  const [mobileTab, setMobileTab] = useState<'editor' | 'design' | 'preview'>('editor');
   const [showSampleInDesign, setShowSampleInDesign] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<EditorTab>('personal');
-  const [mobileView, setMobileView] = useState<'edit' | 'preview'>('edit');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isATSModalOpen, setIsATSModalOpen] = useState(false);
+  const [selectedIndustry, setSelectedIndustry] = useState<string>('general');
   const [isAIModalOpen, setIsAIModalOpen] = useState(false);
   const [aiModalTarget, setAiModalTarget] = useState<AIImproveTarget | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
@@ -124,7 +126,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   const isDataEmpty = !data.personalInfo.fullName && !data.summary && (!data.experience || data.experience.length === 0) && (!data.education || data.education.length === 0);
   const sampleDataForCurrentTemplate = getSampleDataForTemplate(data.templateId);
 
-  const displayPreviewData: CVData = (mainMode === 'design' && (showSampleInDesign || isDataEmpty))
+  const displayPreviewData: CVData = (workspaceMode === 'design' && (showSampleInDesign || isDataEmpty))
     ? {
         ...sampleDataForCurrentTemplate,
         id: data.id,
@@ -137,7 +139,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
     : data;
 
   // Real-time ATS report calculation
-  const atsReport = analyzeCVForATS(data);
+  const atsReport = analyzeCVForATS(data, '', selectedIndustry);
 
   // Sync internal state when prop changes
   useEffect(() => {
@@ -357,59 +359,44 @@ export const CVEditor: React.FC<CVEditorProps> = ({
     });
   };
 
-  const renderVisibilityToggleBanner = (secKey: string, title: string) => {
+  const renderSectionHeader = (secKey: string, title: string, subtitle?: string, actionBtn?: React.ReactNode) => {
     const visible = isSectionVisible(secKey);
     return (
-      <div
-        className={`p-3 sm:p-3.5 rounded-xl border flex items-center justify-between gap-3 mb-4 transition-all ${
-          visible
-            ? 'bg-emerald-50/80 dark:bg-emerald-950/25 border-emerald-200/80 dark:border-emerald-800/60'
-            : 'bg-amber-50/90 dark:bg-amber-950/30 border-amber-200/90 dark:border-amber-800/60'
-        }`}
-      >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-bold text-slate-900 dark:text-white">
-              {title} Section
-            </span>
-            <span
-              className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                visible
-                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300'
-                  : 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-300'
-              }`}
-            >
-              {visible ? 'Active (ON)' : 'Hidden (OFF)'}
-            </span>
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 mb-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-slate-900 dark:text-white text-sm">
+              {title}
+            </h3>
+            {!visible && (
+              <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                Hidden
+              </span>
+            )}
           </div>
-          <p className="text-[11px] text-slate-600 dark:text-slate-400 mt-0.5">
-            {visible
-              ? 'This section is ON and will appear in your CV document.'
-              : 'This section is currently OFF and hidden from the CV. Click toggle to turn ON.'}
-          </p>
+          {subtitle && (
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+              {subtitle}
+            </p>
+          )}
         </div>
 
-        <button
-          type="button"
-          onClick={() => toggleSectionVisibility(secKey)}
-          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow-xs shrink-0 ${
-            visible
-              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-              : 'bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-200 dark:hover:bg-white dark:text-slate-900'
-          }`}
-        >
-          {visible ? (
-            <>
-              <Eye className="w-3.5 h-3.5" />
-              <span>Turn OFF</span>
-            </>
-          ) : (
-            <>
-              <EyeOff className="w-3.5 h-3.5" />
-              <span>Turn ON</span>
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {actionBtn}
+          <button
+            type="button"
+            onClick={() => toggleSectionVisibility(secKey)}
+            className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition ${
+              visible
+                ? 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                : 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60'
+            }`}
+            title={visible ? 'Hide section from CV document' : 'Show section in CV document'}
+          >
+            {visible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+            <span className="hidden sm:inline text-[11px] font-semibold">{visible ? 'Visible' : 'Hidden'}</span>
+          </button>
+        </div>
       </div>
     );
   };
@@ -700,98 +687,92 @@ export const CVEditor: React.FC<CVEditorProps> = ({
         </div>
       </header>
 
-      {/* Primary Sub-Header Bar: 2 Main Options (Preview & Design) + Clear All Button */}
-      <div className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-2 sm:px-6 py-2 flex items-center justify-between gap-2 shrink-0">
-        {/* Left: 2 Primary Mode Options */}
-        <div className="flex items-center bg-slate-200/80 dark:bg-slate-800 p-1 rounded-xl border border-slate-300/60 dark:border-slate-700 font-bold text-xs">
+      {/* Primary Clean Sub-Header & Navigation Bar */}
+      <div className="bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2 flex items-center justify-between gap-2 shrink-0">
+        {/* Workspace Mode Tabs (Desktop + Mobile Unified) */}
+        <div className="flex items-center bg-slate-200/70 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-300/60 dark:border-slate-700/60 text-xs font-semibold">
+          {/* Editor Tab */}
           <button
             type="button"
-            onClick={() => setMainMode('preview')}
+            onClick={() => {
+              setWorkspaceMode('editor');
+              setMobileTab('editor');
+            }}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-              mainMode === 'preview'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-extrabold'
+              (mobileTab === 'editor' && workspaceMode === 'editor')
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Eye className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-            <span>Preview (প্রিভিউ)</span>
+            <FileText className="w-3.5 h-3.5" />
+            <span>Content Editor</span>
           </button>
 
+          {/* Design & Style Tab */}
           <button
             type="button"
-            onClick={() => setMainMode('design')}
+            onClick={() => {
+              setWorkspaceMode('design');
+              setMobileTab('design');
+            }}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-              mainMode === 'design'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-extrabold'
+              workspaceMode === 'design' || mobileTab === 'design'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Palette className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span>Design (ডিজাইন)</span>
+            <Palette className="w-3.5 h-3.5 text-indigo-500" />
+            <span>Design & Themes</span>
+          </button>
+
+          {/* Mobile Live Document Tab */}
+          <button
+            type="button"
+            onClick={() => setMobileTab('preview')}
+            className={`lg:hidden px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+              mobileTab === 'preview'
+                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+            }`}
+          >
+            <Eye className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Live Document</span>
           </button>
         </div>
 
-        {/* Right: Clear All Fields / Blank CV Button */}
+        {/* Right Actions: Quick Load Sample & Clear */}
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={handleClearAllFields}
-            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-900/50 rounded-lg border border-red-200 dark:border-red-800/60 transition shadow-2xs cursor-pointer"
-            title="Clear all fields to start with a blank CV"
+            onClick={handleLoadSampleData}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+            title="Load demo sample text"
           >
-            <Eraser className="w-3.5 h-3.5 text-red-500" />
-            <span className="hidden sm:inline">সব ফিল্ড খালি করুন</span>
-            <span className="sm:hidden">খালি করুন</span>
+            <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
+            <span className="hidden sm:inline">Load Sample</span>
           </button>
 
           <button
             type="button"
-            onClick={handleLoadSampleData}
-            className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition cursor-pointer"
-            title="Load sample placeholder text"
+            onClick={handleClearAllFields}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-red-600 dark:text-red-400 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg border border-slate-200 dark:border-slate-700 transition cursor-pointer"
+            title="Clear all fields"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
-            <span>স্যাম্পল তথ্য</span>
+            <Eraser className="w-3.5 h-3.5 text-red-500" />
+            <span className="hidden sm:inline">Clear</span>
           </button>
         </div>
-      </div>
-
-
-      {/* Mobile Workspace Mode Switcher (visible only on mobile/tablet) */}
-      <div className="lg:hidden flex bg-slate-200/80 dark:bg-slate-900 p-1 border-b border-slate-300/80 dark:border-slate-800 w-full shrink-0">
-        <button
-          onClick={() => setMobileView('edit')}
-          className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 min-h-[40px] ${
-            mobileView === 'edit'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/60 dark:hover:bg-slate-800/60'
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5" />
-          <span>Editor</span>
-        </button>
-        <button
-          onClick={() => setMobileView('preview')}
-          className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center gap-2 min-h-[40px] ${
-            mobileView === 'preview'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs font-bold'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/60 dark:hover:bg-slate-800/60'
-          }`}
-        >
-          <Eye className="w-3.5 h-3.5" />
-          <span>Live Document</span>
-        </button>
       </div>
 
       {/* Main Two-Panel Workspace Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden w-full max-w-full">
         {/* LEFT COLUMN: FORM EDITOR or DESIGN CENTER */}
         <div
-          className={`w-full lg:w-[46%] xl:w-[42%] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-[calc(100vh-104px)] lg:h-[calc(100vh-56px)] overflow-hidden min-w-0 ${
-            mobileView === 'edit' ? 'flex' : 'hidden lg:flex'
+          className={`w-full lg:w-[46%] xl:w-[42%] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-[calc(100vh-108px)] lg:h-[calc(100vh-108px)] overflow-hidden min-w-0 ${
+            mobileTab === 'preview' ? 'hidden lg:flex' : 'flex'
           }`}
         >
-          {mainMode === 'design' ? (
+          {workspaceMode === 'design' || mobileTab === 'design' ? (
             /* DESIGN CENTER VIEW */
             <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-white dark:bg-slate-900">
               <DesignTab
@@ -808,10 +789,21 @@ export const CVEditor: React.FC<CVEditorProps> = ({
               />
             </div>
           ) : (
-            /* PREVIEW / FORM EDITOR VIEW */
+            /* FORM EDITOR VIEW */
             <>
+              {/* Real-time ATS Score & Industry Keywords Assistant */}
+              <ATSRealtimeIndicator
+                cvData={data}
+                selectedIndustry={selectedIndustry}
+                onChangeIndustry={setSelectedIndustry}
+                onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
+                onAddSkill={handleAddSkill}
+                onOpenFullModal={() => setIsATSModalOpen(true)}
+                activeTab={activeTab}
+              />
+
               {/* Section Navigation Tabs Strip */}
-              <div className="flex items-center overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 px-2 py-1.5 custom-scrollbar shrink-0 gap-1 w-full">
+              <div className="flex items-center overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 px-2 py-1.5 custom-scrollbar shrink-0 gap-1 w-full">
                 {navTabs.map(tab => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -848,7 +840,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
               </div>
 
               {/* Form Content Area */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-3.5 sm:p-6 space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 custom-scrollbar">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 custom-scrollbar">
                 {activeTab === 'personal' && (
                   <PersonalInfoForm
                     data={data.personalInfo}
@@ -859,7 +851,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'biodata' && (
                   <div>
-                    {renderVisibilityToggleBanner('biodata', 'Bio-Data / Personal Details')}
+                    {renderSectionHeader('biodata', 'Bio-Data / Personal Details', 'Traditional personal and parental background fields')}
                     <BioDataForm
                       data={data.bioData || {}}
                       personalInfo={data.personalInfo}
@@ -871,7 +863,25 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'summary' && (
                   <div>
-                    {renderVisibilityToggleBanner('summary', 'Career Summary / Objective')}
+                    {renderSectionHeader(
+                      'summary',
+                      'Career Summary / Objective',
+                      'Concise overview highlighting core competencies',
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleOpenAIModal({
+                            sectionKey: 'summary',
+                            fieldName: 'description',
+                            initialText: data.summary || '',
+                          })
+                        }
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 rounded-lg border border-indigo-200 dark:border-indigo-800 transition"
+                      >
+                        <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                        <span>AI Polish</span>
+                      </button>
+                    )}
                     <SummaryForm
                       summary={data.summary}
                       onChange={(summary) => setData(prev => ({ ...prev, summary }))}
@@ -888,7 +898,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'education' && (
                   <div>
-                    {renderVisibilityToggleBanner('education', 'Academic Education')}
+                    {renderSectionHeader('education', 'Academic Education', 'Degrees, institutions, grades, and passing years')}
                     <EducationForm
                       entries={data.education || []}
                       onChange={(education) => setData(prev => ({ ...prev, education }))}
@@ -898,7 +908,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'experience' && (
                   <div>
-                    {renderVisibilityToggleBanner('experience', 'Work Experience')}
+                    {renderSectionHeader('experience', 'Work Experience', 'Professional roles, responsibilities, and achievements')}
                     <ExperienceForm
                       entries={data.experience || []}
                       onChange={(experience) => setData(prev => ({ ...prev, experience }))}
@@ -909,7 +919,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'projects' && (
                   <div>
-                    {renderVisibilityToggleBanner('projects', 'Key Projects')}
+                    {renderSectionHeader('projects', 'Key Projects', 'Notable software, research, or organizational projects')}
                     <ProjectsForm
                       entries={data.projects || []}
                       onChange={(projects) => setData(prev => ({ ...prev, projects }))}
@@ -920,7 +930,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'skills' && (
                   <div>
-                    {renderVisibilityToggleBanner('skills', 'Skills & Competencies')}
+                    {renderSectionHeader('skills', 'Skills & Competencies', 'Technical skills, tools, frameworks, and proficiencies')}
                     <SkillsForm
                       skills={data.skills || { technical: [], soft: [], tools: [] }}
                       onChange={(skills) => setData(prev => ({ ...prev, skills }))}
@@ -930,7 +940,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'certifications' && (
                   <div>
-                    {renderVisibilityToggleBanner('certifications', 'Certifications & Training')}
+                    {renderSectionHeader('certifications', 'Certifications & Training', 'Professional credentials and courses')}
                     <CertificationsForm
                       entries={data.certifications || []}
                       onChange={(certifications) => setData(prev => ({ ...prev, certifications }))}
@@ -940,7 +950,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'extracurricular' && (
                   <div>
-                    {renderVisibilityToggleBanner('extracurricular', 'Extracurricular & Activities')}
+                    {renderSectionHeader('extracurricular', 'Extracurricular & Leadership', 'Clubs, volunteer experience, and leadership roles')}
                     <ExtracurricularForm
                       entries={data.extracurricular || []}
                       onChange={(extracurricular) => setData(prev => ({ ...prev, extracurricular }))}
@@ -950,7 +960,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'languages' && (
                   <div>
-                    {renderVisibilityToggleBanner('languages', 'Languages Known')}
+                    {renderSectionHeader('languages', 'Languages Known', 'Spoken and written language proficiencies')}
                     <LanguagesForm
                       entries={data.languages || []}
                       onChange={(languages) => setData(prev => ({ ...prev, languages }))}
@@ -960,7 +970,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'awards' && (
                   <div>
-                    {renderVisibilityToggleBanner('awards', 'Awards & Honors')}
+                    {renderSectionHeader('awards', 'Awards & Honors', 'Competitions, scholarships, and special recognitions')}
                     <AwardsForm
                       entries={data.awards || []}
                       onChange={(awards) => setData(prev => ({ ...prev, awards }))}
@@ -970,7 +980,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
                 {activeTab === 'references' && (
                   <div>
-                    {renderVisibilityToggleBanner('references', 'References')}
+                    {renderSectionHeader('references', 'References', 'Professional referees and contact verification')}
                     <ReferencesForm
                       data={data.references || { availableOnRequest: true, items: [] }}
                       onChange={(references) => setData(prev => ({ ...prev, references }))}
@@ -1009,6 +1019,8 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                     onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
                     onAddSkill={handleAddSkill}
                     onOpenFullModal={() => setIsATSModalOpen(true)}
+                    selectedIndustry={selectedIndustry}
+                    onChangeIndustry={setSelectedIndustry}
                   />
                 )}
               </div>
@@ -1016,27 +1028,26 @@ export const CVEditor: React.FC<CVEditorProps> = ({
           )}
         </div>
 
-
         {/* RIGHT COLUMN: ARCHITECTURAL A4 DOCUMENT PREVIEW */}
         <div
-          className={`w-full lg:w-[54%] xl:w-[58%] bg-slate-200/70 dark:bg-slate-950 h-[calc(100vh-104px)] lg:h-[calc(100vh-56px)] overflow-y-auto overflow-x-hidden p-2 sm:p-6 lg:p-8 flex flex-col items-center custom-scrollbar transition-colors ${
-            mobileView === 'preview' ? 'flex' : 'hidden lg:flex'
+          className={`w-full lg:w-[54%] xl:w-[58%] bg-slate-200/70 dark:bg-slate-950 h-[calc(100vh-108px)] lg:h-[calc(100vh-108px)] overflow-y-auto overflow-x-hidden p-2 sm:p-6 lg:p-8 flex flex-col items-center custom-scrollbar transition-colors ${
+            mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'
           }`}
           ref={previewRef}
         >
           <div className="w-full max-w-[794px] flex flex-col items-center">
-            {mainMode === 'design' && (
+            {workspaceMode === 'design' && (
               <div className="w-full mb-3 px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center justify-between gap-2 shadow-xs border border-slate-700">
                 <span className="flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  {(showSampleInDesign || isDataEmpty) ? 'টেমপ্লেটের আসল সম্পূর্ণ ডিজাইন ডেমো দেখাচ্ছে' : 'আপনার ইনপুট করা ডাটা দিয়ে ডিজাইন দেখাচ্ছে'}
+                  {(showSampleInDesign || isDataEmpty) ? 'Showing populated template preview' : 'Showing your entered data'}
                 </span>
                 <button
                   type="button"
                   onClick={() => setShowSampleInDesign(!showSampleInDesign)}
                   className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-[11px] text-white font-bold transition cursor-pointer"
                 >
-                  {(showSampleInDesign || isDataEmpty) ? 'নিজের ডাটা দিয়ে দেখুন' : 'স্যাম্পল ডেমো দেখুন'}
+                  {(showSampleInDesign || isDataEmpty) ? 'Show My Data' : 'Show Demo Sample'}
                 </button>
               </div>
             )}
@@ -1062,6 +1073,8 @@ export const CVEditor: React.FC<CVEditorProps> = ({
         cvData={data}
         onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
         onAddSkill={handleAddSkill}
+        selectedIndustry={selectedIndustry}
+        onChangeIndustry={setSelectedIndustry}
       />
 
       {/* AI Text Improvement Modal */}

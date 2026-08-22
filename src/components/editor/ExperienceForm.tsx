@@ -128,21 +128,15 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
   };
 
   return (
-    <div className="space-y-5">
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
-        <div>
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-slate-700 dark:text-slate-300" />
-            Work & Internship Experience
-          </h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Professional roles, internships, and accomplishments. Drag cards or use arrows to reorder.
-          </p>
-        </div>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+          {entries.length} {entries.length === 1 ? 'role' : 'roles'} added
+        </span>
         <button
           type="button"
           onClick={handleAdd}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg shadow-2xs transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-lg shadow-2xs transition-colors cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
           Add Role
@@ -150,15 +144,15 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
       </div>
 
       {entries.length === 0 ? (
-        <div className="text-center py-8 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
+        <div className="text-center py-8 bg-slate-50/70 dark:bg-slate-800/40 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
           <p className="text-xs text-slate-500 dark:text-slate-400">No work or internship experience added.</p>
           <button
             type="button"
             onClick={handleAdd}
-            className="mt-2 text-xs font-semibold text-slate-900 dark:text-white hover:underline inline-flex items-center gap-1"
+            className="mt-2 text-xs font-semibold text-slate-900 dark:text-white hover:underline inline-flex items-center gap-1 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            Add work or internship role
+            Add your first role
           </button>
         </div>
       ) : (
@@ -177,24 +171,25 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                 onDragEnd={handleDragEnd}
                 className={`p-4 rounded-xl border space-y-3.5 transition-all select-none ${
                   isDragging
-                    ? 'opacity-40 border-dashed border-cyan-500 bg-cyan-50/20 dark:bg-cyan-950/20 scale-[0.99]'
+                    ? 'opacity-40 border-dashed border-indigo-500 bg-indigo-50/20 dark:bg-indigo-950/20 scale-[0.99]'
                     : isOver
-                    ? 'border-cyan-500 dark:border-cyan-400 bg-cyan-50/60 dark:bg-cyan-950/40 ring-2 ring-cyan-500/40 shadow-sm'
-                    : 'bg-slate-50/70 dark:bg-slate-800/50 hover:bg-slate-50/90 dark:hover:bg-slate-800/70 border-slate-200 dark:border-slate-700/70'
+                    ? 'border-indigo-500 dark:border-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/40 ring-2 ring-indigo-500/40 shadow-sm'
+                    : 'bg-white dark:bg-slate-800/60 hover:border-slate-300 dark:hover:border-slate-700 border-slate-200 dark:border-slate-700/80 shadow-2xs'
                 }`}
               >
-                <div className="flex justify-between items-center border-b border-slate-200 dark:border-slate-700/60 pb-2.5">
+                <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-700/60 pb-2.5">
                   <div className="flex items-center gap-2 min-w-0">
                     {/* Drag Handle */}
                     <div
-                      className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 rounded transition-colors"
-                      title="Drag to reorder this experience entry"
+                      className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded transition-colors"
+                      title="Drag to reorder"
                     >
                       <GripVertical className="w-4 h-4" />
                     </div>
 
                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
-                      Role #{index + 1} {exp.jobTitle ? `— ${exp.jobTitle}` : ''}
+                      {exp.jobTitle ? exp.jobTitle : `Role #${index + 1}`}
+                      {exp.company ? ` at ${exp.company}` : ''}
                     </span>
 
                     {onOpenAIModal && (
@@ -209,8 +204,8 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                             initialText: exp.bullets[0] || exp.jobTitle,
                           })
                         }
-                        className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 rounded-md transition shrink-0"
-                        title="Improve this role with AI"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 rounded-md transition shrink-0 cursor-pointer"
+                        title="Improve role bullets with AI"
                       >
                         <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
                         <span>AI Polish</span>
@@ -224,7 +219,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                       type="button"
                       disabled={index === 0}
                       onClick={() => moveRole(index, 'up')}
-                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded disabled:opacity-20 transition"
+                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded disabled:opacity-20 transition cursor-pointer"
                       title="Move role up"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
@@ -233,7 +228,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                       type="button"
                       disabled={index === entries.length - 1}
                       onClick={() => moveRole(index, 'down')}
-                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded disabled:opacity-20 transition"
+                      className="p-1 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 rounded disabled:opacity-20 transition cursor-pointer"
                       title="Move role down"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
@@ -241,7 +236,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                     <button
                       type="button"
                       onClick={() => handleDelete(exp.id)}
-                      className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-md transition-colors ml-1"
+                      className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-md transition-colors ml-1 cursor-pointer"
                       title="Delete Role"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -249,33 +244,33 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 select-text">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 select-text">
                   {/* Job Title */}
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Job Title / Role <span className="text-red-500">*</span>
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Job Title / Role
                     </label>
                     <input
                       type="text"
                       value={exp.jobTitle}
                       onChange={(e) => handleUpdate(exp.id, 'jobTitle', e.target.value)}
-                      placeholder="e.g. Software Engineering Intern"
-                      className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
+                      placeholder="e.g. Frontend Developer"
+                      className="w-full px-3 py-1.5 text-xs bg-slate-50/50 dark:bg-slate-900/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                     />
                   </div>
 
                   {/* Company */}
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Company / Organization <span className="text-red-500">*</span>
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
+                      Company / Organization
                     </label>
                     <div className="relative">
                       <input
                         type="text"
                         value={exp.company}
                         onChange={(e) => handleUpdate(exp.id, 'company', e.target.value)}
-                        placeholder="e.g. Acme Corp"
-                        className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
+                        placeholder="e.g. Acme Tech Solutions"
+                        className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50/50 dark:bg-slate-900/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                       />
                       <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                     </div>
@@ -283,7 +278,7 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
 
                   {/* Location */}
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-300 mb-1">
                       Location
                     </label>
                     <div className="relative">
@@ -291,8 +286,8 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                         type="text"
                         value={exp.location || ''}
                         onChange={(e) => handleUpdate(exp.id, 'location', e.target.value)}
-                        placeholder="e.g. New York, NY (or Remote)"
-                        className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
+                        placeholder="e.g. Dhaka, Bangladesh (or Remote)"
+                        className="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50/50 dark:bg-slate-900/50 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                       />
                       <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                     </div>

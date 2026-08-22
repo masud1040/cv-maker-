@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CVData } from '../../types/cv';
-import { analyzeCVForATS, INDUSTRY_KEYWORDS } from '../../utils/atsScanner';
+import { analyzeCVForATS, INDUSTRY_CATALOG } from '../../utils/atsScanner';
 import {
   Sparkles,
   CheckCircle2,
@@ -30,6 +30,8 @@ interface ATSAnalysisModalProps {
   cvData: CVData;
   onNavigateToTab?: (tabId: string) => void;
   onAddSkill?: (skill: string) => void;
+  selectedIndustry?: string;
+  onChangeIndustry?: (industry: string) => void;
 }
 
 export const ATSAnalysisModal: React.FC<ATSAnalysisModalProps> = ({
@@ -37,17 +39,28 @@ export const ATSAnalysisModal: React.FC<ATSAnalysisModalProps> = ({
   onClose,
   cvData,
   onNavigateToTab,
-  onAddSkill
+  onAddSkill,
+  selectedIndustry: propIndustry,
+  onChangeIndustry
 }) => {
   const [activeViewTab, setActiveViewTab] = useState<'checklist' | 'keywords' | 'verbs'>('checklist');
   const [filterCategory, setFilterCategory] = useState<string>('all');
-  const [selectedIndustry, setSelectedIndustry] = useState<string>('general');
+  const [internalIndustry, setInternalIndustry] = useState<string>(propIndustry || 'general');
   const [jobDescriptionInput, setJobDescriptionInput] = useState<string>('');
   const [copiedKeyword, setCopiedKeyword] = useState<string | null>(null);
 
+  const currentIndustry = propIndustry || internalIndustry;
+
+  const handleIndustryChange = (ind: string) => {
+    setInternalIndustry(ind);
+    if (onChangeIndustry) {
+      onChangeIndustry(ind);
+    }
+  };
+
   if (!isOpen) return null;
 
-  const report = analyzeCVForATS(cvData, jobDescriptionInput, selectedIndustry);
+  const report = analyzeCVForATS(cvData, jobDescriptionInput, currentIndustry);
 
   const handleCopyText = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -432,15 +445,15 @@ export const ATSAnalysisModal: React.FC<ATSAnalysisModalProps> = ({
                   </div>
 
                   <select
-                    value={selectedIndustry}
-                    onChange={(e) => setSelectedIndustry(e.target.value)}
-                    className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none"
+                    value={currentIndustry}
+                    onChange={(e) => handleIndustryChange(e.target.value)}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none cursor-pointer"
                   >
-                    <option value="general">General & Administration</option>
-                    <option value="software">Software & IT Engineering</option>
-                    <option value="office_admin">Office Administration & Clerical</option>
-                    <option value="marketing_sales">Marketing & Sales</option>
-                    <option value="finance_accounting">Finance & Accounting</option>
+                    {INDUSTRY_CATALOG.map(ind => (
+                      <option key={ind.id} value={ind.id}>
+                        {ind.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

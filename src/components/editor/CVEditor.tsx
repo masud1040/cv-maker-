@@ -866,32 +866,11 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                     {renderSectionHeader(
                       'summary',
                       'Career Summary / Objective',
-                      'Concise overview highlighting core competencies',
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleOpenAIModal({
-                            sectionKey: 'summary',
-                            fieldName: 'description',
-                            initialText: data.summary || '',
-                          })
-                        }
-                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 rounded-lg border border-indigo-200 dark:border-indigo-800 transition"
-                      >
-                        <Sparkles className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
-                        <span>AI Polish</span>
-                      </button>
+                      'Concise overview highlighting core competencies'
                     )}
                     <SummaryForm
                       summary={data.summary}
                       onChange={(summary) => setData(prev => ({ ...prev, summary }))}
-                      onOpenAIModal={() =>
-                        handleOpenAIModal({
-                          sectionKey: 'summary',
-                          fieldName: 'description',
-                          initialText: data.summary || '',
-                        })
-                      }
                     />
                   </div>
                 )}

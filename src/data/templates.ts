@@ -737,7 +737,7 @@ export const SAMPLE_GENERAL_CV: CVData = {
     place: 'Dhaka',
     submissionDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })
   },
-  summary: 'Hardworking, dedicated and honest professional with strong interpersonal communication, administrative, and computer skills. Seeking a responsible position in a reputable organization to contribute effectively and grow professionally.',
+  summary: 'To build up my career in the reputed organization where there is immense scope to and prove ones expertise and to maneuver positive contribution in organization by sincerely accomplishing the duties and responsibilities assigned to me.',
   education: [
     {
       id: 'gen-edu-1',

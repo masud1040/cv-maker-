@@ -30,7 +30,6 @@ import { ATSSectionView } from './ATSSectionView';
 import { ATSAnalysisModal } from './ATSAnalysisModal';
 import { ATSRealtimeIndicator } from './ATSRealtimeIndicator';
 import { AIImproveModal, AIImproveTarget } from './AIImproveModal';
-import { DesignTab } from './DesignTab';
 import { analyzeCVForATS } from '../../utils/atsScanner';
 import { LiveCVPreview } from '../preview/LiveCVPreview';
 import { PreviewModal } from '../PreviewModal';
@@ -55,7 +54,7 @@ import {
   UserCheck,
   FolderPlus,
   Layers,
-  Palette,
+  LayoutTemplate,
   PenTool,
   Contact,
   Sun,
@@ -107,9 +106,8 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   onToggleDarkMode
 }) => {
   const [data, setData] = useState<CVData>(cvData);
-  const [workspaceMode, setWorkspaceMode] = useState<'editor' | 'design'>('editor');
-  const [mobileTab, setMobileTab] = useState<'editor' | 'design' | 'preview'>('editor');
-  const [showSampleInDesign, setShowSampleInDesign] = useState<boolean>(true);
+  const [previewDataSource, setPreviewDataSource] = useState<'my-data' | 'demo'>('my-data');
+  const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
   const [activeTab, setActiveTab] = useState<EditorTab>('personal');
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [isATSModalOpen, setIsATSModalOpen] = useState(false);
@@ -122,11 +120,10 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   const previewRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  // Compute preview data: when in design mode with empty data or toggle ON, show populated template sample
-  const isDataEmpty = !data.personalInfo.fullName && !data.summary && (!data.experience || data.experience.length === 0) && (!data.education || data.education.length === 0);
+  // Compute preview data based on selected preview mode
   const sampleDataForCurrentTemplate = getSampleDataForTemplate(data.templateId);
 
-  const displayPreviewData: CVData = (workspaceMode === 'design' && (showSampleInDesign || isDataEmpty))
+  const displayPreviewData: CVData = (previewDataSource === 'demo')
     ? {
         ...sampleDataForCurrentTemplate,
         id: data.id,
@@ -455,7 +452,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
         <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Template Switcher Dropdown */}
           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-700 dark:text-slate-300 max-w-[110px] xs:max-w-[140px] sm:max-w-[180px]">
-            <Palette className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400 shrink-0" />
+            <LayoutTemplate className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400 shrink-0" />
             <select
               value={data.templateId}
               onChange={(e) => handleTemplateChange(e.target.value as TemplateId)}
@@ -689,17 +686,13 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
       {/* Primary Clean Sub-Header & Navigation Bar */}
       <div className="bg-slate-50/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2 flex items-center justify-between gap-2 shrink-0">
-        {/* Workspace Mode Tabs (Desktop + Mobile Unified) */}
-        <div className="flex items-center bg-slate-200/70 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-300/60 dark:border-slate-700/60 text-xs font-semibold">
-          {/* Editor Tab */}
+        {/* Mobile View Toggle (Editor vs Live Document) */}
+        <div className="flex items-center bg-slate-200/70 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-300/60 dark:border-slate-700/60 text-xs font-semibold lg:hidden">
           <button
             type="button"
-            onClick={() => {
-              setWorkspaceMode('editor');
-              setMobileTab('editor');
-            }}
+            onClick={() => setMobileTab('editor')}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-              (mobileTab === 'editor' && workspaceMode === 'editor')
+              mobileTab === 'editor'
                 ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
@@ -708,28 +701,10 @@ export const CVEditor: React.FC<CVEditorProps> = ({
             <span>Content Editor</span>
           </button>
 
-          {/* Design & Style Tab */}
-          <button
-            type="button"
-            onClick={() => {
-              setWorkspaceMode('design');
-              setMobileTab('design');
-            }}
-            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
-              workspaceMode === 'design' || mobileTab === 'design'
-                ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Palette className="w-3.5 h-3.5 text-indigo-500" />
-            <span>Design & Themes</span>
-          </button>
-
-          {/* Mobile Live Document Tab */}
           <button
             type="button"
             onClick={() => setMobileTab('preview')}
-            className={`lg:hidden px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
               mobileTab === 'preview'
                 ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -740,13 +715,20 @@ export const CVEditor: React.FC<CVEditorProps> = ({
           </button>
         </div>
 
+        {/* Desktop Left Label */}
+        <div className="hidden lg:flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+          <FileText className="w-4 h-4 text-indigo-500" />
+          <span>CV Content Sections</span>
+          <span className="text-[11px] font-normal text-slate-400">({TEMPLATES.find(t => t.id === data.templateId)?.name || 'Selected Format'})</span>
+        </div>
+
         {/* Right Actions: Quick Load Sample & Clear */}
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleLoadSampleData}
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-700 transition cursor-pointer"
-            title="Load demo sample text"
+            title="Load demo sample text into editor"
           >
             <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
             <span className="hidden sm:inline">Load Sample</span>
@@ -766,81 +748,62 @@ export const CVEditor: React.FC<CVEditorProps> = ({
 
       {/* Main Two-Panel Workspace Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden w-full max-w-full">
-        {/* LEFT COLUMN: FORM EDITOR or DESIGN CENTER */}
+        {/* LEFT COLUMN: FORM CONTENT EDITOR */}
         <div
           className={`w-full lg:w-[46%] xl:w-[42%] bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col h-[calc(100vh-108px)] lg:h-[calc(100vh-108px)] overflow-hidden min-w-0 ${
             mobileTab === 'preview' ? 'hidden lg:flex' : 'flex'
           }`}
         >
-          {workspaceMode === 'design' || mobileTab === 'design' ? (
-            /* DESIGN CENTER VIEW */
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar bg-white dark:bg-slate-900">
-              <DesignTab
-                currentTemplateId={data.templateId}
-                fontSize={data.fontSize}
-                sectionVisibility={data.sectionVisibility || {}}
-                sectionOrder={data.sectionOrder}
-                showSamplePreview={showSampleInDesign}
-                onToggleSamplePreview={setShowSampleInDesign}
-                onSelectTemplate={(templateId) => setData(prev => ({ ...prev, templateId }))}
-                onChangeFontSize={(fontSize) => setData(prev => ({ ...prev, fontSize }))}
-                onToggleVisibility={toggleSectionVisibility}
-                onChangeSectionOrder={(sectionOrder) => setData(prev => ({ ...prev, sectionOrder }))}
-              />
-            </div>
-          ) : (
-            /* FORM EDITOR VIEW */
-            <>
-              {/* Real-time ATS Score & Industry Keywords Assistant */}
-              <ATSRealtimeIndicator
-                cvData={data}
-                selectedIndustry={selectedIndustry}
-                onChangeIndustry={setSelectedIndustry}
-                onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
-                onAddSkill={handleAddSkill}
-                onOpenFullModal={() => setIsATSModalOpen(true)}
-                activeTab={activeTab}
-              />
+          {/* Real-time ATS Score & Industry Keywords Assistant */}
+          <ATSRealtimeIndicator
+            cvData={data}
+            selectedIndustry={selectedIndustry}
+            onChangeIndustry={setSelectedIndustry}
+            onNavigateToTab={(tabId) => setActiveTab(tabId as EditorTab)}
+            onAddSkill={handleAddSkill}
+            onOpenFullModal={() => setIsATSModalOpen(true)}
+            activeTab={activeTab}
+          />
 
-              {/* Section Navigation Tabs Strip */}
-              <div className="flex items-center overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 px-2 py-1.5 custom-scrollbar shrink-0 gap-1 w-full">
-                {navTabs.map(tab => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  const filled = hasContent(tab.id);
-                  const isExplicitlyHidden = data.sectionVisibility?.[tab.id] === false;
+          {/* Section Navigation Tabs Strip */}
+          <div className="flex items-center overflow-x-auto border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/80 px-2 py-1.5 custom-scrollbar shrink-0 gap-1 w-full">
+            {navTabs.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              const filled = hasContent(tab.id);
+              const isExplicitlyHidden = data.sectionVisibility?.[tab.id] === false;
 
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
-                        isActive
-                          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold shadow-xs'
-                          : isExplicitlyHidden
-                          ? 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-200/40'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-slate-900' : isExplicitlyHidden ? 'text-slate-400 dark:text-slate-600' : 'text-slate-400 dark:text-slate-500'}`} />
-                      <span className={isExplicitlyHidden && !isActive ? 'line-through text-slate-400 dark:text-slate-500' : ''}>
-                        {tab.label}
-                      </span>
-                      {isExplicitlyHidden && (
-                        <span className="text-[9px] font-bold uppercase px-1 py-0.2 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                          OFF
-                        </span>
-                      )}
-                      {filled && !isActive && !isExplicitlyHidden && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block ml-0.5"></span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
+                    isActive
+                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold shadow-xs'
+                      : isExplicitlyHidden
+                      ? 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-200/40'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/60 dark:hover:bg-slate-800'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white dark:text-slate-900' : isExplicitlyHidden ? 'text-slate-400 dark:text-slate-600' : 'text-slate-400 dark:text-slate-500'}`} />
+                  <span className={isExplicitlyHidden && !isActive ? 'line-through text-slate-400 dark:text-slate-500' : ''}>
+                    {tab.label}
+                  </span>
+                  {isExplicitlyHidden && (
+                    <span className="text-[9px] font-bold uppercase px-1 py-0.2 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                      OFF
+                    </span>
+                  )}
+                  {filled && !isActive && !isExplicitlyHidden && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block ml-0.5"></span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
-              {/* Form Content Area */}
-              <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 custom-scrollbar">
+          {/* Form Content Area */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 space-y-6 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 custom-scrollbar">
                 {activeTab === 'personal' && (
                   <PersonalInfoForm
                     data={data.personalInfo}
@@ -1003,34 +966,77 @@ export const CVEditor: React.FC<CVEditorProps> = ({
                   />
                 )}
               </div>
-            </>
-          )}
         </div>
 
         {/* RIGHT COLUMN: ARCHITECTURAL A4 DOCUMENT PREVIEW */}
         <div
-          className={`w-full lg:w-[54%] xl:w-[58%] bg-slate-200/70 dark:bg-slate-950 h-[calc(100vh-108px)] lg:h-[calc(100vh-108px)] overflow-y-auto overflow-x-hidden p-2 sm:p-6 lg:p-8 flex flex-col items-center custom-scrollbar transition-colors ${
+          className={`w-full lg:w-[54%] xl:w-[58%] bg-slate-200/70 dark:bg-slate-950 h-[calc(100vh-108px)] lg:h-[calc(100vh-108px)] overflow-y-auto overflow-x-hidden p-2 sm:p-5 lg:p-6 flex flex-col items-center custom-scrollbar transition-colors ${
             mobileTab === 'preview' ? 'flex' : 'hidden lg:flex'
           }`}
           ref={previewRef}
         >
-          <div className="w-full max-w-[794px] flex flex-col items-center">
-            {workspaceMode === 'design' && (
-              <div className="w-full mb-3 px-3.5 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center justify-between gap-2 shadow-xs border border-slate-700">
-                <span className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-                  {(showSampleInDesign || isDataEmpty) ? 'Showing populated template preview' : 'Showing your entered data'}
-                </span>
+          <div className="w-full max-w-[794px] flex flex-col items-center space-y-3">
+            {/* Live Document Data Switcher & Status Bar */}
+            <div className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between gap-2 shadow-2xs">
+              {/* Segmented Switch: Show My Data vs Demo Data */}
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700/80 text-xs font-semibold">
                 <button
                   type="button"
-                  onClick={() => setShowSampleInDesign(!showSampleInDesign)}
-                  className="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-[11px] text-white font-bold transition cursor-pointer"
+                  onClick={() => setPreviewDataSource('my-data')}
+                  className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
+                    previewDataSource === 'my-data'
+                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Show your actual entered CV data (updates live in real time as you edit)"
                 >
-                  {(showSampleInDesign || isDataEmpty) ? 'Show My Data' : 'Show Demo Sample'}
+                  <User className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>Show My Data</span>
+                  {previewDataSource === 'my-data' && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPreviewDataSource('demo')}
+                  className={`px-3 py-1.5 rounded-md flex items-center gap-1.5 transition-all cursor-pointer ${
+                    previewDataSource === 'demo'
+                      ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-2xs font-bold'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                  title="Show demo sample text for this format"
+                >
+                  <FileText className="w-3.5 h-3.5 text-indigo-500" />
+                  <span>Demo Data</span>
                 </button>
               </div>
-            )}
 
+              {/* Status Indicator & Full Preview Trigger */}
+              <div className="flex items-center gap-2">
+                {previewDataSource === 'my-data' ? (
+                  <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 px-2.5 py-1 rounded-lg border border-emerald-200 dark:border-emerald-800/60">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Live Updating
+                  </span>
+                ) : (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/50 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800/60">
+                    Demo Mode
+                  </span>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewModalOpen(true)}
+                  className="p-1.5 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition border border-slate-200 dark:border-slate-700 shadow-2xs"
+                  title="Full Screen Document Preview"
+                >
+                  <Eye className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* A4 Paper Canvas */}
             <div className="bg-white text-slate-900 shadow-md shadow-slate-400/20 dark:shadow-black/60 rounded-xs transition-shadow w-full flex justify-center">
               <LiveCVPreview data={displayPreviewData} scale={0.92} />
             </div>

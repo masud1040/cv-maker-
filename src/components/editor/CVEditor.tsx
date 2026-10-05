@@ -118,6 +118,7 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving'>('saved');
   const [showMobileMoreMenu, setShowMobileMoreMenu] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+  const exportTargetRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Compute preview data based on selected preview mode
@@ -207,9 +208,23 @@ export const CVEditor: React.FC<CVEditorProps> = ({
   const handleDownloadPDF = async () => {
     try {
       setIsDownloading(true);
-      const targetEl = previewRef.current?.querySelector('[data-pdf-content="true"]') as HTMLElement;
+      // 1. Try visible preview element first if displayed
+      let targetEl = previewRef.current?.querySelector('[data-pdf-content="true"]') as HTMLElement;
+
+      // 2. If not found or if the preview pane is hidden (e.g. on mobile editor view), use the dedicated unscaled export target
+      if (!targetEl || targetEl.offsetParent === null) {
+        targetEl = exportTargetRef.current?.querySelector('[data-pdf-content="true"]') as HTMLElement;
+      }
+
+      // 3. Fallback to any mounted data-pdf-content on page
+      if (!targetEl) {
+        targetEl = document.querySelector('[data-pdf-content="true"]') as HTMLElement;
+      }
+
       if (targetEl) {
         await generatePDFFromElement(targetEl, data.personalInfo.fullName);
+      } else {
+        alert('Could not find CV content for export. Please try again.');
       }
     } catch (err) {
       console.error('PDF generation failed:', err);
@@ -1070,6 +1085,23 @@ export const CVEditor: React.FC<CVEditorProps> = ({
         initialTarget={aiModalTarget}
         onApplyText={handleApplyAIText}
       />
+
+      {/* Offscreen Clean Target for 100% Reliable PDF Generation (Mobile & Desktop) */}
+      <div
+        ref={exportTargetRef}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: '-10000px',
+          width: '794px',
+          zIndex: -99999,
+          pointerEvents: 'none',
+          opacity: 0.01
+        }}
+        aria-hidden="true"
+      >
+        <LiveCVPreview data={displayPreviewData} scale={1} fixedScale={true} showPageBreak={false} />
+      </div>
     </div>
   );
 };

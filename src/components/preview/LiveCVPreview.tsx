@@ -13,15 +13,25 @@ interface LiveCVPreviewProps {
   scale?: number;
   interactive?: boolean;
   showPageBreak?: boolean;
+  fixedScale?: boolean;
 }
 
-export const LiveCVPreview: React.FC<LiveCVPreviewProps> = ({ data, scale = 1, showPageBreak = true }) => {
+export const LiveCVPreview: React.FC<LiveCVPreviewProps> = ({ data, scale = 1, showPageBreak = true, fixedScale = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const paperRef = useRef<HTMLDivElement>(null);
   const [autoscale, setAutoscale] = useState<number>(scale);
   const [contentHeight, setContentHeight] = useState<number>(1123);
 
   useEffect(() => {
+    if (fixedScale) {
+      setAutoscale(scale);
+      if (paperRef.current) {
+        const h = paperRef.current.scrollHeight;
+        if (h > 0) setContentHeight(Math.max(1123, h));
+      }
+      return;
+    }
+
     const updateDimensions = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.clientWidth - 16; // 16px padding clearance

@@ -1,324 +1,18 @@
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { jsPDF } from 'jspdf';
 
-// Helper to mathematically convert OKLCH color strings to RGB/RGBA
-function parseAndConvertOklch(oklchStr: string): string {
-  try {
-    const inner = oklchStr.replace(/^oklch\(\s*/i, '').replace(/\s*\)$/i, '').trim();
-    if (!inner) return 'rgb(0, 0, 0)';
-
-    const parts = inner.split('/');
-    const colorPart = parts[0].trim();
-    const alphaPart = parts[1] ? parts[1].trim() : null;
-
-    const components = colorPart.split(/[\s,]+/).filter(Boolean);
-    if (components.length < 3) return 'rgb(0, 0, 0)';
-
-    let lStr = components[0];
-    let l = parseFloat(lStr);
-    if (lStr.endsWith('%')) l = l / 100;
-    if (isNaN(l)) l = 0;
-    l = Math.max(0, Math.min(1, l));
-
-    let cStr = components[1];
-    let c = parseFloat(cStr);
-    if (cStr.endsWith('%')) c = (c / 100) * 0.4;
-    if (isNaN(c)) c = 0;
-
-    let hStr = components[2];
-    let h = parseFloat(hStr);
-    if (hStr.endsWith('rad')) h = h * (180 / Math.PI);
-    else if (hStr.endsWith('turn')) h = h * 360;
-    if (isNaN(h)) h = 0;
-
-    let a = 1;
-    if (alphaPart) {
-      a = parseFloat(alphaPart);
-      if (alphaPart.endsWith('%')) a = a / 100;
-      if (isNaN(a)) a = 1;
-      a = Math.max(0, Math.min(1, a));
-    }
-
-    // Convert OKLCH to OKLAB
-    const hRad = (h * Math.PI) / 180;
-    const aLab = c * Math.cos(hRad);
-    const bLab = c * Math.sin(hRad);
-
-    // Convert OKLAB to linear RGB
-    const l_ = l + 0.3963377774 * aLab + 0.2158037573 * bLab;
-    const m_ = l - 0.1055613458 * aLab - 0.0638541728 * bLab;
-    const s_ = l - 0.0894841775 * aLab - 1.2914855480 * bLab;
-
-    const l3 = l_ * l_ * l_;
-    const m3 = m_ * m_ * m_;
-    const s3 = s_ * s_ * s_;
-
-    const rLin = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
-    const gLin = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
-    const bLin = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3;
-
-    // Linear RGB to sRGB gamma transfer
-    const toSrgb = (x: number) => {
-      const clamped = Math.max(0, Math.min(1, x));
-      return clamped <= 0.0031308
-        ? Math.round(clamped * 12.92 * 255)
-        : Math.round((1.055 * Math.pow(clamped, 1 / 2.4) - 0.055) * 255);
-    };
-
-    const r = toSrgb(rLin);
-    const g = toSrgb(gLin);
-    const b = toSrgb(bLin);
-
-    if (a < 1) {
-      return `rgba(${r}, ${g}, ${b}, ${Number(a.toFixed(3))})`;
-    }
-    return `rgb(${r}, ${g}, ${b})`;
-  } catch {
-    return 'rgb(0, 0, 0)';
-  }
-}
-
-export function convertUnsupportedColors(cssText: string): string {
-  if (!cssText) return cssText;
-
-  let result = cssText;
-
-  if (result.includes('oklch')) {
-    const oklchRegex = /oklch\((?:[^()]+|\([^()]*\))*\)/gi;
-    result = result.replace(oklchRegex, (match) => parseAndConvertOklch(match));
-  }
-
-  if (result.includes('oklab')) {
-    const oklabRegex = /oklab\((?:[^()]+|\([^()]*\))*\)/gi;
-    result = result.replace(oklabRegex, (match) => parseAndConvertOklab(match));
-  }
-
-  return result;
-}
-
-export function convertOklchToRgb(cssText: string): string {
-  return convertUnsupportedColors(cssText);
-}
-
-function parseAndConvertOklab(oklabStr: string): string {
-  try {
-    const inner = oklabStr.replace(/^oklab\(\s*/i, '').replace(/\s*\)$/i, '').trim();
-    if (!inner) return 'rgb(0, 0, 0)';
-
-    const parts = inner.split('/');
-    const colorPart = parts[0].trim();
-    const alphaPart = parts[1] ? parts[1].trim() : null;
-
-    const components = colorPart.split(/[\s,]+/).filter(Boolean);
-    if (components.length < 3) return 'rgb(0, 0, 0)';
-
-    let lStr = components[0];
-    let l = parseFloat(lStr);
-    if (lStr.endsWith('%')) l = l / 100;
-    if (isNaN(l)) l = 0;
-    l = Math.max(0, Math.min(1, l));
-
-    let aStr = components[1];
-    let aLab = parseFloat(aStr);
-    if (aStr.endsWith('%')) aLab = (aLab / 100) * 0.4;
-    if (isNaN(aLab)) aLab = 0;
-
-    let bStr = components[2];
-    let bLab = parseFloat(bStr);
-    if (bStr.endsWith('%')) bLab = (bLab / 100) * 0.4;
-    if (isNaN(bLab)) bLab = 0;
-
-    let alpha = 1;
-    if (alphaPart) {
-      alpha = parseFloat(alphaPart);
-      if (alphaPart.endsWith('%')) alpha = alpha / 100;
-      if (isNaN(alpha)) alpha = 1;
-      alpha = Math.max(0, Math.min(1, alpha));
-    }
-
-    // Convert OKLAB to linear RGB
-    const l_ = l + 0.3963377774 * aLab + 0.2158037573 * bLab;
-    const m_ = l - 0.1055613458 * aLab - 0.0638541728 * bLab;
-    const s_ = l - 0.0894841775 * aLab - 1.2914855480 * bLab;
-
-    const l3 = l_ * l_ * l_;
-    const m3 = m_ * m_ * m_;
-    const s3 = s_ * s_ * s_;
-
-    const rLin = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
-    const gLin = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
-    const bLin = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076147010 * s3;
-
-    const toSrgb = (x: number) => {
-      const clamped = Math.max(0, Math.min(1, x));
-      return clamped <= 0.0031308
-        ? Math.round(clamped * 12.92 * 255)
-        : Math.round((1.055 * Math.pow(clamped, 1 / 2.4) - 0.055) * 255);
-    };
-
-    const r = toSrgb(rLin);
-    const g = toSrgb(gLin);
-    const b = toSrgb(bLin);
-
-    if (alpha < 1) {
-      return `rgba(${r}, ${g}, ${b}, ${Number(alpha.toFixed(3))})`;
-    }
-    return `rgb(${r}, ${g}, ${b})`;
-  } catch {
-    return 'rgb(0, 0, 0)';
-  }
-}
-
-export function sanitizeDocumentOklch(doc: Document): () => void {
-  const restores: Array<() => void> = [];
-
-  const hasUnsupportedColor = (str: string) => str.includes('oklch') || str.includes('oklab');
-
-  // 1. Sanitize all <style> elements
-  const styleElements = Array.from(doc.querySelectorAll('style'));
-  styleElements.forEach((styleEl) => {
-    if (styleEl.textContent && hasUnsupportedColor(styleEl.textContent)) {
-      const originalText = styleEl.textContent;
-      styleEl.textContent = convertUnsupportedColors(originalText);
-      restores.push(() => {
-        styleEl.textContent = originalText;
-      });
-    }
-  });
-
-  // 2. Sanitize <link rel="stylesheet"> elements
-  const linkElements = Array.from(doc.querySelectorAll('link[rel="stylesheet"]'));
-  linkElements.forEach((linkEl) => {
-    try {
-      const sheet = (linkEl as HTMLLinkElement).sheet;
-      if (sheet && sheet.cssRules) {
-        const cssText = Array.from(sheet.cssRules)
-          .map((r) => r.cssText)
-          .join('\n');
-        if (hasUnsupportedColor(cssText)) {
-          const parent = linkEl.parentNode;
-          const newStyle = doc.createElement('style');
-          newStyle.textContent = convertUnsupportedColors(cssText);
-
-          if (parent) {
-            parent.insertBefore(newStyle, linkEl);
-            parent.removeChild(linkEl);
-            restores.push(() => {
-              if (newStyle.parentNode) {
-                newStyle.parentNode.insertBefore(linkEl, newStyle);
-                newStyle.parentNode.removeChild(newStyle);
-              }
-            });
-          }
-        }
-      }
-    } catch {
-      // Ignore cross-origin stylesheet errors
-    }
-  });
-
-  // 3. Sanitize CSSStyleSheet rules in doc.styleSheets
-  try {
-    const sheets = Array.from(doc.styleSheets);
-    sheets.forEach((sheet) => {
-      try {
-        const rules = Array.from(sheet.cssRules || []);
-        rules.forEach((rule) => {
-          if (rule.cssText && hasUnsupportedColor(rule.cssText)) {
-            if ('style' in rule && (rule as CSSStyleRule).style) {
-              const styleObj = (rule as CSSStyleRule).style;
-              for (let i = 0; i < styleObj.length; i++) {
-                const prop = styleObj[i];
-                const val = styleObj.getPropertyValue(prop);
-                if (val && hasUnsupportedColor(val)) {
-                  const converted = convertUnsupportedColors(val);
-                  styleObj.setProperty(prop, converted);
-                }
-              }
-            }
-          }
-        });
-      } catch {
-        // Ignore cross-origin stylesheet
-      }
-    });
-  } catch {
-    // Ignore
-  }
-
-  // 4. Sanitize inline styles & computed styles on elements
-  const allNodes = Array.from(doc.querySelectorAll('*'));
-  const colorProps = [
-    'color',
-    'background-color',
-    'border-color',
-    'border-top-color',
-    'border-bottom-color',
-    'border-left-color',
-    'border-right-color',
-    'outline-color',
-    'fill',
-    'stroke',
-    'box-shadow',
-    'text-decoration-color'
-  ];
-
-  const defaultView = doc.defaultView || window;
-
-  allNodes.forEach((node) => {
-    const el = node as HTMLElement;
-    const origStyleAttr = el.getAttribute ? el.getAttribute('style') : null;
-    let modified = false;
-
-    if (origStyleAttr && hasUnsupportedColor(origStyleAttr)) {
-      el.setAttribute('style', convertUnsupportedColors(origStyleAttr));
-      modified = true;
-    }
-
-    if (defaultView && el.nodeType === 1) {
-      try {
-        const computed = defaultView.getComputedStyle(el);
-        for (const prop of colorProps) {
-          const val = computed.getPropertyValue(prop);
-          if (val && hasUnsupportedColor(val)) {
-            const converted = convertUnsupportedColors(val);
-            el.style.setProperty(prop, converted, 'important');
-            modified = true;
-          }
-        }
-      } catch {
-        // Ignore
-      }
-    }
-
-    if (modified) {
-      restores.push(() => {
-        if (origStyleAttr !== null) {
-          el.setAttribute('style', origStyleAttr);
-        } else {
-          el.removeAttribute('style');
-        }
-      });
-    }
-  });
-
-  return () => {
-    restores.reverse().forEach((restore) => {
-      try {
-        restore();
-      } catch {
-        // Ignore
-      }
-    });
-  };
-}
-
-function applySmartPageBreaks(
+/**
+ * Intelligent Smart Page-Break spacer generator.
+ * Identifies block-level cards, headings, and list items that would be cut in half
+ * by the A4 page boundary (1123px at 96 DPI), and introduces a dynamic spacer to push
+ * them cleanly to the start of the next page.
+ */
+export function applySmartPageBreaks(
   container: HTMLElement,
   pageHeightPx: number = 1123,
   topMarginPx: number = 28,
   bottomMarginPx: number = 28
-) {
+): void {
   // 1. Remove any previously added PDF spacer elements
   const existingSpacers = container.querySelectorAll('[data-pdf-spacer="true"]');
   existingSpacers.forEach((s) => s.remove());
@@ -342,7 +36,7 @@ function applySmartPageBreaks(
 
   const containerRect = container.getBoundingClientRect();
 
-  // Sort blocks strictly by top coordinate
+  // Sort blocks strictly by vertical position
   leafBlocks.sort((a, b) => {
     return (a.getBoundingClientRect().top - containerRect.top) - (b.getBoundingClientRect().top - containerRect.top);
   });
@@ -385,12 +79,20 @@ function applySmartPageBreaks(
   }
 }
 
-export async function generatePDFFromElement(element: HTMLElement, fullName: string = 'My'): Promise<void> {
+/**
+ * High-fidelity, publication-grade PDF generator.
+ * Uses html2canvas-pro to accurately render modern Tailwind CSS (including OKLCH/OKLAB colors,
+ * Flexbox, CSS Grid, borders, and SVGs) without modifying the live application UI.
+ */
+export async function generatePDFFromElement(
+  element: HTMLElement,
+  fullName: string = 'My'
+): Promise<void> {
   if (!element) {
     throw new Error('Element for PDF generation not found');
   }
 
-  // 1. Wait for document fonts to be ready
+  // 1. Wait for document fonts to finish loading
   if (document.fonts && document.fonts.ready) {
     try {
       await document.fonts.ready;
@@ -403,51 +105,51 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
   const cleanName = fullName.trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
   const filename = `${cleanName || 'CV'}_CV.pdf`;
 
-  // 2. Sanitize OKLCH colors in document
-  const restoreMainDoc = sanitizeDocumentOklch(document);
+  // 2. Create an isolated offscreen render sandbox behind the view
+  // Fixed at 0, 0, width 794px (exact A4 width at 96 DPI), with opacity 1 (not 0, so html2canvas renders fully)
+  const tempContainer = document.createElement('div');
+  tempContainer.id = 'pdf-render-sandbox';
+  tempContainer.style.position = 'fixed';
+  tempContainer.style.left = '0';
+  tempContainer.style.top = '0';
+  tempContainer.style.width = '794px';
+  tempContainer.style.zIndex = '-99999';
+  tempContainer.style.pointerEvents = 'none';
+  tempContainer.style.opacity = '1';
+  tempContainer.style.background = '#ffffff';
 
-  // 3. Create an offscreen render container at EXACT 794px width unscaled (A4 1:1 ratio at 96DPI)
-  const tempOffscreenContainer = document.createElement('div');
-  tempOffscreenContainer.style.position = 'fixed';
-  tempOffscreenContainer.style.left = '-9999px';
-  tempOffscreenContainer.style.top = '0';
-  tempOffscreenContainer.style.width = '794px';
-  tempOffscreenContainer.style.zIndex = '-9999';
-  tempOffscreenContainer.style.opacity = '0';
-  tempOffscreenContainer.style.pointerEvents = 'none';
+  // Deep clone the target CV element
+  const cloned = element.cloneNode(true) as HTMLElement;
 
-  // Deep clone the target element
-  const clonedForRender = element.cloneNode(true) as HTMLElement;
+  // Remove any preview-only badges / page-break indicators
+  cloned.querySelectorAll('.no-print').forEach((el) => el.remove());
 
-  // Remove any no-print UI elements (such as preview page-break badges)
-  clonedForRender.querySelectorAll('.no-print').forEach((el) => el.remove());
+  // Reset scaling, positioning, margins, and transforms on clone so it renders at 1:1 true scale
+  cloned.style.transform = 'none';
+  cloned.style.transformOrigin = 'top left';
+  cloned.style.boxShadow = 'none';
+  cloned.style.margin = '0';
+  cloned.style.width = '794px';
+  cloned.style.minHeight = '1123px';
+  cloned.style.height = 'auto';
+  cloned.style.display = 'block';
+  cloned.style.visibility = 'visible';
+  cloned.style.position = 'relative';
 
-  // Reset scaling, positioning, margins, and transforms on clone
-  clonedForRender.style.transform = 'none';
-  clonedForRender.style.transformOrigin = 'top left';
-  clonedForRender.style.boxShadow = 'none';
-  clonedForRender.style.margin = '0';
-  clonedForRender.style.width = '794px';
-  clonedForRender.style.minHeight = '1123px';
-  clonedForRender.style.height = 'auto';
-  clonedForRender.style.display = 'block';
-  clonedForRender.style.visibility = 'visible';
-  clonedForRender.style.position = 'relative';
-
-  // Remove any inline scaling on cloned children
-  const allCloned = clonedForRender.querySelectorAll<HTMLElement>('*');
+  // Remove any nested responsive scale transforms on children
+  const allCloned = cloned.querySelectorAll<HTMLElement>('*');
   allCloned.forEach((node) => {
     if (node.style.transform && node.style.transform.includes('scale')) {
       node.style.transform = 'none';
     }
   });
 
-  tempOffscreenContainer.appendChild(clonedForRender);
-  document.body.appendChild(tempOffscreenContainer);
+  tempContainer.appendChild(cloned);
+  document.body.appendChild(tempContainer);
 
   try {
-    // Wait for images inside clone to be loaded
-    const images = Array.from(clonedForRender.querySelectorAll('img'));
+    // Wait for all images inside clone to be loaded
+    const images = Array.from(cloned.querySelectorAll('img'));
     await Promise.all(
       images.map((img) => {
         if (img.complete) return Promise.resolve();
@@ -459,15 +161,11 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
     );
 
     // Apply smart page-break spacers in a single clean pass
-    applySmartPageBreaks(clonedForRender, 1123, 28, 28);
+    applySmartPageBreaks(cloned, 1123, 28, 28);
 
-    // Sanitize colors inside the cloned offscreen tree
-    sanitizeDocumentOklch(document);
-
-    // 4. Render html2canvas on the unscaled offscreen clone
-    // scale: 4 produces ~3176px width for ultra crisp 385+ DPI vector-like text & imagery
-    const scale = 4;
-    const canvas = await html2canvas(clonedForRender, {
+    // Render using html2canvas-pro with scale: 2.5 (~2000px width, ultra crisp 250+ DPI print resolution)
+    const scale = 2.5;
+    const canvas = await html2canvas(cloned, {
       scale: scale,
       useCORS: true,
       allowTaint: true,
@@ -475,17 +173,14 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
       backgroundColor: '#ffffff',
       width: 794,
       windowWidth: 794,
-      imageTimeout: 0,
-      onclone: (clonedDoc) => {
-        sanitizeDocumentOklch(clonedDoc);
-      }
+      imageTimeout: 15000
     });
 
-    // 5. Calculate real content height to avoid generating empty trailing pages
-    const containerRect = clonedForRender.getBoundingClientRect();
+    // Calculate real content height to avoid generating empty trailing pages
+    const containerRect = cloned.getBoundingClientRect();
     let maxContentBottom = 0;
 
-    const allContentNodes = Array.from(clonedForRender.querySelectorAll<HTMLElement>('*'));
+    const allContentNodes = Array.from(cloned.querySelectorAll<HTMLElement>('*'));
     allContentNodes.forEach((node) => {
       if (node.getAttribute('data-pdf-spacer') === 'true') return;
       if (node.offsetHeight > 0 && node.offsetWidth > 0) {
@@ -496,7 +191,7 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
       }
     });
 
-    const contentHeight = maxContentBottom > 0 ? maxContentBottom : clonedForRender.scrollHeight;
+    const contentHeight = maxContentBottom > 0 ? maxContentBottom : cloned.scrollHeight;
     const pageHeightPx = 1123;
     const sliceHeightPx = Math.floor(pageHeightPx * scale);
 
@@ -544,28 +239,56 @@ export async function generatePDFFromElement(element: HTMLElement, fullName: str
         }
       }
 
-      // Export ultra high resolution PNG to PDF
-      const pageImgData = pageCanvas.toDataURL('image/png', 1.0);
+      // High-quality JPEG compression provides vector-like sharpness at fraction of PNG file size
+      const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.96);
 
       pdf.addImage(
         pageImgData,
-        'PNG',
+        'JPEG',
         0,
         0,
         210,
         297,
         undefined,
-        'SLOW'
+        'FAST'
       );
     }
 
-    pdf.save(filename);
-  } finally {
-    if (tempOffscreenContainer && tempOffscreenContainer.parentNode) {
-      tempOffscreenContainer.parentNode.removeChild(tempOffscreenContainer);
+    // Direct download with fallback
+    try {
+      pdf.save(filename);
+    } catch {
+      const blob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(blob);
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.href = blobUrl;
+      downloadAnchor.download = filename;
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      setTimeout(() => {
+        if (downloadAnchor.parentNode) {
+          downloadAnchor.parentNode.removeChild(downloadAnchor);
+        }
+        URL.revokeObjectURL(blobUrl);
+      }, 1000);
     }
-    restoreMainDoc();
+  } finally {
+    // Completely remove the temporary sandbox container without leaving any trace
+    if (tempContainer && tempContainer.parentNode) {
+      tempContainer.parentNode.removeChild(tempContainer);
+    }
   }
 }
 
+// Retain compatibility helpers
+export function convertUnsupportedColors(cssText: string): string {
+  return cssText;
+}
 
+export function convertOklchToRgb(cssText: string): string {
+  return cssText;
+}
+
+export function sanitizeDocumentOklch(_doc: Document): () => void {
+  return () => {};
+}

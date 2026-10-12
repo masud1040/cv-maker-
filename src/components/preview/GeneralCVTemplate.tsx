@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData } from '../../types/cv';
+import { formatRichText } from '../../utils/richText';
 
 interface TemplateProps {
   data: CVData;
@@ -47,9 +48,9 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b-2 border-slate-800 pb-1 mb-2">
               Career Objective / Summary
             </h2>
-            <p className="text-[10pt] leading-relaxed text-slate-800 text-justify">
-              {summary}
-            </p>
+            <div className="text-[10pt] leading-relaxed text-slate-800 text-justify">
+              {formatRichText(summary)}
+            </div>
           </section>
         );
 
@@ -151,7 +152,7 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
                     {edu.gpa && <span className="font-bold text-slate-900">Result/GPA: {edu.gpa}</span>}
                   </div>
                   {edu.description && (
-                    <p className="mt-0.5 text-[9.5pt] text-slate-700 leading-normal">{edu.description}</p>
+                    <div className="mt-0.5 text-[9.5pt] text-slate-700 leading-normal">{formatRichText(edu.description)}</div>
                   )}
                 </div>
               ))}
@@ -174,11 +175,11 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
                     <span className="text-[9.5pt] font-semibold text-slate-700">{exp.startDate} – {exp.isCurrent ? 'Present' : exp.endDate}</span>
                   </div>
                   {exp.location && <div className="text-[9.5pt] italic text-slate-600">{exp.location}</div>}
-                  {exp.description && <p className="mt-0.5 text-[9.5pt] text-slate-800">{exp.description}</p>}
+                  {exp.description && <div className="mt-0.5 text-[9.5pt] text-slate-800">{formatRichText(exp.description)}</div>}
                   {exp.bullets && exp.bullets.length > 0 && (
                     <ul className="list-disc list-outside ml-4 mt-1 space-y-0.5 text-[9.5pt] text-slate-800">
                       {exp.bullets.filter(b => b.trim()).map((bullet, idx) => (
-                        <li key={idx} className="leading-snug">{bullet}</li>
+                        <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                       ))}
                     </ul>
                   )}
@@ -210,11 +211,11 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
                       Skills/Tools: {proj.technologies}
                     </div>
                   )}
-                  {proj.description && <p className="mt-0.5 text-[9.5pt] text-slate-800">{proj.description}</p>}
+                  {proj.description && <div className="mt-0.5 text-[9.5pt] text-slate-800">{formatRichText(proj.description)}</div>}
                   {proj.bullets && proj.bullets.length > 0 && (
                     <ul className="list-disc list-outside ml-4 mt-1 space-y-0.5 text-[9.5pt] text-slate-800">
                       {proj.bullets.filter(b => b.trim()).map((bullet, idx) => (
-                        <li key={idx} className="leading-snug">{bullet}</li>
+                        <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                       ))}
                     </ul>
                   )}
@@ -258,7 +259,7 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
                     <span>{extra.role}{extra.organization ? `, ${extra.organization}` : ''}</span>
                     <span className="text-[9.5pt] font-semibold text-slate-700">{extra.date}</span>
                   </div>
-                  {extra.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{extra.description}</p>}
+                  {extra.description && <div className="text-[9.5pt] text-slate-800 mt-0.5">{formatRichText(extra.description)}</div>}
                 </div>
               ))}
             </div>
@@ -291,7 +292,7 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
                   <div>
                     <span className="font-bold text-slate-900">{award.title}</span>
                     {award.issuer ? ` – ${award.issuer}` : ''}
-                    {award.description && <p className="text-[9.5pt] text-slate-700 mt-0.5">{award.description}</p>}
+                    {award.description && <div className="text-[9.5pt] text-slate-700 mt-0.5">{formatRichText(award.description)}</div>}
                   </div>
                   <span className="text-[9.5pt] text-slate-700 font-semibold shrink-0 ml-2">{award.date}</span>
                 </div>
@@ -353,7 +354,7 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
                       <div key={item.id} className="flex items-baseline">
                         <span className="font-bold text-slate-900 w-40 shrink-0">{item.title}</span>
                         <span className="font-bold text-slate-700 mx-1.5">:</span>
-                        <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                        <span className="text-slate-800 flex-1">{formatRichText(item.value || item.description)}</span>
                       </div>
                     );
                   }
@@ -363,7 +364,7 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
                         <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
                         {item.date && <span className="text-[9.5pt] font-semibold text-slate-700">{item.date}</span>}
                       </div>
-                      {item.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{item.description}</p>}
+                      {item.description && <div className="text-[9.5pt] text-slate-800 mt-0.5">{formatRichText(item.description)}</div>}
                     </div>
                   );
                 })}
@@ -376,7 +377,7 @@ export const GeneralCVTemplate: React.FC<TemplateProps> = ({ data }) => {
                       <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
                       {item.date && <span className="text-[9.5pt] font-semibold text-slate-700">{item.date}</span>}
                     </div>
-                    {item.description && <p className="text-[9.5pt] text-slate-800 mt-0.5">{item.description}</p>}
+                    {item.description && <div className="text-[9.5pt] text-slate-800 mt-0.5">{formatRichText(item.description)}</div>}
                   </div>
                 ))}
               </div>

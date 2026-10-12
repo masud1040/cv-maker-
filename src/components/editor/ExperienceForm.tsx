@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ExperienceEntry } from '../../types/cv';
 import { Briefcase, Plus, Trash2, Calendar, MapPin, Building2, ListPlus, Sparkles, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
+import { RichInput } from './RichInput';
 
 interface ExperienceFormProps {
   entries: ExperienceEntry[];
@@ -334,6 +335,18 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                     </label>
                   </div>
 
+                  {/* Role Overview */}
+                  <div className="sm:col-span-2">
+                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                      Role Overview (Optional)
+                    </label>
+                    <RichInput
+                      value={exp.description || ''}
+                      onChange={(val) => handleUpdate(exp.id, 'description', val)}
+                      placeholder="e.g. Lead engineer spearheading high-throughput backend services and cloud architecture."
+                    />
+                  </div>
+
                   {/* Bullet Points */}
                   <div className="sm:col-span-2 space-y-2 pt-1">
                     <div className="flex justify-between items-center">
@@ -353,15 +366,16 @@ export const ExperienceForm: React.FC<ExperienceFormProps> = ({ entries, onChang
                     <div className="space-y-1.5">
                       {exp.bullets.map((bullet, bIdx) => (
                         <div key={bIdx} className="flex items-center gap-1.5 group/bullet">
-                          <span className="text-slate-400 text-xs">•</span>
-                          <input
-                            type="text"
-                            value={bullet}
-                            onChange={(e) => handleBulletChange(exp.id, bIdx, e.target.value)}
-                            placeholder="e.g. Developed 12 REST API endpoints using Node.js, reducing latency by 24%."
-                            className="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
-                          />
-                          <div className="flex items-center gap-0.5">
+                          <span className="text-slate-400 text-xs shrink-0">•</span>
+                          <div className="flex-1 min-w-0">
+                            <RichInput
+                              value={bullet}
+                              onChange={(val) => handleBulletChange(exp.id, bIdx, val)}
+                              placeholder="e.g. Developed **12 REST API endpoints** using Node.js, reducing latency by *24%*."
+                              showBulletToggle={false}
+                            />
+                          </div>
+                          <div className="flex items-center gap-0.5 shrink-0">
                             {exp.bullets.length > 1 && (
                               <>
                                 <button

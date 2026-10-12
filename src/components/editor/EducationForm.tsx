@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { EducationEntry } from '../../types/cv';
 import { GraduationCap, Plus, Trash2, Calendar, MapPin, Award, Building2, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
+import { RichTextarea } from './RichTextarea';
 
 interface EducationFormProps {
   entries: EducationEntry[];
@@ -305,15 +306,13 @@ export const EducationForm: React.FC<EducationFormProps> = ({ entries, onChange 
 
                   {/* Coursework / Description */}
                   <div className="sm:col-span-2">
-                    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                      Relevant Coursework & Achievements
-                    </label>
-                    <textarea
+                    <RichTextarea
+                      label="Relevant Coursework, Honors & Achievements"
                       rows={2}
                       value={edu.description || ''}
-                      onChange={(e) => handleUpdate(edu.id, 'description', e.target.value)}
-                      placeholder="e.g. Algorithms, Distributed Systems, Machine Learning, Database Architecture."
-                      className="w-full p-2.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
+                      onChange={(val) => handleUpdate(edu.id, 'description', val)}
+                      placeholder="e.g. **Dean's List (2023)**, Algorithms, Distributed Systems, *Graduated with Distinction*."
+                      helperText="Use **bold**, *italic*, or • bullet list"
                     />
                   </div>
                 </div>

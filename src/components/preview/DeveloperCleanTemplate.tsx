@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData } from '../../types/cv';
+import { formatRichText } from '../../utils/richText';
 
 interface TemplateProps {
   data: CVData;
@@ -44,9 +45,9 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
             <h2 className="text-[10pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-1.5">
               Professional Summary
             </h2>
-            <p className="text-[8.5pt] leading-relaxed text-slate-800 text-justify">
-              {summary}
-            </p>
+            <div className="text-[8.5pt] leading-relaxed text-slate-800 text-justify">
+              {formatRichText(summary)}
+            </div>
           </section>
         );
 
@@ -184,11 +185,11 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
                   {proj.bullets && proj.bullets.length > 0 ? (
                     <ul className="list-disc list-outside ml-3.5 text-[8pt] text-slate-800 space-y-0.5 mt-0.5">
                       {proj.bullets.filter(b => b && b.trim() !== '').map((bullet, idx) => (
-                        <li key={idx} className="leading-snug">{bullet}</li>
+                        <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                       ))}
                     </ul>
                   ) : proj.description ? (
-                    <p className="text-[8pt] text-slate-800 leading-snug mt-0.5">{proj.description}</p>
+                    <div className="text-[8pt] text-slate-800 leading-snug mt-0.5">{formatRichText(proj.description)}</div>
                   ) : null}
                 </div>
               ))}
@@ -219,11 +220,11 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
                   {exp.bullets && exp.bullets.length > 0 ? (
                     <ul className="list-disc list-outside ml-3.5 text-[8pt] text-slate-800 space-y-0.5 mt-0.5">
                       {exp.bullets.filter(b => b && b.trim() !== '').map((bullet, idx) => (
-                        <li key={idx} className="leading-snug">{bullet}</li>
+                        <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                       ))}
                     </ul>
                   ) : exp.description ? (
-                    <p className="text-[8pt] text-slate-800 leading-snug mt-0.5">{exp.description}</p>
+                    <div className="text-[8pt] text-slate-800 leading-snug mt-0.5">{formatRichText(exp.description)}</div>
                   ) : null}
                 </div>
               ))}
@@ -391,7 +392,7 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
                       <div key={item.id} className="flex items-baseline">
                         <span className="font-bold text-slate-900 w-32 shrink-0">{item.title}</span>
                         <span className="font-bold text-slate-700 mx-1">:</span>
-                        <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                        <span className="text-slate-800 flex-1">{formatRichText(item.value || item.description)}</span>
                       </div>
                     );
                   }
@@ -401,7 +402,7 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
                         <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
                         {item.date && <span className="font-semibold text-slate-700">{item.date}</span>}
                       </div>
-                      {item.description && <p className="text-slate-800 leading-snug">{item.description}</p>}
+                      {item.description && <div className="text-slate-800 leading-snug">{formatRichText(item.description)}</div>}
                     </div>
                   );
                 })}
@@ -414,7 +415,7 @@ export const DeveloperCleanTemplate: React.FC<TemplateProps> = ({ data }) => {
                       <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
                       {item.date && <span className="font-semibold text-slate-700">{item.date}</span>}
                     </div>
-                    {item.description && <p className="text-slate-800 leading-snug">{item.description}</p>}
+                    {item.description && <div className="text-slate-800 leading-snug">{formatRichText(item.description)}</div>}
                   </div>
                 ))}
               </div>

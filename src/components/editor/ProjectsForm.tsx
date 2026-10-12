@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ProjectEntry } from '../../types/cv';
 import { FolderGit2, Plus, Trash2, Link as LinkIcon, ListPlus, Calendar, Sparkles, GripVertical, ArrowUp, ArrowDown } from 'lucide-react';
+import { RichInput } from './RichInput';
 
 interface ProjectsFormProps {
   entries: ProjectEntry[];
@@ -310,12 +311,10 @@ export const ProjectsForm: React.FC<ProjectsFormProps> = ({ entries, onChange, o
                     <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                       Short Overview
                     </label>
-                    <input
-                      type="text"
+                    <RichInput
                       value={proj.description || ''}
-                      onChange={(e) => handleUpdate(proj.id, 'description', e.target.value)}
-                      placeholder="e.g. Real-time distributed task execution engine handling 10k+ events/sec."
-                      className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
+                      onChange={(val) => handleUpdate(proj.id, 'description', val)}
+                      placeholder="e.g. Real-time distributed task execution engine handling **10k+ events/sec**."
                     />
                   </div>
 
@@ -338,15 +337,16 @@ export const ProjectsForm: React.FC<ProjectsFormProps> = ({ entries, onChange, o
                     <div className="space-y-1.5">
                       {proj.bullets.map((bullet, bIdx) => (
                         <div key={bIdx} className="flex items-center gap-1.5 group/bullet">
-                          <span className="text-slate-400 text-xs">•</span>
-                          <input
-                            type="text"
-                            value={bullet}
-                            onChange={(e) => handleBulletChange(proj.id, bIdx, e.target.value)}
-                            placeholder="e.g. Achieved 99.9% uptime with automated health-check failover."
-                            className="flex-1 px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
-                          />
-                          <div className="flex items-center gap-0.5">
+                          <span className="text-slate-400 text-xs shrink-0">•</span>
+                          <div className="flex-1 min-w-0">
+                            <RichInput
+                              value={bullet}
+                              onChange={(val) => handleBulletChange(proj.id, bIdx, val)}
+                              placeholder="e.g. Achieved **99.9% uptime** with automated health-check failover."
+                              showBulletToggle={false}
+                            />
+                          </div>
+                          <div className="flex items-center gap-0.5 shrink-0">
                             {proj.bullets.length > 1 && (
                               <>
                                 <button

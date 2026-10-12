@@ -1,6 +1,7 @@
 import React from 'react';
 import { CustomSection, CustomItem } from '../../types/cv';
 import { FolderPlus, Plus, Trash2 } from 'lucide-react';
+import { RichInput } from './RichInput';
 
 interface CustomSectionsFormProps {
   sections: CustomSection[];
@@ -168,13 +169,13 @@ export const CustomSectionsForm: React.FC<CustomSectionsFormProps> = ({ sections
                         placeholder="Date / Period"
                         className="px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
                       />
-                      <input
-                        type="text"
-                        value={item.description}
-                        onChange={(e) => handleUpdateItem(sec.id, item.id, 'description', e.target.value)}
-                        placeholder="Description..."
-                        className="px-3 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
-                      />
+                      <div className="sm:col-span-2">
+                        <RichInput
+                          value={item.description}
+                          onChange={(val) => handleUpdateItem(sec.id, item.id, 'description', val)}
+                          placeholder="Description or key details (supports **bold**, *italic*, • bullets)..."
+                        />
+                      </div>
                     </div>
                   </div>
                 ))}

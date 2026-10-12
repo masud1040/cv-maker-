@@ -1,6 +1,7 @@
 import React from 'react';
 import { CVData } from '../../types/cv';
 import { Mail, Phone, MapPin, Linkedin, Github, Globe } from 'lucide-react';
+import { formatRichText } from '../../utils/richText';
 
 interface TemplateProps {
   data: CVData;
@@ -288,7 +289,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
               <span>Profile Summary</span>
             </h2>
             <p className="text-[9.5pt] leading-relaxed text-slate-700 text-justify">
-              {summary}
+              {formatRichText(summary)}
             </p>
           </section>
         )}
@@ -312,11 +313,11 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                   <div className="text-[9pt] font-semibold text-slate-700 mb-1">
                     {exp.company} {exp.location ? `• ${exp.location}` : ''}
                   </div>
-                  {exp.description && <p className="text-[9pt] text-slate-700 mb-1">{exp.description}</p>}
+                  {exp.description && <div className="text-[9pt] text-slate-700 mb-1 leading-relaxed">{formatRichText(exp.description)}</div>}
                   {exp.bullets && exp.bullets.length > 0 && (
                     <ul className="list-disc list-outside ml-4 space-y-0.5 text-[9pt] text-slate-700">
                       {exp.bullets.filter(b => b.trim()).map((bullet, idx) => (
-                        <li key={idx} className="leading-snug">{bullet}</li>
+                        <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                       ))}
                     </ul>
                   )}
@@ -347,11 +348,11 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                       Technologies: {proj.technologies}
                     </div>
                   )}
-                  {proj.description && <p className="text-[9pt] text-slate-700 mt-0.5">{proj.description}</p>}
+                  {proj.description && <div className="text-[9pt] text-slate-700 mt-0.5 leading-relaxed">{formatRichText(proj.description)}</div>}
                   {proj.bullets && proj.bullets.length > 0 && (
                     <ul className="list-disc list-outside ml-4 mt-1 space-y-0.5 text-[9pt] text-slate-700">
                       {proj.bullets.filter(b => b.trim()).map((bullet, idx) => (
-                        <li key={idx} className="leading-snug">{bullet}</li>
+                        <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                       ))}
                     </ul>
                   )}
@@ -381,7 +382,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                     <span>{edu.institution}{edu.location ? `, ${edu.location}` : ''}</span>
                     {edu.gpa && <span className="font-bold text-slate-900">GPA: {edu.gpa}</span>}
                   </div>
-                  {edu.description && <p className="text-[8.5pt] text-slate-600 mt-0.5">{edu.description}</p>}
+                  {edu.description && <div className="text-[8.5pt] text-slate-600 mt-0.5">{formatRichText(edu.description)}</div>}
                 </div>
               ))}
             </div>
@@ -404,7 +405,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                     <span>{extra.role} – {extra.organization}</span>
                     <span className="text-[9pt] font-semibold text-slate-500">{extra.date}</span>
                   </div>
-                  {extra.description && <p className="text-[9pt] text-slate-700 mt-0.5">{extra.description}</p>}
+                  {extra.description && <div className="text-[9pt] text-slate-700 mt-0.5">{formatRichText(extra.description)}</div>}
                 </div>
               ))}
             </div>
@@ -432,7 +433,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                         <div key={item.id} className="flex items-baseline">
                           <span className="font-bold text-slate-900 w-32 shrink-0">{item.title}</span>
                           <span className="font-bold text-slate-700 mx-1">:</span>
-                          <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                          <span className="text-slate-800 flex-1">{formatRichText(item.value || item.description)}</span>
                         </div>
                       );
                     }
@@ -442,7 +443,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                           <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
                           {item.date && <span className="text-[8.5pt] text-slate-500">{item.date}</span>}
                         </div>
-                        {item.description && <p className="text-[8.5pt] text-slate-700 mt-0.5">{item.description}</p>}
+                        {item.description && <div className="text-[8.5pt] text-slate-700 mt-0.5">{formatRichText(item.description)}</div>}
                       </div>
                     );
                   })}
@@ -455,7 +456,7 @@ export const HRProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                         <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
                         {item.date && <span className="text-[9pt] text-slate-500">{item.date}</span>}
                       </div>
-                      {item.description && <p className="text-[9pt] text-slate-700 mt-0.5">{item.description}</p>}
+                      {item.description && <div className="text-[9pt] text-slate-700 mt-0.5">{formatRichText(item.description)}</div>}
                     </div>
                   ))}
                 </div>

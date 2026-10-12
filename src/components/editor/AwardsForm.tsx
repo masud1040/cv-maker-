@@ -1,6 +1,7 @@
 import React from 'react';
 import { AwardEntry } from '../../types/cv';
 import { Trophy, Plus, Trash2 } from 'lucide-react';
+import { RichInput } from './RichInput';
 
 interface AwardsFormProps {
   entries: AwardEntry[];
@@ -117,12 +118,10 @@ export const AwardsForm: React.FC<AwardsFormProps> = ({ entries, onChange }) => 
 
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Description (Optional)</label>
-                  <input
-                    type="text"
+                  <RichInput
                     value={award.description || ''}
-                    onChange={(e) => handleUpdate(award.id, 'description', e.target.value)}
-                    placeholder="e.g. Awarded $1,500 prize out of 80 competing teams."
-                    className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
+                    onChange={(val) => handleUpdate(award.id, 'description', val)}
+                    placeholder="e.g. Awarded **$1,500 prize** out of *80 competing teams*."
                   />
                 </div>
               </div>

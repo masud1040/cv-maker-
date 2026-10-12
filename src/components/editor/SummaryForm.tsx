@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lightbulb, Check, Copy, FileText, CheckCircle2, BookmarkPlus } from 'lucide-react';
+import { RichTextarea } from './RichTextarea';
 
 interface SummaryFormProps {
   summary: string;
@@ -53,28 +54,20 @@ export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange }) =
     onChange(text);
   };
 
-  const wordCount = summary.trim().split(/\s+/).filter(Boolean).length;
-
   return (
     <div className="space-y-5">
-      {/* Textarea Input Container */}
+      {/* Rich Text Input Container */}
       <div className="space-y-2">
-        <div className="relative">
-          <textarea
-            rows={5}
-            value={summary}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="Write your career objective or professional summary here, or select from the pre-written general options below..."
-            className="w-full p-3.5 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white focus:border-slate-900 dark:focus:border-white leading-relaxed text-slate-900 dark:text-slate-100 transition shadow-2xs resize-y"
-          />
-        </div>
+        <RichTextarea
+          rows={5}
+          value={summary}
+          onChange={onChange}
+          placeholder="Write your career objective or professional summary here, or select from the pre-written general options below..."
+          helperText="Tip: Highlight text & click Bold / Italic / Bullet or use Ctrl+B / Ctrl+I"
+        />
 
-        <div className="flex items-center justify-between px-1">
-          <span className="text-[11px] text-slate-400 font-mono">
-            {wordCount} words • {summary.length} characters
-          </span>
-
-          {summary.trim().length > 0 && (
+        {summary.trim().length > 0 && (
+          <div className="flex justify-end px-1">
             <button
               type="button"
               onClick={() => onChange('')}
@@ -82,8 +75,8 @@ export const SummaryForm: React.FC<SummaryFormProps> = ({ summary, onChange }) =
             >
               Clear text
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Ready-Made General Objectives Section */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExtracurricularEntry } from '../../types/cv';
 import { Users, Plus, Trash2 } from 'lucide-react';
+import { RichTextarea } from './RichTextarea';
 
 interface ExtracurricularFormProps {
   entries: ExtracurricularEntry[];
@@ -116,13 +117,13 @@ export const ExtracurricularForm: React.FC<ExtracurricularFormProps> = ({ entrie
                 </div>
 
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
-                  <textarea
+                  <RichTextarea
+                    label="Description & Highlights"
                     rows={2}
                     value={extra.description}
-                    onChange={(e) => handleUpdate(extra.id, 'description', e.target.value)}
-                    placeholder="e.g. Organized 4 hackathons with 350+ participants..."
-                    className="w-full px-3 py-1.5 text-xs bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-700 rounded-lg focus:outline-none focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition"
+                    onChange={(val) => handleUpdate(extra.id, 'description', val)}
+                    placeholder="e.g. Organized **4 hackathons** with 350+ participants..."
+                    helperText="Use **bold**, *italic*, or • bullet list"
                   />
                 </div>
               </div>

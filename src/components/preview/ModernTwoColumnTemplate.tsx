@@ -1,6 +1,7 @@
 import React from 'react';
 import { CVData } from '../../types/cv';
 import { Phone, Mail, Linkedin, MapPin, Github, Globe } from 'lucide-react';
+import { formatRichText } from '../../utils/richText';
 
 interface ModernTwoColumnTemplateProps {
   data: CVData;
@@ -107,9 +108,9 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
             )}
 
             {isVisible('summary') && summary && (
-              <p className="text-[8.5pt] text-slate-700 leading-snug mt-1">
-                {summary}
-              </p>
+              <div className="text-[8.5pt] text-slate-700 leading-snug mt-1">
+                {formatRichText(summary)}
+              </div>
             )}
           </div>
 
@@ -328,11 +329,11 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
                           {exp.bullets && exp.bullets.length > 0 ? (
                             <ul className="list-disc list-outside ml-3.5 text-[8pt] text-slate-700 space-y-0.5 mt-0.5">
                               {exp.bullets.map((bullet, idx) => (
-                                <li key={idx} className="leading-snug">{bullet}</li>
+                                <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                               ))}
                             </ul>
                           ) : exp.description ? (
-                            <p className="text-[8pt] text-slate-700 leading-snug mt-0.5">{exp.description}</p>
+                            <div className="text-[8pt] text-slate-700 leading-snug mt-0.5">{formatRichText(exp.description)}</div>
                           ) : null}
                         </div>
                       ))}
@@ -365,11 +366,11 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
                           {proj.bullets && proj.bullets.length > 0 ? (
                             <ul className="list-disc list-outside ml-3.5 text-[8pt] text-slate-700 space-y-0.5 mt-0.5">
                               {proj.bullets.map((b, idx) => (
-                                <li key={idx} className="leading-snug">{b}</li>
+                                <li key={idx} className="leading-snug">{formatRichText(b)}</li>
                               ))}
                             </ul>
                           ) : proj.description ? (
-                            <p className="text-[8pt] text-slate-700 leading-snug mt-0.5">{proj.description}</p>
+                            <div className="text-[8pt] text-slate-700 leading-snug mt-0.5">{formatRichText(proj.description)}</div>
                           ) : null}
                         </div>
                       ))}
@@ -390,7 +391,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
                           <span className="font-bold text-slate-900">{award.title}</span>
                           {award.issuer && ` – ${award.issuer}`}
                           {award.date && ` (${award.date})`}
-                          {award.description && <p className="text-[7.5pt] text-slate-600 mt-0.5">{award.description}</p>}
+                          {award.description && <div className="text-[7.5pt] text-slate-600 mt-0.5">{formatRichText(award.description)}</div>}
                         </li>
                       ))}
                     </ul>
@@ -416,7 +417,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
                               <div key={item.id} className="flex items-baseline">
                                 <span className="font-bold text-slate-900 w-32 shrink-0">{item.title}</span>
                                 <span className="font-bold text-slate-700 mx-1">:</span>
-                                <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                                <span className="text-slate-800 flex-1">{formatRichText(item.value || item.description)}</span>
                               </div>
                             );
                           }
@@ -427,7 +428,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
                                 {item.date && <span className="text-[8pt] font-semibold text-slate-600">{item.date}</span>}
                               </div>
                               {item.subtitle && <p className="text-[8pt] font-medium text-slate-700">{item.subtitle}</p>}
-                              {item.description && <p className="text-[8pt] text-slate-700 leading-snug">{item.description}</p>}
+                              {item.description && <div className="text-[8pt] text-slate-700 leading-snug">{formatRichText(item.description)}</div>}
                             </div>
                           );
                         })}
@@ -441,7 +442,7 @@ export const ModernTwoColumnTemplate: React.FC<ModernTwoColumnTemplateProps> = (
                               {item.date && <span className="text-[8pt] font-semibold text-slate-600">{item.date}</span>}
                             </div>
                             {item.subtitle && <p className="text-[8pt] font-medium text-slate-700">{item.subtitle}</p>}
-                            {item.description && <p className="text-[8pt] text-slate-700 leading-snug">{item.description}</p>}
+                            {item.description && <div className="text-[8pt] text-slate-700 leading-snug">{formatRichText(item.description)}</div>}
                           </div>
                         ))}
                       </div>

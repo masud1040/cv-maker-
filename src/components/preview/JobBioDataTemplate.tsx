@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData } from '../../types/cv';
+import { formatRichText } from '../../utils/richText';
 
 interface TemplateProps {
   data: CVData;
@@ -9,6 +10,7 @@ export const JobBioDataTemplate: React.FC<TemplateProps> = ({ data }) => {
   const {
     personalInfo,
     bioData,
+    summary,
     education,
     experience,
     projects,
@@ -60,6 +62,12 @@ export const JobBioDataTemplate: React.FC<TemplateProps> = ({ data }) => {
       label: 'Email id',
       value: personalInfo.email,
       condition: hasText(personalInfo.email)
+    },
+    {
+      id: 'objective',
+      label: 'Career Objective',
+      value: summary ? <span>{formatRichText(summary)}</span> : null,
+      condition: isVisible('summary') && hasText(summary)
     },
     {
       id: 'fatherName',
@@ -190,7 +198,14 @@ export const JobBioDataTemplate: React.FC<TemplateProps> = ({ data }) => {
                 <span className="font-semibold text-black">{exp.jobTitle}</span>
                 {exp.company ? ` at ${exp.company}` : ''}
                 {exp.startDate ? ` (${exp.startDate} – ${exp.isCurrent ? 'Present' : exp.endDate})` : ''}
-                {exp.description && <p className="text-[9pt] text-zinc-700 mt-0.5">{exp.description}</p>}
+                {exp.description && <div className="text-[9pt] text-zinc-700 mt-0.5 leading-relaxed">{formatRichText(exp.description)}</div>}
+                {exp.bullets && exp.bullets.length > 0 && (
+                  <ul className="list-disc list-outside ml-3.5 mt-0.5 space-y-0.5 text-[8.5pt] text-zinc-700">
+                    {exp.bullets.filter(b => b.trim()).map((bullet, bIdx) => (
+                      <li key={bIdx} className="leading-snug">{formatRichText(bullet)}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
         </div>
@@ -208,7 +223,14 @@ export const JobBioDataTemplate: React.FC<TemplateProps> = ({ data }) => {
               <div key={proj.id || idx} className="leading-snug">
                 <span className="font-semibold text-black">{proj.name}</span>
                 {proj.technologies ? ` (${proj.technologies})` : ''}
-                {proj.description ? `: ${proj.description}` : ''}
+                {proj.description && <div className="text-[9pt] text-zinc-700 mt-0.5 leading-relaxed">{formatRichText(proj.description)}</div>}
+                {proj.bullets && proj.bullets.length > 0 && (
+                  <ul className="list-disc list-outside ml-3.5 mt-0.5 space-y-0.5 text-[8.5pt] text-zinc-700">
+                    {proj.bullets.filter(b => b.trim()).map((b, bIdx) => (
+                      <li key={bIdx} className="leading-snug">{formatRichText(b)}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
             ))}
         </div>
@@ -273,12 +295,12 @@ export const JobBioDataTemplate: React.FC<TemplateProps> = ({ data }) => {
           value: (
             <div>
               {item.value ? (
-                <span>{item.value}</span>
+                <span>{formatRichText(item.value)}</span>
               ) : (
                 <div>
                   {item.subtitle && <span className="font-semibold">{item.subtitle} </span>}
                   {item.date && <span className="text-zinc-600">({item.date}) </span>}
-                  {item.description && <span>{item.description}</span>}
+                  {item.description && <span>{formatRichText(item.description)}</span>}
                 </div>
               )}
             </div>

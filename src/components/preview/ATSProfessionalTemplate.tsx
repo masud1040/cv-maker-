@@ -1,5 +1,6 @@
 import React from 'react';
 import { CVData } from '../../types/cv';
+import { formatRichText } from '../../utils/richText';
 
 interface TemplateProps {
   data: CVData;
@@ -44,9 +45,9 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
             <h2 className="text-[11pt] font-extrabold uppercase tracking-wider text-slate-900 border-b border-slate-900 pb-0.5 mb-2">
               Executive Summary
             </h2>
-            <p className="text-[9.5pt] leading-relaxed text-slate-800 text-justify">
-              {summary}
-            </p>
+            <div className="text-[9.5pt] leading-relaxed text-slate-800 text-justify">
+              {formatRichText(summary)}
+            </div>
           </section>
         );
 
@@ -115,11 +116,11 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                     <span>{exp.company}</span>
                     {exp.location && <span className="text-slate-600">{exp.location}</span>}
                   </div>
-                  {exp.description && <p className="mt-1 text-[9pt] text-slate-800 leading-relaxed">{exp.description}</p>}
+                  {exp.description && <div className="mt-1 text-[9pt] text-slate-800 leading-relaxed">{formatRichText(exp.description)}</div>}
                   {exp.bullets && exp.bullets.length > 0 && (
                     <ul className="list-disc list-outside ml-4 mt-1 space-y-0.5 text-[9pt] text-slate-800">
                       {exp.bullets.filter(b => b.trim()).map((bullet, idx) => (
-                        <li key={idx} className="leading-snug">{bullet}</li>
+                        <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                       ))}
                     </ul>
                   )}
@@ -156,11 +157,11 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                       {proj.technologies}
                     </div>
                   )}
-                  {proj.description && <p className="mt-0.5 text-[9pt] text-slate-800 leading-relaxed">{proj.description}</p>}
+                  {proj.description && <div className="mt-0.5 text-[9pt] text-slate-800 leading-relaxed">{formatRichText(proj.description)}</div>}
                   {proj.bullets && proj.bullets.length > 0 && (
                     <ul className="list-disc list-outside ml-4 mt-1 space-y-0.5 text-[9pt] text-slate-800">
                       {proj.bullets.filter(b => b.trim()).map((bullet, idx) => (
-                        <li key={idx} className="leading-snug">{bullet}</li>
+                        <li key={idx} className="leading-snug">{formatRichText(bullet)}</li>
                       ))}
                     </ul>
                   )}
@@ -222,7 +223,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                     <span className="font-medium">{edu.institution}{edu.location ? `, ${edu.location}` : ''}</span>
                     {edu.gpa && <span className="font-semibold text-slate-900">GPA: {edu.gpa}</span>}
                   </div>
-                  {edu.description && <p className="mt-0.5 text-[9pt] text-slate-700">{edu.description}</p>}
+                  {edu.description && <div className="mt-0.5 text-[9pt] text-slate-700">{formatRichText(edu.description)}</div>}
                 </div>
               ))}
             </div>
@@ -274,7 +275,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                     <span>{extra.role} – <span className="font-medium text-slate-800">{extra.organization}</span></span>
                     <span className="text-[9pt] font-semibold text-slate-700">{extra.date}</span>
                   </div>
-                  {extra.description && <p className="text-[9pt] text-slate-800 mt-0.5 leading-snug">{extra.description}</p>}
+                  {extra.description && <div className="text-[9pt] text-slate-800 mt-0.5 leading-snug">{formatRichText(extra.description)}</div>}
                 </div>
               ))}
             </div>
@@ -293,7 +294,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                 <div key={award.id} className="flex justify-between items-baseline">
                   <div>
                     <span className="font-bold text-slate-900">{award.title}</span> – <span className="text-slate-800">{award.issuer}</span>
-                    {award.description && <p className="text-[9pt] text-slate-700 mt-0.5 leading-snug">{award.description}</p>}
+                    {award.description && <div className="text-[9pt] text-slate-700 mt-0.5 leading-snug">{formatRichText(award.description)}</div>}
                   </div>
                   <span className="text-[9pt] text-slate-700 font-semibold shrink-0 ml-2">{award.date}</span>
                 </div>
@@ -353,7 +354,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                       <div key={item.id} className="flex items-baseline">
                         <span className="font-bold text-slate-900 w-36 shrink-0">{item.title}</span>
                         <span className="font-bold text-slate-600 mx-1">:</span>
-                        <span className="text-slate-800 flex-1">{item.value || item.description}</span>
+                        <span className="text-slate-800 flex-1">{formatRichText(item.value || item.description)}</span>
                       </div>
                     );
                   }
@@ -363,7 +364,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                         <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
                         {item.date && <span className="text-[9pt] font-semibold text-slate-700">{item.date}</span>}
                       </div>
-                      {item.description && <p className="text-[9pt] text-slate-800 mt-0.5">{item.description}</p>}
+                      {item.description && <div className="text-[9pt] text-slate-800 mt-0.5">{formatRichText(item.description)}</div>}
                     </div>
                   );
                 })}
@@ -376,7 +377,7 @@ export const ATSProfessionalTemplate: React.FC<TemplateProps> = ({ data }) => {
                       <span>{item.title} {item.subtitle ? `– ${item.subtitle}` : ''}</span>
                       {item.date && <span className="text-[9pt] font-semibold text-slate-700">{item.date}</span>}
                     </div>
-                    {item.description && <p className="text-[9pt] text-slate-800 mt-0.5">{item.description}</p>}
+                    {item.description && <div className="text-[9pt] text-slate-800 mt-0.5">{formatRichText(item.description)}</div>}
                   </div>
                 ))}
               </div>
